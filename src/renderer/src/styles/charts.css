@@ -1,0 +1,153 @@
+/* ============================================================
+   Series colours.
+
+   Deliberately NOT the brand palette. Brand gold is an accent, and an accent
+   makes a bad categorical ramp - four hues have to stay apart from each other,
+   not harmonise with the chrome.
+
+   These are slots 1, 2, 3 and 8 of the validated dark categorical ramp, in
+   that order. Verified with the palette validator against this app's panel
+   surface (#171c24):
+
+     lightness band  PASS   chroma floor  PASS
+     normal-vision   PASS (worst adjacent dE 26.5)
+     contrast        PASS (all >= 3:1)
+     CVD separation  WARN (aqua<->red dE 6.5 protan)
+
+   That warn is why `incoming` is drawn as a 2px LINE while you/pet/group are
+   stacked areas, and why every series carries a legend swatch and a direct
+   end-label. Shape and text carry the identity; colour only reinforces it.
+   ============================================================ */
+:root {
+  --series-you: #3987e5;
+  --series-pet: #d95926;
+  --series-group: #199e70;
+  --series-incoming: #e66767;
+
+  /* Bars that encode magnitude by length only need one hue - a ramp would
+     double-encode what the length already says. */
+  --bar-out: #3987e5;
+  --bar-mob: #e66767;
+  --bar-heal: #199e70;
+
+  /* Grid and axis are recessive: present, never competing with the marks. */
+  --chart-grid: rgba(236, 229, 214, 0.07);
+  --chart-axis: rgba(236, 229, 214, 0.28);
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  font-size: 0.72rem;
+  color: var(--text-2);
+}
+.legend .item { display: inline-flex; align-items: center; gap: 0.375rem; white-space: nowrap; }
+.legend .swatch { width: 0.75rem; height: 0.1875rem; border-radius: 1px; flex: none; }
+.legend .swatch.line { height: 0.125rem; }
+
+.chart-wrap { position: relative; width: 100%; height: 100%; min-height: 7rem; }
+.chart-wrap canvas { display: block; width: 100%; height: 100%; }
+
+/* Hover readout - an HTML overlay rather than canvas text, so it stays
+   selectable-crisp and doesn't need redrawing with the plot. */
+.chart-tip {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+  background: rgba(6, 7, 12, 0.94);
+  border: var(--line-w) solid var(--line-2);
+  border-radius: var(--r-sm);
+  padding: var(--s-2) var(--s-3);
+  font-size: 0.74rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.6);
+}
+.chart-tip .tip-row { display: flex; align-items: center; gap: 0.375rem; }
+.chart-tip .tip-row .swatch { width: 0.5rem; height: 0.5rem; border-radius: 1px; flex: none; }
+.chart-tip .tip-row .v { margin-left: auto; font-variant-numeric: tabular-nums; padding-left: var(--s-3); }
+.chart-tip .tip-head { color: var(--muted); margin-bottom: 0.1875rem; }
+
+/* ---------- Timeline ---------- */
+.tl { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+
+.tl-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border-bottom: var(--line-w) solid var(--line);
+  font-size: 0.72rem;
+  flex: none;
+}
+.tl-bar .btn { height: 1.5rem; font-size: 0.72rem; }
+
+/* The plot scrolls vertically when there are more lanes than fit; horizontal
+   movement is zoom and pan on the canvas itself, not a scrollbar, so the time
+   axis can stay pinned to the drawing. */
+.tl-plot {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  cursor: grab;
+}
+.tl-plot:active { cursor: grabbing; }
+.tl-plot canvas { display: block; width: 100%; }
+
+/* ---------- Combat log ---------- */
+.clog {
+  font-family: var(--nms-mono);
+  font-size: 0.74rem;
+  line-height: 1.65;
+  display: flex;
+  flex-direction: column;
+  user-select: text;
+}
+.clog .row {
+  display: grid;
+  grid-template-columns: 4.5rem 4rem 1fr auto;
+  gap: var(--s-3);
+  padding: 0 var(--s-2);
+  border-radius: var(--r-sm);
+  align-items: baseline;
+}
+.clog .row:hover { background: color-mix(in srgb, var(--arcane) 8%, transparent); }
+.clog .t { color: var(--muted); }
+.clog .k { color: var(--arcane); text-transform: lowercase; }
+.clog .k.miss, .clog .k.resist { color: var(--warn); }
+.clog .k.heal { color: var(--good); }
+.clog .k.death { color: var(--bad); }
+.clog .k.unparsed { color: var(--muted); }
+.clog .m { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.clog .a { color: var(--text); font-variant-numeric: tabular-nums; }
+.clog .crit { color: var(--gold-hi); }
+
+/* Narrow column: the kind column is dropped and its colour moves onto the
+   description, so the row still says what kind of event it was. */
+.clog.compact { font-size: 0.7rem; line-height: 1.55; }
+.clog.compact .row { grid-template-columns: 3.9rem 1fr auto; gap: var(--s-2); }
+.clog.compact .m.k-miss, .clog.compact .m.k-resist { color: var(--warn); }
+.clog.compact .m.k-heal { color: var(--good); }
+.clog.compact .m.k-death { color: var(--bad); }
+.clog.compact .m.k-unparsed { color: var(--muted); }
+.clog.compact .m.k-level, .clog.compact .m.k-aa { color: var(--gold-hi); }
+
+/* ---------- Toggle ---------- */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: 0.72rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+.toggle input { appearance: none; margin: 0; width: 1.75rem; height: 0.9375rem; border-radius: var(--r-pill);
+  background: var(--surface-3); border: var(--line-w) solid var(--line-2); position: relative; cursor: pointer; }
+.toggle input::after { content: ''; position: absolute; top: 1px; left: 1px; width: 0.6875rem; height: 0.6875rem;
+  border-radius: 50%; background: var(--muted); transition: transform 0.14s ease, background 0.14s ease; }
+.toggle input:checked { background: color-mix(in srgb, var(--gold) 24%, transparent); border-color: var(--gold-deep); }
+.toggle input:checked::after { transform: translateX(0.8125rem); background: var(--gold-hi); }

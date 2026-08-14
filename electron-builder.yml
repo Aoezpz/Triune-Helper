@@ -1,0 +1,85 @@
+appId: com.projecttriune.helper
+productName: Triune-Helper
+copyright: Project Triune
+
+directories:
+  buildResources: build
+  output: release/${version}
+
+# Only the built output and the bundled data - never the sources, the tests or
+# the replay harness.
+files:
+  - out/**
+  - package.json
+extraResources:
+  - from: data
+    to: data
+    filter:
+      - '**/*.json'
+  # The window sets its own icon at runtime, so the png has to ship.
+  - from: build/icon.png
+    to: build/icon.png
+
+asar: true
+
+# Stamps the packaged exe with our icon and version metadata, in place of
+# electron-builder's own step - which cannot run without a Windows privilege a
+# normal account lacks. See scripts/after-pack.cjs.
+afterPack: scripts/after-pack.cjs
+
+win:
+  # The .ico, not the .png: it carries seven sizes down to 16px, and letting
+  # Windows downscale a single 1024 image turns a hairline mark to mush in the
+  # places it is smallest.
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+  # OFF, and the icon is embedded anyway - see afterPack above.
+  #
+  # This flag bundles two jobs: signing (which we do not do, having no
+  # certificate) and editing the exe's resources (which we very much want).
+  # Turning it on makes electron-builder fetch and extract its winCodeSign
+  # cache, an archive containing macOS symlinks whose extraction needs the
+  # "Create symbolic links" privilege - so on any normal Windows account the
+  # whole packaging run dies, having downloaded five megabytes to sign nothing.
+  # Pre-extracting does not help either: it extracts to a newly named directory
+  # every run.
+  #
+  # So scripts/after-pack.cjs runs rcedit directly instead. Same result for the
+  # half we need, no privilege, no download.
+  #
+  # There is still no code-signing certificate, so SmartScreen will warn on
+  # first run until the installer builds reputation. Nothing here changes that.
+  signAndEditExecutable: false
+
+nsis:
+  # Per-user install: no admin prompt, no UAC. A companion app should not need
+  # administrator rights to read a text file.
+  #
+  # NOT one-click, and that is a reversal. One-click was chosen to be slick -
+  # Discord-style, no wizard - but it shows a progress bar and then simply
+  # closes. There is no finish page, no "installed successfully", nothing. A
+  # tester ran it and reported that it "acts like it downloads and nothing
+  # happens", which is a fair description of what it looks like: the app WAS
+  # installed and shortcuts WERE created, but the installer never said so.
+  #
+  # The assisted installer costs two extra clicks and ends on a page that says
+  # it worked, with a tick-box to launch. For anybody who has just been told by
+  # SmartScreen that this might be dangerous, visible confirmation is worth far
+  # more than the clicks it saves.
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: false
+  # The finish page's checkbox, ticked by default.
+  runAfterFinish: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Triune-Helper
+  artifactName: Triune-Helper-Setup-${version}.${ext}
+  # Leave the user's settings, alert rules and flag progress behind on
+  # uninstall - a reinstall should not silently wipe someone's rules.
+  deleteAppDataOnUninstall: false
+
+publish: null

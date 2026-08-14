@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Triune-Helper — a companion for Project Triune</title>
+<meta name="description" content="Reads the log file EverQuest already writes and turns it into a live DPS meter, fight history, alerts, loot and zone ledgers. It only ever reads.">
+<style>
+  /* Tokens lifted from the app's own theme (src/shared/theme/theme.css), so the
+     page and the thing it is selling read as one product. */
+  :root {
+    --void: #06070c; --abyss: #0a0c14;
+    --ink: #0f1319; --surface: #171c24; --surface-2: #1e242e;
+    --line: #2b3441; --line-2: #3a4552;
+    --gold: #ff8a4a; --gold-hi: #ffb289; --gold-deep: #b35422;
+    --arcane: #5aa0e0; --arcane-hi: #86c2ff;
+    --text: #ece5d6; --text-2: #b3b0a4; --muted: #8a8f98;
+    --good: #49d0a0; --warn: #e6b455;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--void);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--arcane-hi); }
+  code, kbd {
+    font-family: var(--mono);
+    font-size: 0.9em;
+    background: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+  }
+  h1, h2, h3 { font-family: var(--serif); line-height: 1.2; }
+
+  .wrap { max-width: 62rem; margin: 0 auto; padding: 0 1.25rem; }
+  section { padding: 3.5rem 0; border-top: 1px solid var(--line); }
+  section:first-of-type { border-top: 0; }
+  h2 { font-size: 1.6rem; color: var(--gold-hi); margin: 0 0 0.35rem; }
+  .sub { color: var(--muted); margin: 0 0 1.75rem; max-width: 60ch; }
+
+  /* ---- hero ---- */
+  .hero { position: relative; overflow: hidden; padding: 4.5rem 0 3.5rem; border-top: 0; }
+  .hero::before {
+    content: '';
+    position: absolute; inset: -40% -10% auto -10%; height: 70%;
+    background: radial-gradient(60% 60% at 30% 40%, rgba(255,138,74,0.13), transparent 70%),
+                radial-gradient(50% 50% at 75% 30%, rgba(90,160,224,0.11), transparent 70%);
+    filter: blur(20px);
+    pointer-events: none;
+  }
+  .hero > * { position: relative; }
+  .eyebrow {
+    text-transform: uppercase; letter-spacing: 0.22em;
+    font-size: 0.7rem; font-weight: 700; color: var(--muted); margin: 0 0 0.5rem;
+  }
+  .hero h1 { font-size: clamp(2.4rem, 6vw, 3.4rem); margin: 0 0 0.75rem; color: var(--gold-hi); }
+  .hero .lede { font-size: 1.15rem; color: var(--text-2); max-width: 46ch; margin: 0 0 1.75rem; }
+
+  .cta { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+  .btn {
+    display: inline-block;
+    padding: 0.7rem 1.4rem;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid transparent;
+  }
+  .btn.primary {
+    background: linear-gradient(180deg, var(--gold), var(--gold-deep));
+    color: #1a0d05;
+    box-shadow: 0 6px 20px rgba(255,138,74,0.22);
+  }
+  .btn.ghost { border-color: var(--line-2); color: var(--text); }
+  .btn:hover { filter: brightness(1.1); }
+  .meta { color: var(--muted); font-size: 0.85rem; }
+
+  .pledge {
+    margin-top: 2rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--good);
+    border-radius: 8px;
+    background: var(--ink);
+    max-width: 52rem;
+  }
+  .pledge b { color: var(--good); }
+
+  /* ---- shot ---- */
+  figure { margin: 0; }
+  figure img {
+    width: 100%; height: auto; display: block;
+    border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+  }
+  figcaption { color: var(--muted); font-size: 0.85rem; margin-top: 0.75rem; }
+
+  /* ---- grids ---- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1rem; }
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: linear-gradient(180deg, var(--surface), var(--ink));
+    padding: 1.1rem 1.2rem;
+  }
+  .card h3 { margin: 0 0 0.35rem; font-size: 1.05rem; color: var(--gold-hi); }
+  .card p { margin: 0; color: var(--text-2); font-size: 0.92rem; }
+
+  /* ---- steps ---- */
+  ol.steps { counter-reset: s; list-style: none; padding: 0; margin: 0; }
+  ol.steps > li {
+    counter-increment: s;
+    position: relative;
+    padding: 0 0 1.4rem 3rem;
+    border-left: 1px solid var(--line);
+    margin-left: 1rem;
+  }
+  ol.steps > li:last-child { border-left-color: transparent; padding-bottom: 0; }
+  ol.steps > li::before {
+    content: counter(s);
+    position: absolute; left: -1rem; top: 0;
+    width: 2rem; height: 2rem;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: var(--surface-2); border: 1px solid var(--line-2);
+    color: var(--gold-hi); font-weight: 700; font-size: 0.9rem;
+    font-family: var(--sans);
+  }
+  ol.steps h3 { margin: 0.15rem 0 0.3rem; font-size: 1.05rem; }
+  ol.steps p { margin: 0 0 0.5rem; color: var(--text-2); }
+
+  .warn-box {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--warn);
+    border-radius: 8px;
+    background: var(--ink);
+    padding: 0.9rem 1.1rem;
+    margin: 0.75rem 0;
+  }
+  .warn-box strong { color: var(--warn); }
+
+  ul.plain { padding-left: 1.15rem; color: var(--text-2); }
+  ul.plain li { margin-bottom: 0.45rem; }
+  ul.plain b { color: var(--text); }
+
+  footer { padding: 2.5rem 0 3.5rem; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.87rem; }
+  footer p { margin: 0 0 0.6rem; max-width: 70ch; }
+
+  @media (max-width: 40rem) {
+    section { padding: 2.5rem 0; }
+    .hero { padding: 3rem 0 2.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Project Triune</p>
+    <h1>Triune-Helper</h1>
+    <p class="lede">
+      A desktop companion that reads the log file EverQuest already writes and turns it into a
+      live DPS meter, fight history, trigger alerts, and a ledger of everywhere you have been.
+    </p>
+
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/Aoezpz/Triune-Helper/releases/latest">Download for Windows</a>
+      <a class="btn ghost" href="https://github.com/Aoezpz/Triune-Helper">View the source</a>
+      <span class="meta">Windows 10/11 · 64-bit · no admin needed</span>
+    </div>
+
+    <div class="pledge">
+      <b>It only ever reads.</b> Nothing is injected into EverQuest, no game file is touched, no
+      process memory is read, and nothing is played for you. Turn logging off and this app has
+      nothing to show. The source is here so you can check that rather than take our word for it.
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <figure>
+      <img src="img/loot.png" alt="The Loot page: a session total in platinum, splits for coin from corpses versus items the server auto-sold, income by zone, and a ranked list of what sold.">
+      <figcaption>Every number here was read out of a log file. Nothing was typed in.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>What it does</h2>
+    <p class="sub">Eleven pages, all fed by the same log tail.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Combat</h3>
+        <p>A live meter with per-skill breakdowns, a rolling DPS curve, damage by mob, procs and the raw stream. A timeline view puts one lane per skill, so misses read as gaps.</p>
+      </div>
+      <div class="card">
+        <h3>Server</h3>
+        <p>World blessings with live countdowns, who is levelling and arriving, and the auction traffic going past.</p>
+      </div>
+      <div class="card">
+        <h3>Leveling &amp; Progression</h3>
+        <p>Levels, ability points and kill rate per character. Expansion gates and Plane of Time flags tick the moment the boss dies in your log.</p>
+      </div>
+      <div class="card">
+        <h3>Leaderboards</h3>
+        <p>The server's raid boards — first clears, fastest kills, highest DPS, by bracket. Read-only; the app never submits anything.</p>
+      </div>
+      <div class="card">
+        <h3>Zones, Mobs &amp; Loot</h3>
+        <p>A lifetime ledger of where the hours went, a bestiary of what you have killed and what has killed you, and every copper the server sold for you.</p>
+      </div>
+      <div class="card">
+        <h3>Alerts &amp; Timers</h3>
+        <p>Rules over log lines with sound and speech, shareable as one string you can paste into Discord. Countdowns, plus respawn windows worked out from your own kills.</p>
+      </div>
+      <div class="card">
+        <h3>Overlays</h3>
+        <p>Always-on-top meter and stream windows. They open <b>locked</b> — clicks pass straight through to the game, so a stray click can't take focus and leave you running into a wall.</p>
+      </div>
+      <div class="card">
+        <h3>Boxing a trio</h3>
+        <p>All three clients log the same third-party lines. Summing them would triple every mob swing, so each event is counted from exactly one log. The test suite asserts three logs of a fight total exactly what one log of it totals.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Getting it running</h2>
+    <p class="sub">Two steps and one warning you should expect.</p>
+
+    <ol class="steps">
+      <li>
+        <h3>Download and run the installer</h3>
+        <p>
+          Grab <b>Triune-Helper-Setup.exe</b> from the
+          <a href="https://github.com/Aoezpz/Triune-Helper/releases/latest">latest release</a>.
+          It installs for your user only — no admin prompt — and finishes on a page with
+          <b>Run Triune-Helper</b> ticked.
+        </p>
+        <div class="warn-box">
+          <strong>Windows will say "Windows protected your PC"</strong> and offer only a
+          <em>Don't run</em> button. Click <b>More info → Run anyway</b>.
+          <br><br>
+          That is SmartScreen reacting to an unsigned installer, not a virus warning. There is no
+          code-signing certificate for this project — the reputation that suppresses the warning is
+          bought, not earned by the app being safe — so every single person will see it. If that
+          bothers you, the source is right here and you can build it yourself.
+        </div>
+      </li>
+      <li>
+        <h3>Turn logging on in game</h3>
+        <p>For <b>each character you play</b>, type:</p>
+        <p><code>/log on</code></p>
+        <p>Nothing appears in the app until you do this. It is the only setup step there is.</p>
+      </li>
+      <li>
+        <h3>Go and kill something</h3>
+        <p>
+          The app finds <code>eqlog_&lt;Character&gt;_multiclass.txt</code> by itself. If your
+          install lives somewhere unusual, point it at the right folder in <b>Preferences</b> and it
+          attaches immediately — no restart. The Combat page fills in as the log is written.
+        </p>
+        <p class="meta">
+          Played this character a while? Press <b>Preferences → History → Rebuild from logs</b> once
+          and it replays every log on disk into the ledgers, so they show your history instead of
+          starting at zero.
+        </p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Things it deliberately does not do</h2>
+    <p class="sub">Every one of these is a thing the log cannot tell us. Inventing them would be easy and dishonest.</p>
+    <ul class="plain">
+      <li><b>No XP percentage.</b> EverQuest records <em>that</em> you gained experience, never how much. AA is different — the server prints the count, so that bar is real.</li>
+      <li><b>No buff durations.</b> The log never states one. The buff board shows what is on you and how long it has been there, not how long is left.</li>
+      <li><b>No spawn timers, only estimates.</b> A respawn window here is the shortest gap between two of your own kills, which is always longer than the real timer. It says so on the page.</li>
+      <li><b>"Quiet" is not "offline".</b> EverQuest writes nothing for a character standing still in an empty zone, so silence is not proof of a logout and the app will not claim one.</li>
+      <li><b>No leaderboard submissions.</b> The game server records ranked clears itself. This only reads the boards.</li>
+      <li><b>No guessing at flags it cannot see.</b> Steps no log line announces are marked by hand and say so.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Where it keeps things</h2>
+    <p class="sub">All of it in one folder, none of it near your game.</p>
+    <p><code>%APPDATA%\triune-helper</code></p>
+    <ul class="plain">
+      <li>Settings, alert rules, flag progress and the lifetime ledgers all live there.</li>
+      <li><b>Nothing is written anywhere near your EverQuest folder.</b></li>
+      <li>Uninstall from Windows <em>Apps &amp; features</em>. That leaves the folder alone on purpose, so reinstalling doesn't wipe your rules — delete it by hand for a clean slate.</li>
+      <li>Overlays need the game in <b>borderless windowed</b> mode. Nothing can draw above exclusive fullscreen; that is how DirectX works, not something an app can route around.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>
+      <b>Source and licence.</b> MIT — the code is on
+      <a href="https://github.com/Aoezpz/Triune-Helper">GitHub</a>. The bundled buff index is derived
+      from the EverQuest client's own <code>spells_us.txt</code> and is not this project's to
+      license; see <code>data/README.md</code>.
+    </p>
+    <p>
+      <b>Credit.</b> The idea came from
+      <a href="https://github.com/jmoyers/everquest-companion">EQ Legends Companion</a> by Josh
+      Moyers — a companion app for a different server that showed what a log reader could be. No code
+      was taken from it.
+    </p>
+    <p>
+      EverQuest is a trademark of Daybreak Game Company LLC. This project is not affiliated with,
+      endorsed by, or sponsored by Daybreak. It reads a text file the game already writes, which is
+      the same ground log parsers have stood on for twenty years.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

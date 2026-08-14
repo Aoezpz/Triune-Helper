@@ -1,0 +1,39 @@
+{
+  "name": "triune-helper",
+  "version": "0.1.0",
+  "description": "Project Triune combat companion - live DPS meter, fight timeline, alerts and progression, read from your EverQuest logs.",
+  "main": "./out/main/index.js",
+  "author": "Project Triune",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev.mjs dev",
+    "start": "node scripts/dev.mjs preview",
+    "build": "npm run typecheck && electron-vite build",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "replay": "node scripts/replay.mjs",
+    "package": "npm run build && electron-builder --win --config electron-builder.yml",
+    "bundle": "node scripts/bundle.mjs",
+    "release": "npm run package && npm run bundle"
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0",
+    "node-html-parser": "^7.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.17",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^33.3.0",
+    "electron-builder": "^25.1.8",
+    "electron-vite": "^2.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8"
+  }
+}

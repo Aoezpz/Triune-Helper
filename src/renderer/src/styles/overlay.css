@@ -1,0 +1,117 @@
+/* ============================================================
+   Overlay windows.
+
+   Drawn over a running game, so the rules are different from the rest of the
+   app: no ambient layers, no gradients that cost fill rate, and a ground with
+   enough alpha to stay readable over a bright zone without blacking it out.
+   ============================================================ */
+
+.ov {
+  height: 100%;
+  /* Anchors the locked-state note along the bottom edge. */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: var(--line-w) solid rgba(58, 69, 82, 0.8);
+  border-radius: var(--r-md);
+  background: rgba(6, 7, 12, 0.82);
+  overflow: hidden;
+  /* The whole window drags, except the buttons. */
+  -webkit-app-region: drag;
+}
+.ov .no-drag { -webkit-app-region: no-drag; }
+
+/* Locked: clicks pass through, so the chrome steps back to stop competing
+   with the game behind it. */
+.ov.locked { background: rgba(6, 7, 12, 0.62); border-color: rgba(58, 69, 82, 0.35); }
+.ov.locked .ov-head { opacity: 0.35; }
+.ov.locked:hover .ov-head { opacity: 1; }
+
+.ov-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0.25rem var(--s-2);
+  border-bottom: var(--line-w) solid rgba(43, 52, 65, 0.7);
+  background: rgba(10, 12, 20, 0.6);
+  flex: none;
+  transition: opacity 0.15s ease;
+}
+.ov-t {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gold-hi);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ov-meta { font-size: 0.68rem; color: var(--text-2); white-space: nowrap; }
+
+/* Why the padlock does nothing, said along the bottom edge where there is
+   room, and only while you are looking at the window. */
+.ov-locknote {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 0.15rem var(--s-2);
+  font-size: 0.6rem;
+  text-align: center;
+  color: var(--muted);
+  background: linear-gradient(180deg, transparent, rgba(6, 7, 12, 0.85) 45%);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ov.locked:hover .ov-locknote { opacity: 1; }
+
+.ov-btn {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1;
+  padding: 0.1875rem 0.25rem;
+  cursor: pointer;
+  border-radius: var(--r-sm);
+}
+.ov-btn:hover { color: var(--text); background: rgba(255, 255, 255, 0.08); }
+
+.ov-empty { margin: 0; font-size: 0.72rem; color: var(--muted); line-height: 1.5; }
+
+.ov-body { flex: 1 1 auto; min-height: 0; overflow: hidden; padding: var(--s-1); }
+.ov-idle { display: grid; place-items: center; height: 100%; color: var(--muted); font-size: 0.74rem; }
+
+.ov-rows { display: flex; flex-direction: column; gap: 1px; }
+
+/* Rows are taller and heavier than the in-app bars: this is read at a glance,
+   mid-fight, from further away than a desktop UI is normally designed for. */
+.ov-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  height: 1.375rem;
+  padding: 0 0.375rem;
+  border-radius: var(--r-sm);
+  font-size: 0.78rem;
+  overflow: hidden;
+  background: rgba(37, 44, 56, 0.35);
+}
+.ov-fill { position: absolute; inset: 0 auto 0 0; opacity: 0.45; border-radius: var(--r-sm); }
+.ov-name {
+  position: relative;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+.ov-val { position: relative; margin-left: auto; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); }
+.ov-tot { position: relative; color: var(--text-2); font-size: 0.68rem; min-width: 3rem; text-align: right; }
+
+/* The stream overlay reuses the in-app log, just tighter. */
+.ov .clog { height: 100%; }
+.ov .clog.compact { font-size: 0.66rem; }

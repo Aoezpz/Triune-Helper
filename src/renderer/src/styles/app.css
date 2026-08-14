@@ -1,0 +1,1591 @@
+/* ============================================================
+   App shell layout: title bar across the top, sidebar down the left, the
+   active page filling the rest. Only structure lives here - every colour,
+   radius and space is a token from theme.css.
+   ============================================================ */
+
+.app {
+  display: grid;
+  grid-template-rows: var(--titlebar-h) 1fr;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  grid-template-areas:
+    'titlebar titlebar'
+    'sidebar  main';
+  height: 100%;
+  background: var(--void);
+}
+
+/* ============================================================
+   Title bar
+   ------------------------------------------------------------
+   Frameless window, so this row IS the chrome: it drags the window, and the
+   controls at its right are ours. The aurora band lives behind it.
+   ============================================================ */
+.titlebar {
+  grid-area: titlebar;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: 0 var(--s-2) 0 var(--s-4);
+  /* NOT `overflow: hidden`, however much the aurora would like it to be.
+     Clipping here also clips the Overlay dropdown, which made the menu
+     invisible and left no way to open an overlay window at all. The aurora
+     clips itself instead (see .aurora in theme.css).
+
+     The z-index puts the menu above the sidebar and the page, which come
+     later in the DOM and would otherwise paint over it. */
+  z-index: 100;
+  border-bottom: var(--line-w) solid var(--line);
+  background: linear-gradient(180deg, rgba(10, 12, 20, 0.97), rgba(10, 12, 20, 0.88));
+  -webkit-app-region: drag;
+}
+/* Buttons and inputs must stay clickable inside a drag region. */
+.titlebar button,
+.titlebar select,
+.titlebar .no-drag { -webkit-app-region: no-drag; }
+
+.titlebar > * { position: relative; z-index: 1; }
+.titlebar > .aurora { z-index: 0; opacity: 0.3; }
+
+/* A thin gold filament along the bottom edge, brightest under the brand. */
+.titlebar::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 1px;
+  z-index: 2;
+  background: linear-gradient(90deg, var(--gold) 0%, color-mix(in srgb, var(--gold) 15%, transparent) 28%, transparent 60%);
+  pointer-events: none;
+}
+
+.titlebar .brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-width: 0;
+}
+.titlebar .brand .wordmark {
+  font-family: var(--nms-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gold-hi);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.titlebar .brand .wordmark small {
+  display: block;
+  font-family: var(--nms-sans);
+  font-size: 0.52rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  margin-top: 0.125rem;
+}
+
+/* Character selector */
+.charpick {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  height: 1.875rem;
+  padding: 0 var(--s-2) 0 var(--s-3);
+  border: var(--line-w) solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: rgba(6, 7, 12, 0.6);
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  max-width: 15rem;
+}
+.charpick:hover { border-color: var(--gold-deep); }
+.charpick .slot-mark {
+  width: 0.5rem; height: 0.5rem;
+  border-radius: 1px;
+  transform: rotate(45deg);
+  flex: none;
+}
+.charpick .srv { color: var(--muted); font-weight: 500; }
+.charpick .caret {
+  border: solid var(--muted);
+  border-width: 0 1.5px 1.5px 0;
+  padding: 2.5px;
+  transform: rotate(45deg);
+  margin-left: auto;
+}
+
+/* Overlay menu */
+.ovmenu { position: relative; }
+.ovmenu .btn.on { border-color: var(--gold-deep); color: var(--gold-hi); }
+.ovmenu .caret {
+  border: solid currentColor;
+  border-width: 0 1.5px 1.5px 0;
+  padding: 2px;
+  transform: rotate(45deg) translate(-1px, -1px);
+  opacity: 0.7;
+}
+.ovmenu-pop {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  min-width: 14rem;
+  z-index: 1200;
+  padding: var(--s-2);
+  border: var(--line-w) solid var(--line-2);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+}
+.ovmenu-pop button {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  width: 100%;
+  border: 0;
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 0.84rem;
+  text-align: left;
+  padding: var(--s-2) var(--s-2);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.ovmenu-pop button:hover { background: color-mix(in srgb, var(--arcane) 12%, transparent); color: var(--arcane-hi); }
+.ovmenu-pop .tick { width: 0.75rem; color: var(--good); font-weight: 700; }
+.ovmenu-sep { height: 1px; background: var(--line); margin: var(--s-2) 0; }
+.ovmenu-note { margin: var(--s-2) var(--s-2) 0; font-size: 0.7rem; color: var(--muted); line-height: 1.45; }
+
+/* Window controls */
+.wincontrols { display: flex; gap: 0; margin-left: var(--s-2); }
+.wincontrols button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-2);
+  width: 2.75rem;
+  height: var(--titlebar-h);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.wincontrols button:hover { background: rgba(255, 255, 255, 0.07); color: var(--text); }
+.wincontrols button.close:hover { background: #b1332c; color: #fff; }
+
+/* ============================================================
+   Sidebar
+   ============================================================ */
+.sidebar {
+  grid-area: sidebar;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-right: var(--line-w) solid var(--line);
+  background: linear-gradient(180deg, var(--abyss), var(--void));
+  overflow: hidden;
+}
+.sidebar .starfield { opacity: 0.5; }
+.sidebar > * { position: relative; z-index: 1; }
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: var(--s-3) var(--s-2);
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* A nav section: a small caps heading over its own items. The heading is
+   deliberately recessive - it groups the list, it is not a thing to click. */
+.sidebar .navgroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+.sidebar .navgroup + .navgroup { margin-top: var(--s-4); }
+
+.sidebar .navgroup h2 {
+  margin: 0 0 var(--s-1);
+  padding: 0 var(--s-3);
+  font-family: inherit;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.navitem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  padding: 0.5rem var(--s-3);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease;
+}
+.navitem:hover { background: color-mix(in srgb, var(--arcane) 10%, transparent); color: var(--arcane-hi); }
+.navitem .ic { width: 1.125rem; height: 1.125rem; flex: none; opacity: 0.85; }
+.navitem .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Active item: a gold spine on the left edge plus a warm wash. */
+.navitem[aria-current='page'] {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--gold) 16%, transparent), color-mix(in srgb, var(--gold) 2%, transparent));
+  color: var(--gold-hi);
+}
+.navitem[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0.375rem; bottom: 0.375rem;
+  width: 2px;
+  border-radius: var(--r-pill);
+  background: var(--gold);
+  box-shadow: var(--glow-gold);
+}
+.navitem[aria-current='page'] .ic { opacity: 1; }
+
+.navitem:disabled { cursor: default; color: var(--muted); opacity: 0.75; }
+.navitem:disabled:hover { background: transparent; color: var(--muted); }
+.navitem .chip.dev { margin-left: auto; }
+
+.sidebar .footer {
+  flex: none;
+  padding: var(--s-3);
+  border-top: var(--line-w) solid var(--line);
+  font-size: 0.7rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+/* ============================================================
+   Main region
+   ============================================================ */
+.main {
+  grid-area: main;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(120% 80% at 50% -20%, color-mix(in srgb, var(--arcane) 5%, transparent), transparent 60%), var(--ink);
+}
+
+.page {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+/* `.page` is a scrolling flex column, so anything stacked directly in it must
+   keep its natural height. Without this, panels shrink to fit the viewport and
+   their `overflow: hidden` silently eats content off the bottom - which is not
+   a visible failure, it just looks like the fields were never written. Pages
+   that want a panel to fill the space (Combat, Alerts) opt in explicitly via
+   their own grid. */
+.page > .panel,
+.page > section.panel { flex: none; }
+
+.page-head { display: flex; align-items: center; gap: var(--s-2) var(--s-3); flex-wrap: wrap; }
+.page-head h1 { font-size: 1.45rem; }
+/* The lede always takes its own line under the title row, so a wide chip or
+   status pill on the right can't push it into a narrow column beside the h1. */
+.page-head .lede {
+  flex: 1 1 100%;
+  margin: 0;
+  color: var(--text-2);
+  font-size: 0.9rem;
+  max-width: 68ch;
+  line-height: 1.55;
+}
+
+/* Placeholder used by pages that are still stubs. */
+.stub {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 16rem;
+  border: var(--line-w) dashed var(--line-2);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.stub .empty { gap: var(--s-2); }
+.stub .empty h2 { font-size: 1.1rem; color: var(--text-2); }
+.stub .empty p { margin: 0; max-width: 44ch; line-height: 1.55; }
+
+/* ============================================================
+   Overview hero (first run)
+   ------------------------------------------------------------
+   The one screen that gets to be loud. It exists to be looked at once, so it
+   carries the aurora, the starfield and the turning crest; every screen after
+   it is a working surface and stays quiet.
+   ============================================================ */
+.hero {
+  position: relative;
+  flex: 1 1 auto;
+  display: grid;
+  place-items: center;
+  min-height: 22rem;
+  overflow: hidden;
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(60% 90% at 15% 100%, rgba(217, 99, 58, 0.22), transparent 60%),
+    radial-gradient(60% 90% at 85% 100%, color-mix(in srgb, var(--arcane) 22%, transparent), transparent 60%),
+    linear-gradient(180deg, #10151d, #0a0d13);
+}
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--s-7) var(--s-5);
+  gap: var(--s-2);
+}
+.hero-inner h1 {
+  font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.5rem);
+  line-height: 1.1;
+  margin: var(--s-2) 0 var(--s-1);
+  max-width: 18ch;
+  text-wrap: balance;
+  color: #f4ecda;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
+}
+.hero-inner .lede {
+  color: var(--text-2);
+  max-width: 58ch;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+.hero-inner .hint { color: var(--muted); font-size: 0.8rem; margin: var(--s-4) 0 0; }
+
+code {
+  font-family: var(--nms-mono);
+  font-size: 0.9em;
+  padding: 0.0625rem 0.3125rem;
+  border-radius: var(--r-sm);
+  background: rgba(6, 7, 12, 0.7);
+  border: var(--line-w) solid var(--line);
+  color: var(--arcane-hi);
+}
+
+.err { color: var(--bad); font-size: 0.8rem; }
+
+.slot-mark {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 1px;
+  transform: rotate(45deg);
+  flex: none;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: var(--s-3);
+}
+
+/* ============================================================
+   Forms
+   ============================================================ */
+.form { display: flex; flex-direction: column; gap: var(--s-5); padding: var(--s-4); }
+.field { display: flex; flex-direction: column; gap: var(--s-2); }
+.flabel { font-size: 0.8rem; font-weight: 700; color: var(--text); }
+.fhint { font-size: 0.78rem; color: var(--muted); line-height: 1.5; max-width: 62ch; }
+
+/* ============================================================
+   Combat page
+   ============================================================ */
+.combat { gap: var(--s-3); }
+
+.combat-head { flex: none; }
+.combat-head .pbody { overflow: visible; padding: var(--s-3) var(--s-4); }
+
+.fightsel {
+  max-width: 24rem;
+  min-width: 12rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+.fightsel:disabled { opacity: 0.6; }
+
+/* The chart panel stacks a plot above its legend; the plot takes what's left. */
+.chart-stack { display: flex; flex-direction: column; gap: var(--s-2); height: 100%; min-height: 0; }
+.chart-stack .chart-wrap { flex: 1 1 auto; min-height: 5rem; }
+
+/* The headline number. Gold, serif-adjacent weight, tabular so it doesn't
+   shuffle as it climbs. */
+.dps-readout { display: flex; align-items: baseline; gap: var(--s-2); }
+.dps-readout b {
+  font-size: 1.75rem;
+  line-height: 1;
+  font-weight: 800;
+  color: var(--gold-hi);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 22px color-mix(in srgb, var(--gold) 28%, transparent);
+}
+.dps-readout .unit { font-size: 0.9rem; color: var(--gold); font-weight: 700; }
+.dps-readout .dps-sub { font-size: 0.78rem; color: var(--muted); }
+
+.seg-solo {
+  appearance: none;
+  border: var(--line-w) solid var(--line-2);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.1875rem 0.5625rem;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+}
+.seg-solo[aria-pressed='true'] {
+  color: var(--arcane-hi);
+  border-color: color-mix(in srgb, var(--arcane) 50%, transparent);
+  background: color-mix(in srgb, var(--arcane) 12%, transparent);
+}
+
+/* ---- headline strip -------------------------------------------------------
+   Spans the full width above the columns. The one number everyone wants is the
+   one number that should not be inside a column. */
+.cbar {
+  position: relative;
+  flex: none;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--r-lg);
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+}
+/* A gold filament along the top edge, echoing the title bar. */
+.cbar::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-deep) 30%, var(--gold) 50%, var(--gold-deep) 70%, transparent);
+  opacity: 0.7;
+}
+
+.cbar-left { display: flex; align-items: center; gap: var(--s-3); }
+.cbar-mid { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }
+.cbar-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.125rem; }
+
+.ctitle {
+  font-family: var(--nms-serif);
+  font-size: 1.05rem;
+  color: #f0e8d6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.csub { font-size: 0.74rem; color: var(--muted); display: flex; align-items: center; }
+
+/* ---- three columns: WHO | WHAT HAPPENED | THE STREAM ---------------------- */
+.ccols {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 21rem minmax(0, 1fr) 20rem;
+  gap: var(--s-3);
+}
+.ccol-what { display: flex; flex-direction: column; gap: var(--s-3); min-height: 0; }
+.ccol-what > .panel:first-child { flex: 1 1 58%; min-height: 11rem; }
+/* Mobs | Procs | Specials. auto-fit rather than a fixed count so the third
+   panel folds away on a narrow window instead of squeezing all three. */
+.ccol-split {
+  flex: 1 1 42%;
+  min-height: 9rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  gap: var(--s-3);
+}
+
+/* Below ~1500px the stream loses its column and moves under the middle one;
+   below ~1150px everything stacks. The roster is the last thing to give up its
+   column, because it is the thing looked at most. */
+@media (max-width: 93.75em) {
+  .ccols { grid-template-columns: 20rem minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) 12rem; }
+  .ccol-log { grid-column: 1 / -1; }
+}
+@media (max-width: 71.875em) {
+  .ccols { grid-template-columns: 1fr; grid-template-rows: none; grid-auto-rows: minmax(12rem, auto); }
+  .ccol-split { grid-template-columns: 1fr; }
+}
+
+/* ---- class chips ----------------------------------------------------------
+   One colour per class, set inline from CLASS_COLOR - see shared/roster.ts for
+   why sixteen hues is the right call here and not on a chart. The border and
+   the glow both ride on currentColor, so a chip needs exactly one property set
+   to be fully themed. */
+.cchips { display: inline-flex; gap: 0.1875rem; flex: none; }
+.cchip {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  padding: 0.2rem 0.3rem;
+  border-radius: var(--r-1);
+  /* The border is the class colour at a quarter strength and the fill at a
+     tenth, so sixteen saturated hues sit on the page as sixteen quiet tints
+     rather than sixteen competing highlighter pens. The text stays full
+     strength, because the text is the part being read. */
+  border: var(--line-w) solid color-mix(in oklab, currentColor 40%, transparent);
+  background: color-mix(in oklab, currentColor 10%, rgba(6, 7, 12, 0.45));
+  color: var(--muted);
+  white-space: nowrap;
+}
+.cchips.sm .cchip { font-size: 0.55rem; padding: 0.15rem 0.25rem; }
+
+.idline { font-size: 0.68rem; color: var(--muted); }
+
+/* ---- loot ------------------------------------------------------------------
+   Every panel on this page is `flex: none`: .page is a flex column, so without
+   it the panels shrink to fit and quietly clip their own contents. */
+.loot > .panel, .loot > .loot-splits, .loot > .loot-hero { flex: none; }
+
+.loot-hero {
+  position: relative;
+  overflow: hidden;
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--r-3);
+  background: linear-gradient(160deg, rgba(23, 28, 36, 0.9), rgba(10, 12, 20, 0.9));
+  padding: var(--s-5) var(--s-4);
+  margin-bottom: var(--s-3);
+}
+.lh-in {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+}
+.lh-copy { min-width: 0; flex: 1 1 20rem; }
+.lh-copy h1 { font-family: var(--nms-serif); font-size: 2rem; margin: 0.15rem 0 0.35rem; color: var(--gold-hi); }
+.lh-copy .lede { margin: 0; max-width: 48ch; color: var(--text-2); font-size: 0.86rem; line-height: 1.5; }
+
+.lh-total { text-align: right; flex: none; }
+.lh-total .n {
+  display: block;
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.lh-total .l { font-size: 0.72rem; color: var(--muted); }
+
+.loot-splits {
+  display: grid;
+  /* 13.5rem, not 11: a full coin total is "842,190p 4g 3s 2c", and at 11rem the
+     card was narrow enough to break that across two lines mid-amount. The track
+     is sized so a six-figure platinum total stays on one line. */
+  grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr));
+  gap: var(--s-3);
+  margin-bottom: var(--s-3);
+}
+.lsplit {
+  padding: var(--s-3);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--r-2);
+  background: rgba(23, 28, 36, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.lsplit .l { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); font-weight: 700; }
+.lsplit .v { font-size: 1.15rem; font-weight: 800; color: var(--gold-hi); }
+.lsplit .sub { font-size: 0.68rem; color: var(--muted); }
+.lsplit-bar {
+  display: block;
+  height: 0.2rem;
+  margin-top: 0.3rem;
+  border-radius: var(--r-pill);
+  background: rgba(6, 7, 12, 0.6);
+  overflow: hidden;
+}
+.lsplit-bar i { display: block; height: 100%; border-radius: var(--r-pill); }
+
+.soldlist { display: flex; flex-direction: column; gap: 0.1875rem; }
+.sold {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0.3rem var(--s-2);
+  border-radius: var(--r-1);
+  font-size: 0.8rem;
+  overflow: hidden;
+}
+/* The bar sits behind the text rather than beside it: the item names are long
+   and a separate bar column would leave nothing for them. */
+.sold .s-bar {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
+  border-radius: var(--r-1);
+}
+.sold > span:not(.s-bar) { position: relative; z-index: 1; }
+/* The name is the only thing here allowed to give way. It is the one column
+   with somewhere to go - it truncates to an ellipsis and still has its tooltip
+   - whereas the count and the amount are the numbers the row exists to show,
+   and a coin total that wraps or gets clipped is worse than no row at all. So
+   both are `flex: none` and `nowrap`: as the totals grow into six figures the
+   name shortens and nothing ever lands on top of anything else. */
+.sold .s-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-2); }
+.sold .s-count { flex: none; margin-left: auto; white-space: nowrap; color: var(--muted); font-size: 0.72rem; }
+.sold .s-coin { flex: none; white-space: nowrap; color: var(--gold-hi); font-weight: 700; min-width: 7rem; text-align: right; }
+
+.disclist { display: flex; flex-direction: column; gap: 0.125rem; }
+.disc { display: flex; align-items: baseline; gap: var(--s-2); font-size: 0.78rem; min-width: 0; overflow: hidden; }
+.disc .d-when { color: var(--line-2); font-size: 0.68rem; font-variant-numeric: tabular-nums; flex: none; }
+/* 8rem is the width it would like, not a floor: `min-width` here would stop a
+   long character name shrinking and push the tier label out of the panel. */
+.disc .d-who { flex: 0 1 8rem; min-width: 0; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.disc .d-item { color: var(--text-2); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.disc .d-tier {
+  margin-left: auto;
+  flex: none;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: var(--muted);
+}
+.disc .d-tier.t-enchanted { color: #7fb8e8; }
+.disc .d-tier.t-legendary { color: #e5cc80; }
+
+/* ---- overview --------------------------------------------------------------
+   The tiles are buttons: every headline number on this page is a shortcut to
+   the page that explains it. */
+.ov > .panel, .ov > .loot-splits, .ov > .loot-hero, .ov > .ov-cols { flex: none; }
+.ovtile { text-align: left; cursor: pointer; font: inherit; }
+.ovtile:hover { border-color: var(--gold-deep); }
+.ovtile .v { font-size: 1.4rem; }
+
+.ov-cols { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--s-3); }
+@media (max-width: 71.875em) { .ov-cols { grid-template-columns: 1fr; } }
+
+.ovchars { display: flex; flex-direction: column; gap: 0.375rem; }
+.ovchar { display: flex; align-items: center; gap: var(--s-2); min-width: 0; flex-wrap: wrap; }
+.ovchar .oc-name { font-weight: 700; font-size: 0.9rem; }
+.ovchar .oc-lvl { color: var(--text-2); font-size: 0.8rem; }
+.ovchar .oc-state { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.ovchar .oc-state.live { color: var(--good); }
+.ovchar .oc-aa {
+  flex: 1 0 100%;
+  height: 0.2rem;
+  border-radius: var(--r-pill);
+  background: rgba(6, 7, 12, 0.6);
+  overflow: hidden;
+}
+.ovchar .oc-aa i { display: block; height: 100%; background: var(--gold); border-radius: var(--r-pill); }
+
+/* Characters the game has stopped writing for, set behind a label rather than
+   mixed in - the same treatment the party strip gives someone who is not in
+   your group, and for the same reason. Dimmed, not hidden: the log is still
+   being read and the totals are still theirs. */
+.ovchars-sep {
+  padding: 0.35rem var(--s-1) 0.1rem;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  font-weight: 700;
+  border-top: var(--line-w) solid var(--line);
+  margin-top: 0.2rem;
+}
+.ovchar.apart { opacity: 0.6; }
+
+.ovflags {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.ovflags .of-pct { font-size: 1.6rem; font-weight: 800; color: var(--gold-hi); line-height: 1; }
+.ovflags .of-bar { height: 0.3rem; border-radius: var(--r-pill); background: rgba(6, 7, 12, 0.6); overflow: hidden; }
+.ovflags .of-bar i { display: block; height: 100%; background: var(--gold); border-radius: var(--r-pill); }
+.ovflags .of-sub { font-size: 0.7rem; color: var(--muted); }
+
+/* ---- zones -----------------------------------------------------------------
+   A table, because eight comparable numbers per row is what a table is for.
+   The share bar rides behind the row rather than in a column of its own, so
+   the zone names keep the width they need. */
+.zones > .panel, .zones > .loot-hero { flex: none; }
+
+.ztable { display: flex; flex-direction: column; gap: 0.125rem; }
+.zrow {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) repeat(7, minmax(3.5rem, 5rem));
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0.35rem var(--s-2);
+  border-radius: var(--r-1);
+  font-size: 0.8rem;
+  overflow: hidden;
+}
+.zrow > span { position: relative; z-index: 1; }
+.zrow .z-bar {
+  position: absolute;
+  z-index: 0;
+  left: 0; top: 0; bottom: 0;
+  background: color-mix(in srgb, var(--arcane) 12%, transparent);
+  border-radius: var(--r-1);
+}
+.zrow .z-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-2); }
+.zrow .z-n { text-align: right; font-variant-numeric: tabular-nums; }
+.zrow .z-n.dim { color: var(--muted); }
+.zrow .z-n.bad { color: var(--bad); font-weight: 700; }
+
+/* The bestiary needs a wider first column: mob names run long and the numeric
+   columns are narrower than the zone table's. */
+.zrow.mrow { grid-template-columns: minmax(0, 1.6fr) repeat(7, minmax(3.25rem, 4.5rem)); }
+
+.zrow.zhead {
+  background: none;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  font-weight: 700;
+  border-bottom: var(--line-w) solid var(--line);
+  border-radius: 0;
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.15rem;
+}
+
+/* Below this the numeric columns stop fitting; the table scrolls sideways
+   rather than crushing the zone names into two characters. */
+@media (max-width: 71.875em) {
+  .ztable { overflow-x: auto; }
+  .zrow { min-width: 44rem; }
+}
+
+/* Boxed characters who are not in this group. Dimmed and set behind a label
+   rather than dropped, because they are still yours and still being read -
+   they are just not standing next to you. */
+.party-apart {
+  padding: 0.3rem var(--s-2) 0.1rem;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  font-weight: 700;
+  border-top: var(--line-w) solid var(--line);
+  margin-top: 0.2rem;
+}
+.pty.apart { opacity: 0.55; }
+
+/* ---- server page ----------------------------------------------------------
+   Three unrelated things that share one caveat, so they share a page but not a
+   table shape. */
+.applied {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0.4rem var(--s-3);
+  margin-bottom: var(--s-2);
+  border-radius: var(--r-md);
+  border: var(--line-w) solid var(--gold-deep);
+  background: color-mix(in srgb, var(--gold) 8%, transparent);
+  font-size: 0.82rem;
+}
+.applied .a-dot {
+  width: 0.45rem; height: 0.45rem;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: var(--glow-gold);
+  flex: none;
+}
+.applied .dim { color: var(--muted); font-size: 0.72rem; }
+
+.zrow.brow { grid-template-columns: minmax(0, 1.6fr) 6rem 5rem 6rem; }
+.zrow.brow.up { background: color-mix(in srgb, var(--gold) 7%, transparent); }
+.zrow.brow .z-bar { background: color-mix(in srgb, var(--gold) 12%, transparent); }
+.zrow.brow .z-n.good { color: var(--gold-hi); font-weight: 700; }
+.zrow.crow { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.5fr) 3.5rem 5.5rem; }
+.zrow.crow .z-name {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  color: var(--text);
+  min-width: 0;
+}
+.zrow.crow .z-name > :first-child { overflow: hidden; text-overflow: ellipsis; }
+.c-classes {
+  min-width: 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.s-first {
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: var(--line-w) solid var(--gold-deep);
+  border-radius: var(--r-pill);
+  padding: 0 0.35rem;
+}
+
+.triogrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: var(--s-2);
+  margin-bottom: var(--s-2);
+}
+.triocard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: var(--s-2) var(--s-3);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.triocard { min-width: 0; }
+.triocard .tc-n { font-size: 1.1rem; font-weight: 800; color: var(--gold-hi); line-height: 1; }
+/* Wraps between classes, never through one. */
+.triocard .tc-t {
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.76rem;
+  color: var(--text-2);
+  line-height: 1.35;
+  min-width: 0;
+}
+.triocard .tc-c { white-space: nowrap; }
+.triocard .tc-slash { font-style: normal; color: var(--line-2); margin: 0 0.15rem; }
+.triocard .tc-first {
+  font-size: 0.62rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.offers { display: flex; flex-direction: column; gap: 0.125rem; }
+.offer {
+  display: grid;
+  grid-template-columns: 2.6rem 7rem minmax(0, 1fr) 5rem;
+  align-items: baseline;
+  gap: var(--s-2);
+  padding: 0.3rem var(--s-2);
+  border-radius: var(--r-1);
+  font-size: 0.78rem;
+}
+.offer:nth-child(odd) { background: rgba(255, 255, 255, 0.02); }
+.offer .o-tag {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  border-radius: var(--r-pill);
+  border: var(--line-w) solid currentColor;
+  padding: 0 0.2rem;
+}
+.offer .o-tag.sell { color: var(--good); }
+.offer .o-tag.buy { color: var(--arcane-hi); }
+.offer .o-tag.trade { color: var(--warn); }
+.offer .o-tag.none { color: var(--muted); }
+.offer .o-who { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.offer .o-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.offer .o-when { text-align: right; font-size: 0.68rem; }
+.offer .o-sep { color: var(--line-2); margin: 0 0.35rem; }
+
+/* ---- buff board & target card (Combat) ---- */
+.buffs { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-bottom: var(--s-2); }
+.buff {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--r-pill);
+  border: var(--line-w) solid var(--line-2);
+  background: color-mix(in srgb, var(--arcane) 8%, transparent);
+  font-size: 0.76rem;
+}
+.buff.quiet { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 10%, transparent); }
+.buff .b-name { color: var(--text); }
+.buff .b-who { font-size: 0.62rem; color: var(--muted); }
+.buff .b-tag { font-size: 0.62rem; color: var(--arcane-hi); font-variant-numeric: tabular-nums; }
+.buff.quiet .b-tag { color: var(--warn); }
+.buff .b-tag.dim { color: var(--muted); }
+
+.tgt { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: var(--s-2); }
+.tgt .tgt-name { font-size: 1.05rem; font-weight: 700; color: var(--gold-hi); }
+.tgt .tgt-con { font-size: 0.78rem; color: var(--text-2); }
+.tgt .tgt-con.dim { color: var(--muted); font-style: italic; }
+.tgt .tgt-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  font-size: 0.74rem;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+.tgt .tgt-stats b { color: var(--text); }
+.tgt .tgt-stats .bad { color: var(--bad); }
+.tgt .tgt-stats.dim { color: var(--muted); }
+
+/* ---- colour scheme picker -------------------------------------------------
+   The swatch is a literal, not a token: it has to show a scheme you are NOT
+   currently using, so it cannot be drawn from the live variables. */
+.themegrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: var(--s-2);
+}
+.themecard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: var(--s-2) var(--s-3);
+  border: var(--line-w) solid var(--line-2);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--text-2);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.14s ease, background 0.14s ease;
+}
+.themecard:hover { border-color: var(--gold-deep); }
+.themecard.on {
+  border-color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 8%, var(--surface-2));
+}
+.themecard .tc-swatch {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 1.75rem;
+  padding: 0 0.5rem;
+  border-radius: var(--r-sm);
+  border: var(--line-w) solid rgba(255, 255, 255, 0.09);
+}
+.themecard .tc-swatch i {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  display: block;
+}
+.themecard .tc-name { font-size: 0.84rem; font-weight: 700; color: var(--text); }
+.themecard.on .tc-name { color: var(--gold-hi); }
+.themecard .tc-note { font-size: 0.68rem; color: var(--muted); line-height: 1.35; }
+
+/* ---- timers ----------------------------------------------------------------
+   Two tables of different shape on one page: countdowns are a row of controls
+   around one big number, spawn windows reuse the zone table because they are
+   the same kind of thing - one entity, several comparable numbers. */
+
+.tm-new { display: flex; gap: var(--s-2); margin-bottom: var(--s-2); }
+.tm-new input { flex: 1; min-width: 0; }
+.tm-new .tm-len { flex: none; width: 5.5rem; text-align: center; font-variant-numeric: tabular-nums; }
+.tm-new input[aria-invalid='true'] { border-color: var(--bad); }
+
+.tm-presets {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--s-3);
+  font-size: 0.72rem;
+}
+
+/* A small pressable chip. Used for presets, the repeat toggle, the row
+   controls and the pin - all of them "one word, one job" buttons that would
+   look absurd at full .btn size. */
+.chipbtn {
+  flex: none;
+  padding: 0.2rem 0.5rem;
+  border: var(--line-w) solid var(--line-2);
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-2);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+.chipbtn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold-hi); }
+.chipbtn:disabled { opacity: 0.4; cursor: default; }
+.chipbtn[aria-pressed='true'], .chipbtn.on { border-color: var(--gold); color: var(--gold-hi); background: color-mix(in srgb, var(--gold) 12%, transparent); }
+.chipbtn.x:hover { border-color: var(--bad); color: var(--bad); }
+
+.tm-list { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: var(--s-3); }
+.tm-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0.4rem var(--s-2);
+  border-radius: var(--r-1);
+  border: var(--line-w) solid var(--line);
+  overflow: hidden;
+}
+.tm-row > * { position: relative; z-index: 1; }
+/* Drains left to right as time runs out, so the bar and the number agree. */
+.tm-fill {
+  position: absolute;
+  z-index: 0;
+  left: 0; top: 0; bottom: 0;
+  background: color-mix(in srgb, var(--arcane) 14%, transparent);
+  transition: width 0.25s linear;
+}
+.tm-row.off { opacity: 0.6; }
+.tm-row.done { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 8%, transparent); }
+.tm-row.done .tm-clock { color: var(--gold-hi); }
+
+.tm-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.82rem; }
+.tm-clock { flex: none; font-size: 1.15rem; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.tm-of { flex: none; font-size: 0.68rem; color: var(--muted); width: 3rem; text-align: right; }
+.tm-sound { flex: none; width: 5rem; font-size: 0.7rem; padding: 0.15rem 0.3rem; }
+
+.tm-sub {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: var(--s-3) 0 var(--s-2);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+/* Six numbers plus a pin. Narrower than the bestiary because the durations are
+   short strings ("22m") rather than counts. */
+.zrow.srow { grid-template-columns: minmax(0, 1.7fr) repeat(5, minmax(3.25rem, 4.75rem)) 2.25rem; }
+.zrow.srow.up { background: color-mix(in srgb, var(--gold) 7%, transparent); }
+.zrow.srow .z-n.good { color: var(--gold-hi); font-weight: 700; }
+.zrow.srow .z-name { display: flex; align-items: baseline; gap: var(--s-2); color: var(--text); }
+.zrow.srow .s-zone { font-size: 0.68rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zrow.srow .z-bar { background: color-mix(in srgb, var(--gold) 10%, transparent); }
+.zrow.srow .z-n:last-child { text-align: right; }
+
+/* ---- hover cards ----------------------------------------------------------
+   Portalled to <body> at fixed coordinates, so a card can escape the panel it
+   was triggered from - every surface it appears on clips its own overflow. */
+.tipped { border-bottom: 1px dotted var(--line-2); cursor: help; }
+.tipped:hover { border-bottom-color: var(--gold); color: var(--gold-hi); }
+.lootname { color: var(--gold-hi); }
+
+.tipcard {
+  position: fixed;
+  z-index: 900;
+  width: 20rem;
+  max-width: calc(100vw - 2rem);
+  padding: var(--s-2) var(--s-3);
+  border: var(--line-w) solid var(--line-2);
+  border-radius: var(--r-2);
+  background: rgba(14, 18, 25, 0.97);
+  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.65);
+  /* Cannot be hovered itself. The card follows the cursor's dwell, so letting
+     it take pointer events would mean it could steal the mouseleave that is
+     supposed to dismiss it and then sit there forever. */
+  pointer-events: none;
+  animation: tip-in 0.12s ease-out;
+}
+@keyframes tip-in {
+  from { opacity: 0; transform: translateY(-0.25rem); }
+  to   { opacity: 1; transform: none; }
+}
+
+.tc-head { display: flex; align-items: baseline; gap: var(--s-2); margin-bottom: 0.375rem; }
+.tc-name { font-family: var(--nms-serif); font-size: 0.95rem; color: var(--gold-hi); font-weight: 600; }
+.tc-kind {
+  margin-left: auto;
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--line-2);
+}
+
+.tc-meta { font-size: 0.72rem; color: var(--muted); }
+.tc-fx {
+  margin: 0.375rem 0;
+  padding: 0.375rem 0 0.375rem 0.75rem;
+  list-style: none;
+  border-left: 2px solid var(--arcane);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+  font-size: 0.76rem;
+  color: var(--text-2);
+}
+.tc-cost { font-size: 0.72rem; color: var(--muted); margin-top: 0.25rem; }
+.tc-classes { display: flex; flex-wrap: wrap; gap: 0.1875rem; margin-top: 0.5rem; }
+
+.tc-stats {
+  margin-top: 0.375rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.125rem var(--s-3);
+}
+.tc-stat { display: flex; align-items: baseline; gap: var(--s-2); font-size: 0.74rem; }
+.tc-stat .l { color: var(--muted); }
+.tc-stat .v { margin-left: auto; color: var(--text); font-weight: 600; }
+.tc-extras {
+  margin-top: 0.5rem;
+  padding-top: 0.375rem;
+  border-top: var(--line-w) solid var(--line);
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+/* ---- party strip ----------------------------------------------------------
+   Sits above the ranked list, inside the WHO panel but outside its scroll
+   area: who you are playing with does not scroll away while you read who did
+   the most damage. */
+.party {
+  padding: var(--s-2) var(--s-3);
+  border-bottom: var(--line-w) solid var(--line);
+  background: rgba(6, 7, 12, 0.25);
+  flex: none;
+}
+.party-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-bottom: 0.375rem;
+}
+.party-head .t {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  font-weight: 700;
+}
+.party-head .n { font-size: 0.68rem; color: var(--line-2); }
+.party-busy { font-size: 0.62rem; color: var(--muted); font-style: italic; }
+.party-sync {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: var(--line-2);
+  font-size: 0.8rem;
+  line-height: 1;
+  padding: 0.1rem 0.2rem;
+  cursor: pointer;
+  border-radius: var(--r-1);
+}
+.party-sync:hover:not(:disabled) { color: var(--gold); background: color-mix(in srgb, var(--gold) 10%, transparent); }
+.party-sync:disabled { opacity: 0.4; cursor: default; }
+
+.party-rows { display: flex; flex-direction: column; gap: 0.1875rem; }
+.pty { display: flex; align-items: center; gap: var(--s-2); min-width: 0; }
+.pty-mark { width: 0.375rem; height: 0.375rem; border-radius: 1px; transform: rotate(45deg); flex: none; }
+.pty-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pty-lvl { font-size: 0.7rem; color: var(--muted); flex: none; }
+.pty-unknown { font-size: 0.62rem; color: var(--line-2); flex: none; }
+
+/* ---- roster --------------------------------------------------------------- */
+.roster { display: flex; flex-direction: column; gap: var(--s-2); }
+
+.rcard {
+  border: var(--line-w) solid transparent;
+  border-radius: var(--r-md);
+  padding: var(--s-2);
+  background: rgba(37, 44, 56, 0.28);
+  transition: border-color 0.14s ease, background 0.14s ease;
+}
+.rcard:hover { background: rgba(37, 44, 56, 0.45); }
+.rcard.open { border-color: var(--line-2); background: rgba(37, 44, 56, 0.55); }
+
+.rhead {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  width: 100%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  cursor: pointer;
+  text-align: left;
+}
+.rrank { color: var(--muted); font-size: 0.72rem; min-width: 1ch; font-variant-numeric: tabular-nums; }
+.rmark { width: 0.5rem; height: 0.5rem; border-radius: 1px; transform: rotate(45deg); flex: none; }
+.rname {
+  font-weight: 700;
+  font-size: 0.88rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* Without this a flex item refuses to shrink below its content, so a long
+     name would shove the class chips off the end instead of ellipsing. */
+  min-width: 0;
+}
+.rname em {
+  font-style: normal;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-left: 0.375rem;
+}
+.rtotal { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
+.rshare { color: var(--muted); font-size: 0.72rem; min-width: 2.5rem; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* The bar is a separate row under the name, so a long name never squeezes it. */
+.rbar {
+  height: 0.25rem;
+  border-radius: var(--r-pill);
+  background: rgba(6, 7, 12, 0.55);
+  margin: var(--s-2) 0 0.375rem;
+  overflow: hidden;
+}
+.rbar span { display: block; height: 100%; border-radius: var(--r-pill); transition: width 0.2s linear; }
+@media (prefers-reduced-motion: reduce) { .rbar span { transition: none; } }
+
+.rmeta { display: flex; align-items: center; gap: var(--s-3); font-size: 0.72rem; color: var(--muted); }
+.rcaret { color: var(--line-2); font-size: 0.9rem; line-height: 1; }
+.rcard.open .rcaret { color: var(--gold); }
+
+.rskills {
+  margin-top: var(--s-2);
+  padding-top: var(--s-2);
+  border-top: var(--line-w) solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+  font-size: 0.74rem;
+}
+.rskill { display: flex; align-items: baseline; gap: var(--s-2); }
+.rskill .sname { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rskill .srange { color: var(--muted); font-size: 0.68rem; margin-left: auto; white-space: nowrap; }
+.rskill .sval { min-width: 3.5rem; text-align: right; color: var(--text); }
+
+/* ============================================================
+   Leveling
+   ============================================================ */
+.lvl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(21rem, 1fr));
+  gap: var(--s-3);
+}
+.lvl-card { flex: none; }
+
+/* The AA bar. Sits above the stat row because it is the headline: it is the
+   only quantity on this page the log states outright. */
+.aabar { margin-bottom: var(--s-3); }
+.aabar-top { display: flex; align-items: baseline; gap: var(--s-2); margin-bottom: 0.3rem; }
+.aabar-top .l {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  font-weight: 700;
+}
+.aabar-top .v { font-size: 0.95rem; font-weight: 800; color: var(--text); }
+.aabar-top .v i { font-style: normal; font-weight: 600; color: var(--muted); font-size: 0.78rem; }
+.aabar-top .p { font-size: 0.78rem; color: var(--gold-hi); font-weight: 700; min-width: 3.2rem; text-align: right; }
+
+.aabar-track {
+  height: 0.4rem;
+  border-radius: var(--r-pill);
+  background: rgba(6, 7, 12, 0.6);
+  border: var(--line-w) solid var(--line);
+  overflow: hidden;
+}
+.aabar-track span {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+  transition: width 0.3s ease-out;
+}
+.aabar-foot {
+  display: flex;
+  gap: var(--s-2);
+  margin-top: 0.3rem;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.lvl-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-3); }
+.lvl-stats .s { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }
+.lvl-stats .n { font-size: 1.15rem; font-weight: 800; line-height: 1; color: var(--gold-hi); }
+.lvl-stats .l {
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* Discrete counts get bars, not a line - a line would imply a continuous
+   quantity, and "kills in this five-minute bucket" is not one. */
+.lvl-rate {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 3rem;
+  margin: var(--s-4) 0 var(--s-3);
+  padding: 0 1px;
+  border-bottom: var(--line-w) solid var(--line);
+}
+.lvl-rate span { flex: 1; min-height: 1px; opacity: 0.65; border-radius: 1px 1px 0 0; }
+
+.lvl-events { display: flex; flex-direction: column; gap: 0.125rem; font-size: 0.76rem; }
+.lvl-ev {
+  display: grid;
+  grid-template-columns: 3.25rem auto 1fr;
+  align-items: baseline;
+  gap: var(--s-2);
+  padding: 0.125rem var(--s-2);
+  border-radius: var(--r-sm);
+}
+.lvl-ev:hover { background: color-mix(in srgb, var(--arcane) 7%, transparent); }
+.lvl-kind {
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  border-radius: var(--r-pill);
+  padding: 0.0625rem 0.375rem;
+  text-align: center;
+}
+.lvl-kind.level { color: var(--gold-hi); border: var(--line-w) solid var(--gold-deep); }
+.lvl-kind.aa { color: var(--arcane-hi); border: var(--line-w) solid var(--line-2); }
+.lvl-val { font-weight: 700; }
+.lvl-when { color: var(--muted); font-size: 0.68rem; text-align: right; }
+
+/* ============================================================
+   Alerts
+   ============================================================ */
+.al-cols {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 17rem minmax(0, 1fr) 19rem;
+  gap: var(--s-3);
+}
+@media (max-width: 87.5em) {
+  .al-cols { grid-template-columns: 16rem minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) 12rem; }
+  .al-recent { grid-column: 1 / -1; }
+}
+@media (max-width: 62.5em) {
+  .al-cols { grid-template-columns: 1fr; grid-template-rows: none; grid-auto-rows: minmax(12rem, auto); }
+}
+
+.al-item {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0.25rem var(--s-2);
+  border-radius: var(--r-sm);
+}
+.al-item:hover { background: color-mix(in srgb, var(--arcane) 7%, transparent); }
+.al-item.sel { background: color-mix(in srgb, var(--gold) 12%, transparent); box-shadow: inset 2px 0 0 var(--gold); }
+
+.al-pick {
+  appearance: none;
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  padding: 0.1875rem 0;
+}
+.al-name { display: block; font-size: 0.86rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.al-sub { display: block; font-size: 0.68rem; color: var(--muted); }
+
+.al-del {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: var(--line-2);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.125rem 0.25rem;
+  border-radius: var(--r-sm);
+}
+.al-del:hover { color: var(--bad); background: rgba(224, 100, 92, 0.12); }
+/* Armed: the second click deletes, so it stops looking like an idle icon. */
+.al-del.arm {
+  color: #fff;
+  background: var(--bad);
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.125rem 0.4375rem;
+}
+
+/* Voice picker: cards rather than a <select>, because the useful information
+   is which real voice each persona resolved to on THIS machine. */
+.voicegrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--s-2);
+}
+.voicecard {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+  padding: var(--s-3);
+  border: var(--line-w) solid var(--line-2);
+  border-radius: var(--r-md);
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  color: var(--text-2);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.14s ease, box-shadow 0.14s ease;
+}
+.voicecard:hover { border-color: var(--gold-deep); }
+.voicecard.on {
+  border-color: var(--gold);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 35%, transparent), var(--glow-gold);
+  color: var(--text);
+}
+.vc-label { font-size: 0.86rem; font-weight: 700; }
+.vc-voice {
+  font-size: 0.7rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vc-warn {
+  align-self: flex-start;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--warn);
+  border: var(--line-w) solid rgba(230, 180, 85, 0.35);
+  border-radius: var(--r-pill);
+  padding: 0.0625rem 0.375rem;
+  margin-top: 0.125rem;
+}
+
+/* The raw voice list, so "not installed" and "installed but the app can't see
+   it" can be told apart. */
+.voicelist > summary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-2);
+  padding: var(--s-2) 0;
+  list-style: none;
+}
+.voicelist > summary::-webkit-details-marker { display: none; }
+.voicelist > summary::before { content: '▸ '; color: var(--gold); }
+.voicelist[open] > summary::before { content: '▾ '; }
+.vl-body {
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--s-2);
+  background: rgba(6, 7, 12, 0.4);
+}
+.vl-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 5rem 4rem;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0.1875rem var(--s-2);
+  border-radius: var(--r-sm);
+  font-size: 0.78rem;
+}
+.vl-row:hover { background: color-mix(in srgb, var(--arcane) 8%, transparent); }
+.vl-play {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: var(--gold);
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 0 0.25rem;
+}
+.vl-play:hover { color: var(--gold-hi); }
+.vl-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vl-lang { color: var(--arcane); font-size: 0.7rem; }
+.vl-gender { color: var(--muted); font-size: 0.7rem; }
+
+.al-hit { color: var(--good); font-size: 0.78rem; }
+.al-miss { color: var(--muted); font-size: 0.78rem; }
+
+.al-fire {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0 var(--s-2);
+  padding: 0.375rem var(--s-2);
+  border-radius: var(--r-sm);
+  border-left: 2px solid var(--gold-deep);
+  margin-bottom: 0.1875rem;
+  background: rgba(37, 44, 56, 0.3);
+}
+.al-fname { font-size: 0.8rem; font-weight: 600; color: var(--gold-hi); }
+.al-ftime { font-size: 0.68rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.al-fline {
+  grid-column: 1 / -1;
+  font-size: 0.7rem;
+  color: var(--text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 0.125rem;
+}
+
+/* ============================================================
+   Overlay window (transparent, always-on-top)
+   ============================================================ */
+.overlay-body {
+  background: transparent;
+  overflow: hidden;
+}

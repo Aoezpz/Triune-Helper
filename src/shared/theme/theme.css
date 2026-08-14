@@ -1,0 +1,587 @@
+/* ============================================================
+   Triune-Helper - "Voidforge, gilded"
+
+   Two lineages meet here. The tokens are lifted verbatim from the website's
+   nms.css (weathered gold + arcane blue + ember on deep slate) so the app and
+   PTDex read as one product. The attitude is KissTriune's theme.lua: a near
+   black void ground, an aurora band across the header, a sigil that actually
+   turns, hairline rules with diamond caps, and glow reserved for things that
+   are genuinely live.
+
+   The rule that governs all of it, straight from kisstriune/theme.lua:
+
+       The chrome is deliberately loud. The data is not.
+
+   Chrome may shimmer. Damage rows may not - twelve glowing bars are twelve
+   unreadable bars, and this window is operated, not admired.
+
+   Chart series colours do NOT live here: brand gold is an accent, and an
+   accent makes a bad categorical ramp. See charts.css.
+   ============================================================ */
+
+:root {
+  /* ---- PTDex brand tokens (nms.css:7-48, unchanged) ---- */
+  --ink: #0f1319; --ink-2: #0b0e13;
+  --surface: #171c24; --surface-2: #1e242e; --surface-3: #252c38;
+  --line: #2b3441; --line-2: #3a4552;
+  --gold: #ff8a4a; --gold-hi: #ffb289; --gold-deep: #b35422;
+  --arcane: #5aa0e0; --arcane-hi: #86c2ff;
+  --ember: #d9633a;
+  --text: #ece5d6; --text-2: #b3b0a4; --muted: #8a8f98;
+
+  /* ---- Voidforge depth: a ground darker than the site's, so the gold reads
+     as forged metal rather than as a web accent ---- */
+  --void: #06070c;
+  --abyss: #0a0c14;
+
+  --nms-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --nms-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --nms-mono: ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
+
+  /* 4px-based spacing scale, in rem so it tracks the reader's font size */
+  --s-1: 0.25rem; --s-2: 0.5rem;  --s-3: 0.75rem; --s-4: 1rem;
+  --s-5: 1.5rem;  --s-6: 2rem;    --s-7: 3rem;
+
+  --r-sm: 0.375rem; --r-md: 0.625rem; --r-lg: 0.875rem; --r-pill: 999px;
+
+  /* Hairlines stay in px on purpose: fractional rem borders land between
+     device pixels and render blurry. */
+  --line-w: 1px;
+
+  --titlebar-h: 2.875rem;
+  --sidebar-w: 14rem;
+
+  /* Semantic roles. Distinct in hue AND lightness, so they survive greyscale. */
+  --good: #49d0a0;
+  --bad: #e0645c;
+  --warn: #e6b455;
+
+  /* Trio slot colours, by POSITION not class (kisstriune/theme.lua:56-60), so
+     three distinct hues always read as three whichever classes are played.
+     Sky / amber / orchid stays separable under protan and deutan vision - the
+     pairs differ in blue-yellow as well as red-green, which a red/green/orange
+     set would not. */
+  --slot-1: #38bdf8;
+  --slot-2: #fbbf24;
+  --slot-3: #e879f9;
+
+  /* Ambient layers. Tokens rather than literals so a scheme can retune the
+     atmosphere - these three blurred blobs are the largest coloured area in
+     the app, and a scheme that left them behind would only be half applied. */
+  --aurora-1: #1f6dd0;
+  --aurora-2: #7b53d6;
+  --aurora-3: #b35422;
+  --star: #8fd0ff;
+
+  --shadow-panel: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --shadow-lift: 0 18px 44px rgba(0, 0, 0, 0.55), 0 0 0 1px color-mix(in srgb, var(--arcane) 14%, transparent);
+  --glow-gold: 0 0 18px color-mix(in srgb, var(--gold) 35%, transparent);
+  --glow-arcane: 0 0 18px color-mix(in srgb, var(--arcane) 35%, transparent);
+}
+
+/* ============================================================
+   Colour schemes
+   ------------------------------------------------------------
+   A scheme retunes the ground, the accent and the atmosphere. It does NOT
+   touch four things, on purpose:
+
+     - status colours (--good/--bad/--warn) are reserved. They mean something,
+       they appear inline among data, and a scheme that repainted them would
+       make "you died" a decorative choice.
+     - trio slot colours are positional and were picked to stay separable
+       under protan and deutan vision. Rehueing them per scheme would quietly
+       undo that.
+     - chart series colours (charts.css) were validated against the panel
+       surface. They are data, and the rule here is that chrome may shimmer
+       while data may not.
+     - the Project Triune crest, which is a brand mark rather than an accent.
+
+   So every accent below is chosen to sit clear of mint-green, red and amber -
+   the three status hues - rather than merely to look nice next to them.
+
+   Every scheme is dark. The class chips and the chart ramp were generated and
+   validated against a dark surface, and a light ground would need both
+   regenerated rather than merely inverted.
+   ============================================================ */
+
+/* Indigo ground, periwinkle accent, cyan secondary. */
+:root[data-theme='nightfall'] {
+  --void: #06060f; --abyss: #0a0a1a;
+  --ink: #0f101f; --ink-2: #0b0b17;
+  --surface: #17182b; --surface-2: #1e2036; --surface-3: #262943;
+  --line: #2f334f; --line-2: #404668;
+  --gold: #8b93ff; --gold-hi: #b5baff; --gold-deep: #4f57c9;
+  --arcane: #4fb6dd; --arcane-hi: #8ad6f2;
+  --ember: #6f7ae8;
+  --text: #e9e9f7; --text-2: #b0b2ca; --muted: #8688a2;
+  --aurora-1: #2b3fd0; --aurora-2: #7b53d6; --aurora-3: #3d6bc8;
+  --star: #b9c2ff;
+}
+
+/* Warm charcoal ground, magenta-crimson accent, amber secondary. Pushed to
+   magenta rather than orange-red so it stays clear of --bad. */
+:root[data-theme='emberwatch'] {
+  --void: #0b0709; --abyss: #100b0e;
+  --ink: #171016; --ink-2: #110c10;
+  --surface: #201720; --surface-2: #291e29; --surface-3: #322533;
+  --line: #3d2e3c; --line-2: #533f52;
+  --gold: #f04d8c; --gold-hi: #ff8fb8; --gold-deep: #a8265c;
+  --arcane: #d09257; --arcane-hi: #f0b784;
+  --ember: #e0604a;
+  --text: #f4e7ea; --text-2: #c2b0b6; --muted: #978890;
+  --aurora-1: #b02048; --aurora-2: #7b2f8a; --aurora-3: #c25a1e;
+  --star: #ffb8c8;
+}
+
+/* Deep pine ground, lime accent, blue-teal secondary. Lime rather than
+   emerald, so the accent never reads as the mint used for --good. */
+:root[data-theme='thicket'] {
+  --void: #040a07; --abyss: #07110b;
+  --ink: #0c1710; --ink-2: #08120c;
+  --surface: #132219; --surface-2: #1a2c21; --surface-3: #22362a;
+  --line: #2a4133; --line-2: #3a5746;
+  --gold: #a8d63f; --gold-hi: #c9ea7d; --gold-deep: #63871f;
+  --arcane: #4fa8c8; --arcane-hi: #85cfe8;
+  --ember: #d09a3c;
+  --text: #e7efe3; --text-2: #aec0ac; --muted: #84958a;
+  --aurora-1: #1f7d4a; --aurora-2: #2f6f8a; --aurora-3: #7d9c22;
+  --star: #c8f0a0;
+}
+
+/* Neutral slate, steel-blue accent. The quiet one - low chroma throughout,
+   for people who want the meter and not the jewellery. Still bright enough at
+   the accent to find the active nav item at a glance, which is the floor a
+   deliberately understated scheme has to clear. */
+:root[data-theme='ironclad'] {
+  --void: #08090b; --abyss: #0c0e11;
+  --ink: #121519; --ink-2: #0d0f12;
+  --surface: #1a1e23; --surface-2: #22272d; --surface-3: #2b3138;
+  --line: #343b43; --line-2: #47505a;
+  --gold: #7fb6d4; --gold-hi: #aed6ec; --gold-deep: #47738d;
+  --arcane: #8a95a5; --arcane-hi: #b3bdc9;
+  --ember: #97a8b5;
+  --text: #e7eaee; --text-2: #aeb6be; --muted: #858d96;
+  --aurora-1: #34506b; --aurora-2: #4a4f63; --aurora-3: #3f5f70;
+  --star: #cfe0ee;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; margin: 0; }
+
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: var(--nms-sans);
+  font-size: 14px;
+  /* The window chrome is ours; nothing here should rubber-band or select. */
+  overflow: hidden;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: color-mix(in srgb, var(--gold) 28%, transparent); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--surface-3);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: var(--r-pill);
+}
+::-webkit-scrollbar-thumb:hover { background-color: var(--line-2); background-clip: padding-box; }
+::-webkit-scrollbar-corner { background: transparent; }
+
+/* ============================================================
+   Type
+   ============================================================ */
+h1, h2, h3 { font-family: var(--nms-serif); font-weight: 700; margin: 0; color: #f0e8d6; }
+
+.eyebrow {
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+/* Tabular figures everywhere a number can change in place, so digits don't
+   jitter as damage ticks up. */
+.num, .bar .val, .panel > .phead .meta { font-variant-numeric: tabular-nums; }
+
+.mono { font-family: var(--nms-mono); }
+.muted { color: var(--muted); }
+.gold { color: var(--gold-hi); }
+
+/* ============================================================
+   Ambient chrome
+   ------------------------------------------------------------
+   Three decorative layers, all pointer-events:none, all switched off under
+   prefers-reduced-motion. They are pure ornament: remove every one and the
+   app is plainer and completely functional.
+   ============================================================ */
+
+/* --- Aurora: slow drifting blobs behind the header and the empty states --- */
+/* `inset: 0` plus its own `overflow: hidden` means the aurora contains itself,
+   so hosts don't have to clip it. That matters: the title bar hosts one, and a
+   title bar that clips also clips its own dropdown menus. */
+.aurora {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  filter: blur(64px);
+  opacity: 0.42;
+  pointer-events: none;
+  overflow: hidden;
+}
+.aurora i {
+  position: absolute;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  animation: vfDrift 26s ease-in-out infinite;
+}
+.aurora .a1 { width: 26rem; height: 26rem; left: 2%;  top: -30%; background: radial-gradient(circle, var(--aurora-1), transparent 66%); }
+.aurora .a2 { width: 30rem; height: 30rem; right: 4%; top: -46%; background: radial-gradient(circle, var(--aurora-2), transparent 66%); animation-delay: -8s; }
+.aurora .a3 { width: 34rem; height: 34rem; left: 38%; bottom: -60%; background: radial-gradient(circle, var(--aurora-3), transparent 66%); animation-delay: -15s; }
+@keyframes vfDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(1.6rem, -1.2rem) scale(1.12); }
+}
+
+/* --- Starfield: faint, slow, only ever behind empty space --- */
+.starfield { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.starfield i {
+  position: absolute;
+  width: 2px; height: 2px;
+  border-radius: 50%;
+  background: var(--star);
+  animation: vfTwinkle 6s ease-in-out infinite;
+}
+@keyframes vfTwinkle { 0%, 100% { opacity: 0.12; } 50% { opacity: 0.8; } }
+
+/* --- Hairline rule with diamond caps (kisstriune's dividers) --- */
+.rule {
+  position: relative;
+  height: var(--line-w);
+  border: 0;
+  margin: var(--s-4) 0;
+  background: linear-gradient(90deg, transparent, var(--line-2) 12%, var(--line-2) 88%, transparent);
+}
+.rule::before, .rule::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 0.3125rem; height: 0.3125rem;
+  background: var(--gold-deep);
+  transform: translateY(-50%) rotate(45deg);
+}
+.rule::before { left: 0; }
+.rule::after  { right: 0; }
+
+/* --- Gold rule, the site's footer treatment --- */
+.rule-gold {
+  height: 2px; border: 0; margin: 0;
+  background: linear-gradient(90deg, transparent, var(--gold-deep), var(--gold), var(--gold-deep), transparent);
+}
+
+/* --- PTUI emblem ---------------------------------------------------------
+   Motion mirrors NMSTheme::DrawEmblem, the same numbers the guild portal uses:
+   0.55 rad/s out (11.4s), 0.38 rad/s back (16.5s), a 4.5s halo breath, and the
+   node glows on a 3.0s pulse offset by a third each, so the trio shimmers
+   rather than blinking in unison.
+
+   `transform-box: view-box` is load-bearing. Without it an SVG group rotates
+   about its own bounding box, so the ring and the triad each wobble around
+   their own centre instead of turning about the emblem's. */
+.ptui-emblem {
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 0 14px rgba(143, 208, 255, 0.3));
+}
+.ptui-emblem .pt-out,
+.ptui-emblem .pt-in,
+.ptui-emblem .pt-h3 {
+  transform-box: view-box;
+  transform-origin: 100px 100px;
+}
+.ptui-emblem .pt-out { animation: vfSpin 11.4s linear infinite; }
+.ptui-emblem .pt-in { animation: vfSpin 16.5s linear infinite reverse; }
+.ptui-emblem .pt-h3 { animation: vfBreath 4.5s ease-in-out infinite; }
+
+/* The glow shell carries its own falloff, so the pulse only breathes its size
+   and opacity - it is scaled about its own centre, hence fill-box here. */
+.ptui-emblem .pt-g1 {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: vfPulseNode 3s ease-in-out infinite;
+}
+.ptui-emblem .pt-n2 .pt-g1 { animation-delay: -1s; }
+.ptui-emblem .pt-n3 .pt-g1 { animation-delay: -2s; }
+
+@keyframes vfSpin { to { transform: rotate(360deg); } }
+@keyframes vfBreath {
+  0%, 100% { transform: scale(0.96); opacity: 0.6; }
+  50%      { transform: scale(1.05); opacity: 1; }
+}
+@keyframes vfPulseNode {
+  0%, 100% { transform: scale(0.88); opacity: 0.7; }
+  50%      { transform: scale(1.12); opacity: 1; }
+}
+
+.ptui-emblem.still .pt-out,
+.ptui-emblem.still .pt-in,
+.ptui-emblem.still .pt-h3,
+.ptui-emblem.still .pt-g1 { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora i,
+  .starfield i,
+  .ptui-emblem .pt-out,
+  .ptui-emblem .pt-in,
+  .ptui-emblem .pt-h3,
+  .ptui-emblem .pt-g1 { animation: none !important; }
+}
+
+/* ============================================================
+   Panel - the one container primitive
+   ------------------------------------------------------------
+   A gradient ground, a hairline frame, a gold thread down the left edge, and
+   bracket ticks at the top corners. The ornament is on the FRAME; the body
+   stays flat so rows inside read cleanly.
+   ============================================================ */
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--r-lg);
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
+  box-shadow: var(--shadow-panel);
+}
+
+/* Gold thread down the left edge - the site's card treatment (nms.css:287) */
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--gold), transparent 70%);
+  opacity: 0.65;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Bracket ticks, top-left and top-right */
+.panel::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 0.75rem;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    linear-gradient(90deg, var(--gold-deep) 0 1.25rem, transparent 1.25rem) top left / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent calc(100% - 1.25rem), var(--arcane) calc(100% - 1.25rem)) top left / 100% 1px no-repeat;
+  opacity: 0.55;
+}
+
+.panel > .phead {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex: none;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: var(--line-w) solid var(--line);
+  background: rgba(10, 12, 20, 0.35);
+}
+
+.panel > .phead .t {
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-2);
+}
+
+.panel > .phead .meta {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.panel > .pbody {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--s-3);
+}
+
+/* ============================================================
+   Chips, dots, badges
+   ============================================================ */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  border: var(--line-w) solid var(--line-2);
+  background: rgba(37, 44, 56, 0.55);
+  color: var(--text-2);
+  padding: 0.1875rem 0.625rem;
+  border-radius: var(--r-pill);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+.chip.dev {
+  color: var(--arcane-hi);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.0625rem 0.4375rem;
+}
+
+.dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--muted); flex: none; }
+.dot.live {
+  background: var(--good);
+  box-shadow: 0 0 0 0 rgba(73, 208, 160, 0.6);
+  animation: vfPulse 2.4s ease-out infinite;
+}
+@keyframes vfPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(73, 208, 160, 0.55); }
+  70%  { box-shadow: 0 0 0 0.4rem rgba(73, 208, 160, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(73, 208, 160, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dot.live { animation: none; box-shadow: 0 0 8px rgba(73, 208, 160, 0.7); }
+}
+
+/* ============================================================
+   Controls
+   ============================================================ */
+.seg {
+  display: inline-flex;
+  padding: 0.1875rem;
+  gap: 0.1875rem;
+  background: var(--void);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--r-md);
+}
+.seg button {
+  appearance: none; border: 0; background: transparent;
+  color: var(--text-2); font: inherit; font-size: 0.82rem; font-weight: 600;
+  padding: 0.25rem 0.6875rem; border-radius: var(--r-sm);
+  cursor: pointer; white-space: nowrap;
+  transition: color 0.14s ease, background 0.14s ease;
+}
+.seg button:hover { color: var(--gold-hi); }
+.seg button[aria-pressed='true'] {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--gold) 20%, transparent), color-mix(in srgb, var(--gold) 8%, transparent));
+  color: var(--gold-hi);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 32%, transparent), 0 0 12px color-mix(in srgb, var(--gold) 12%, transparent);
+}
+
+.tabs { display: inline-flex; gap: var(--s-3); align-items: center; }
+.tabs button {
+  appearance: none; border: 0; background: none;
+  color: var(--muted); font: inherit; font-size: 0.82rem; font-weight: 600;
+  padding: 0.125rem 0; cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.14s ease, border-color 0.14s ease;
+}
+.tabs button:hover { color: var(--text-2); }
+.tabs button[aria-pressed='true'] { color: var(--text); border-bottom-color: var(--gold); }
+
+.btn {
+  appearance: none;
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  height: 1.875rem; padding: 0 0.6875rem;
+  border-radius: var(--r-sm);
+  border: var(--line-w) solid var(--line-2);
+  background: linear-gradient(180deg, var(--surface-3), var(--surface-2));
+  color: var(--text-2);
+  font: inherit; font-size: 0.82rem; font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
+}
+.btn:hover { border-color: var(--gold-deep); color: var(--gold-hi); box-shadow: var(--glow-gold); }
+.btn:focus-visible { outline: 2px solid var(--arcane); outline-offset: 2px; }
+.btn.primary {
+  background: linear-gradient(180deg, var(--gold), var(--gold-deep));
+  border-color: var(--gold-deep);
+  color: #1a130a;
+}
+.btn.primary:hover { color: #1a130a; filter: brightness(1.07); }
+.btn:disabled, .btn[aria-disabled='true'] { opacity: 0.4; cursor: default; }
+.btn:disabled:hover { border-color: var(--line-2); color: var(--text-2); box-shadow: none; }
+
+input[type='text'], input[type='search'], input[type='number'], select, textarea {
+  background: var(--void);
+  border: var(--line-w) solid var(--line-2);
+  color: var(--text);
+  border-radius: var(--r-sm);
+  padding: 0.375rem var(--s-3);
+  font: inherit; font-size: 0.85rem;
+  user-select: text;
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gold); box-shadow: var(--glow-gold); }
+
+/* ============================================================
+   Ranked bars - the calm surface
+   ------------------------------------------------------------
+   No glow, no gradient sweep, no hover lift. A flat fill, a class/slot edge,
+   and tabular numerals. This is the data, and the data stays quiet.
+   ============================================================ */
+.bars { display: flex; flex-direction: column; gap: 0.1875rem; }
+
+.bar {
+  position: relative;
+  display: flex; align-items: center; gap: var(--s-2);
+  height: 1.5rem; padding: 0 var(--s-2);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: rgba(37, 44, 56, 0.3);
+  font-size: 0.82rem;
+}
+/* The fill is a sibling behind the text, not a background-image, so a long
+   name is never clipped by a short fill. */
+.bar .fill {
+  position: absolute; inset: 0 auto 0 0;
+  border-radius: var(--r-sm);
+  opacity: 0.5;
+  transition: width 0.2s linear;
+}
+.bar .rank { position: relative; color: var(--muted); min-width: 1ch; }
+.bar .name { position: relative; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar .val  { position: relative; margin-left: auto; color: var(--text); white-space: nowrap; padding-left: var(--s-3); }
+.bar .sub  { color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .bar .fill { transition: none; } }
+
+/* ============================================================
+   Utility
+   ============================================================ */
+.row { display: flex; align-items: center; gap: var(--s-3); }
+.spacer { flex: 1 1 auto; }
+
+/* Grid rows default to `stretch`, which spreads a heading and its paragraph to
+   opposite ends of a tall panel. `align-content: center` keeps the block
+   together in the middle, which is what "centred" is supposed to mean. */
+.empty {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: var(--s-2);
+  height: 100%; min-height: 8rem;
+  color: var(--muted); font-size: 0.85rem; text-align: center;
+  padding: var(--s-5);
+  overflow: hidden;
+}
+.empty > * { position: relative; z-index: 1; }
