@@ -365,3 +365,53 @@ describe('ownership by target', () => {
     expect(merged[0].source).toBe('Solene')
   })
 })
+
+
+/**
+ * World blessings, when the primary character is not logged in.
+ *
+ * A server-wide broadcast reaches every character who is online and nobody who
+ * is not. It carries no attacker and no target, so it used to fall through to
+ * "the primary log breaks the tie" - and when the primary was camped, the two
+ * logs that DID hear it both had their copy dropped as a duplicate of a line
+ * the primary never received. Three blessings announced at 09:00 were invisible
+ * for the rest of the day.
+ *
+ * Taken from a real log: Confucius and Deezel were online, Hexzo was not.
+ */
+describe('server-wide blessings', () => {
+  const BROADCAST =
+    'A server-wide blessing of [Echo of Selo] has been activated/extended! Remaining duration: 27 hours 47 minutes.'
+
+  it('is kept even when the primary log never heard it', () => {
+    const heard = [...log('Vexthar', [[1, BROADCAST]]), ...log('Solene', [[1, BROADCAST]])]
+    const kept = mergeEvents(heard, cfg())
+
+    expect(kept.length).toBeGreaterThan(0)
+    expect(kept.every((e) => e.kind === 'blessing')).toBe(true)
+    expect(kept[0].detail).toBe('Echo of Selo')
+  })
+
+  /**
+   * The duplicates this lets through are deliberate and safe: the consumer
+   * replaces a blessing by name rather than summing, so folding the same
+   * broadcast once per online character gives the same answer as folding it
+   * once. This test pins that they all describe the SAME blessing, which is
+   * what makes the duplication harmless.
+   */
+  it('lets every online log keep its copy, all describing one blessing', () => {
+    const heard = TRIO.flatMap((c) => log(c, [[1, BROADCAST]]))
+    const kept = mergeEvents(heard, cfg())
+
+    expect(kept).toHaveLength(3)
+    expect(new Set(kept.map((e) => e.detail)).size).toBe(1)
+    expect(new Set(kept.map((e) => e.amount)).size).toBe(1)
+  })
+
+  /** Damage still obeys the primary rule - this is not a general exemption. */
+  it('does not loosen ownership for anything that sums', () => {
+    const swings = TRIO.flatMap((c) => log(c, [[1, 'a gnoll hits Solene for 12 points of damage.']]))
+    const kept = mergeEvents(swings, cfg())
+    expect(damageTotal(kept)).toBe(12)
+  })
+})

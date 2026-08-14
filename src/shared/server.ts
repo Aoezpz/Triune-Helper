@@ -67,11 +67,24 @@ export function blessingRows(blessings: readonly Blessing[], now: number): Bless
 /**
  * Fold a sighting into what is already known.
  *
- * "activated/extended" is one message for two events, so a later line always
- * replaces an earlier one for the same blessing - an extension is simply a
- * fresh statement of the remaining time.
+ * "activated/extended" is one message for two events, so a LATER line replaces
+ * an earlier one for the same blessing - an extension is simply a fresh
+ * statement of the remaining time.
+ *
+ * The order that matters is the line's, not the order we happened to read it
+ * in. Those are different things here, and assuming otherwise was a real bug:
+ * on attach every log is scanned for standing facts, and a character who was
+ * offline this morning still holds Tuesday's broadcast near the end of their
+ * file. Whichever log was scanned last used to win, so one camped alt could
+ * overwrite this morning's blessings with a two-day-old copy and the page sat
+ * showing four expired rows while the buffs were plainly running in game.
+ *
+ * Hence the guard: an older sighting never displaces a newer one.
  */
 export function foldBlessing(into: Blessing[], name: string, seenAt: number, statedMs: number): Blessing[] {
+  const existing = into.find((b) => b.name === name)
+  if (existing && existing.seenAt >= seenAt) return into
+
   const next = into.filter((b) => b.name !== name)
   next.push({ name, seenAt, statedMs, endsAt: seenAt + statedMs })
   return next.sort((a, b) => a.name.localeCompare(b.name))

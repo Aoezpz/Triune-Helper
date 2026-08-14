@@ -73,10 +73,30 @@ const OWN_LOG_KINDS = new Set<ParsedEvent['kind']>([
   'group'
 ])
 
+/**
+ * Facts about the WORLD rather than about anybody in it.
+ *
+ * A server-wide blessing is broadcast to every character who is online, and it
+ * describes the server, not a character. Routing it through the primary-log
+ * rule below was wrong in a way that only shows up when the primary character
+ * is not logged in: the broadcast lands in the other two logs, both copies are
+ * dropped as duplicates of a line the primary never had, and the blessing is
+ * lost entirely. That is exactly what happened - three blessings announced at
+ * 09:00 were invisible because the primary had been camped since the night
+ * before.
+ *
+ * So any log may own these. The duplicate copies are harmless because the only
+ * consumer replaces state by name rather than accumulating it: folding the same
+ * broadcast three times gives the same answer as folding it once. Nothing that
+ * SUMS may ever be added to this set.
+ */
+const WORLD_KINDS = new Set<ParsedEvent['kind']>(['blessing'])
+
 export function ownsEvent(ev: ParsedEvent, cfg: MergeConfig): boolean {
   const self = cfg.selfBySource.get(ev.source)
   if (self === undefined) return false
 
+  if (WORLD_KINDS.has(ev.kind)) return true
   if (OWN_LOG_KINDS.has(ev.kind)) return true
 
   const boxed = new Set(cfg.selfBySource.values())

@@ -379,3 +379,49 @@ describe('buff board', () => {
     expect(rows[0].quiet).toBe(false)
   })
 })
+
+
+/**
+ * Reading order is not event order.
+ *
+ * On attach every log is scanned for standing facts, and the logs are scanned
+ * in whatever order the folder listed them. A character who was offline this
+ * morning still holds an older broadcast near the end of their file, so a stale
+ * copy can arrive AFTER a fresh one. Taken from a real failure: blessings
+ * announced at 09:00 today were being overwritten by a copy from two days
+ * earlier sitting in a camped alt's log, and the page showed four expired rows
+ * while the buffs were visibly running in game.
+ */
+describe('folding blessings out of several logs', () => {
+  const TUES = Date.parse('2026-08-12T17:34:38')
+  const TODAY = Date.parse('2026-08-14T09:00:26')
+
+  it('does not let an older sighting overwrite a newer one', () => {
+    let rows = foldBlessing([], 'Echo of Selo', TODAY, 27 * 3600_000)
+    // The camped alt's log is scanned second and holds Tuesday's copy.
+    rows = foldBlessing(rows, 'Echo of Selo', TUES, 27 * 3600_000)
+
+    expect(rows).toHaveLength(1)
+    expect(rows[0].seenAt).toBe(TODAY)
+  })
+
+  it('still takes a newer sighting whichever order it arrives in', () => {
+    let rows = foldBlessing([], 'Echo of Selo', TUES, 27 * 3600_000)
+    rows = foldBlessing(rows, 'Echo of Selo', TODAY, 27 * 3600_000)
+    expect(rows[0].seenAt).toBe(TODAY)
+  })
+
+  /** Every online log carries the same broadcast; folding it twice is a no-op. */
+  it('is idempotent for the same broadcast seen in two logs', () => {
+    let rows = foldBlessing([], 'Echo of Power', TODAY, 19 * 3600_000)
+    rows = foldBlessing(rows, 'Echo of Power', TODAY, 19 * 3600_000)
+    expect(rows).toHaveLength(1)
+    expect(rows[0].endsAt).toBe(TODAY + 19 * 3600_000)
+  })
+
+  it('keeps blessings apart by name', () => {
+    let rows = foldBlessing([], 'Echo of Selo', TODAY, 27 * 3600_000)
+    rows = foldBlessing(rows, 'Echo of Luck', TODAY, 19 * 3600_000)
+    expect(rows.map((r) => r.name)).toEqual(['Echo of Luck', 'Echo of Selo'])
+  })
+})

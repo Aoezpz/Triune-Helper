@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { CombatState, LogSource, WatcherStatus } from '@shared/ipc'
+import { isLive, type CombatState, type LogSource, type WatcherStatus } from '@shared/ipc'
 import { sessionWindow, summarizeCharacter, type LevelingData } from '@shared/leveling'
 import { formatCoin, summarizeLoot, toPlatinum, type LootData } from '@shared/loot'
 import type { ProgressSummary } from '@shared/progression'
@@ -99,11 +99,25 @@ export function Overview({
 
   const party = useMemo(() => partyOf(roster, characters, active), [roster, characters, active])
 
+  // A clock, purely so liveness decays on its own. Fifteen seconds is fine for
+  // a two-minute window and costs one render a quarter-minute.
+  const [tick, setTick] = useState(() => Date.now())
+  useEffect(() => {
+    const t = setInterval(() => setTick(Date.now()), 15_000)
+    return () => clearInterval(t)
+  }, [])
+
   // Split by whether the game is still writing for them. Boxing three and
   // camping one used to leave the parked character sitting in the same block
   // as the two being played, distinguishable only by a word at the far right.
-  const playing = sources.filter((s) => s.active)
-  const quiet = sources.filter((s) => !s.active)
+  //
+  // Recomputed here against `tick` rather than trusting `s.active`. That flag
+  // is frozen at the moment main last pushed a status, and main pushes when
+  // something changes - a character logging out changes nothing main can
+  // observe, so the flag stayed LIVE indefinitely.
+  const live = (s: LogSource): boolean => isLive(s.lastLineAt, tick)
+  const playing = sources.filter(live)
+  const quiet = sources.filter((s) => !live(s))
 
   /**
    * One character's row.
@@ -118,9 +132,10 @@ export function Overview({
     const p = summarizeCharacter(s.character, leveling, window_)
     const pct = p.aaEarned !== null && p.aaAvailable ? (p.aaEarned / p.aaAvailable) * 100 : null
     const slot = sources.findIndex((o) => o.character === s.character)
+    const on = live(s)
 
     return (
-      <div className={s.active ? 'ovchar' : 'ovchar apart'} key={s.path}>
+      <div className={on ? 'ovchar' : 'ovchar apart'} key={s.path}>
         <span
           className="slot-mark"
           style={{ background: SLOT_VARS[slot] ?? 'var(--muted)' }}
@@ -130,8 +145,8 @@ export function Overview({
         <ClassChips id={id} size="sm" />
         <span className="spacer" />
         <span className="oc-lvl num">{p.level !== null ? p.level : '—'}</span>
-        <span className={s.active ? 'oc-state live' : 'oc-state'} title={lastSeen(s)}>
-          {s.active ? 'live' : 'quiet'}
+        <span className={on ? 'oc-state live' : 'oc-state'} title={lastSeen(s, tick)}>
+          {on ? 'live' : 'quiet'}
         </span>
         {pct !== null && (
           <span
@@ -286,10 +301,10 @@ export function Overview({
  * the game last wrote to the file, so it says that instead and lets you draw
  * the conclusion.
  */
-function lastSeen(s: LogSource): string {
-  if (s.active) return 'Written to in the last two minutes'
+function lastSeen(s: LogSource, now: number): string {
+  if (isLive(s.lastLineAt, now)) return 'Written to in the last two minutes'
   if (s.lastLineAt === null) return 'No lines read from this log yet'
-  const ago = clock(Math.max(0, (Date.now() - s.lastLineAt) / 1000))
+  const ago = clock(Math.max(0, (now - s.lastLineAt) / 1000))
   return `Last written ${ago} ago — either logged out, or somewhere nothing is happening`
 }
 

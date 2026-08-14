@@ -96,12 +96,40 @@ export const DEFAULT_SETTINGS: Settings = {
   updateCheck: true
 }
 
+/**
+ * How recently the game must have written for a character to count as playing.
+ *
+ * Two minutes because EverQuest writes nothing at all for someone standing
+ * still in an empty zone, and a shorter window would flicker every time a fight
+ * ended.
+ */
+export const LIVE_WINDOW_MS = 120_000
+
+/**
+ * Is this log's character still playing?
+ *
+ * `now` is passed in rather than read, which is the whole point: the renderer
+ * calls this against a ticking clock, so a character who logged out goes quiet
+ * on its own. `LogSource.active` is only a snapshot from the moment main built
+ * the status, and main pushes status when something CHANGES - a character
+ * logging out changes nothing main can see, so the snapshot said LIVE forever.
+ */
+export function isLive(lastLineAt: number | null, now: number): boolean {
+  return lastLineAt !== null && now - lastLineAt < LIVE_WINDOW_MS
+}
+
 /** A log file the watcher knows about. */
 export interface LogSource {
   character: string
   path: string
   /** Bytes consumed so far - shown in Preferences so a stuck tail is visible. */
   offset: number
+  /**
+   * Liveness at the moment this status was built.
+   *
+   * Prefer `isLive(lastLineAt, Date.now())` in the renderer - this field goes
+   * stale between pushes, and logging out does not trigger a push.
+   */
   active: boolean
   /** Epoch ms of the last line we read from this file. */
   lastLineAt: number | null

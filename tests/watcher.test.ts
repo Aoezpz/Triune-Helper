@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync, utimesSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { DEFAULT_SETTINGS, type Settings } from '../src/shared/ipc'
+import { DEFAULT_SETTINGS, isLive, LIVE_WINDOW_MS, type Settings } from '../src/shared/ipc'
 import { LogWatcher } from '../src/main/watcher'
 
 /**
@@ -234,5 +234,35 @@ describe('liveness', () => {
     } finally {
       w.stop()
     }
+  })
+})
+
+
+/**
+ * Liveness has to decay on its own.
+ *
+ * `LogSource.active` is computed when main builds a status, and main pushes a
+ * status when something CHANGES. A character logging out changes nothing main
+ * can observe - the file simply stops growing - so the pushed flag stayed true
+ * and the Overview showed a camped character as LIVE indefinitely. The renderer
+ * recomputes from `lastLineAt` against a ticking clock instead.
+ */
+describe('isLive', () => {
+  const NOW = 1_700_000_000_000
+
+  it('is true just inside the window and false just outside it', () => {
+    expect(isLive(NOW - (LIVE_WINDOW_MS - 1000), NOW)).toBe(true)
+    expect(isLive(NOW - (LIVE_WINDOW_MS + 1000), NOW)).toBe(false)
+  })
+
+  /** The bug, stated directly: same data, later clock, different answer. */
+  it('goes quiet as time passes with no new status push', () => {
+    const lastLine = NOW
+    expect(isLive(lastLine, NOW + 30_000)).toBe(true)
+    expect(isLive(lastLine, NOW + 5 * 60_000)).toBe(false)
+  })
+
+  it('is false for a log that has produced nothing yet', () => {
+    expect(isLive(null, NOW)).toBe(false)
   })
 })

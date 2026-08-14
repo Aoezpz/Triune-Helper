@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
-import type { LogSource, Settings, WatcherStatus } from '@shared/ipc'
+import { isLive, type LogSource, type Settings, type WatcherStatus } from '@shared/ipc'
 import { EncounterTracker } from '@shared/parser/encounter'
 import { mergeEvents, type MergeConfig } from '@shared/parser/merge'
 import { parseLine, type ParseContext } from '@shared/parser/patterns'
@@ -212,10 +212,10 @@ export class LogWatcher {
         character: t.character,
         path: t.path,
         offset: t.offset,
-        // "Active" means this log produced a line in the last two minutes -
-        // which is what distinguishes a boxed character who is playing from
-        // one who is parked at the guild lobby.
-        active: t.lastLineAt !== null && Date.now() - t.lastLineAt < 120_000,
+        // A snapshot, true when this status was built. The renderer recomputes
+        // it against a live clock - see isLive() - because nothing pushes a new
+        // status just because a character stopped playing.
+        active: isLive(t.lastLineAt, Date.now()),
         lastLineAt: t.lastLineAt,
         group: [...(this.groups.get(t.character) ?? [])].sort()
       }))
