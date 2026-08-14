@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { HistoryResult, Settings, WatcherStatus } from '@shared/ipc'
 import { DEFAULT_THEME, THEMES } from '@shared/themes'
+import { hasUpdate, type UpdateStatus } from '@shared/update'
 import { genderOf, resolveVoice, VOICE_PERSONAS, type AvailableVoice } from '@shared/voices'
 import { setAlertVolume } from '../alerts/sink'
 import {
@@ -15,6 +16,9 @@ import {
 /** Short, and representative of what an alert actually sounds like. */
 const SAMPLE = 'Charm broke'
 
+/** Shown only in the moment before the first status arrives. */
+const VERSION_UNKNOWN = '…'
+
 export function Preferences({
   settings,
   update,
@@ -26,6 +30,15 @@ export function Preferences({
 }): JSX.Element {
   const [detectMsg, setDetectMsg] = useState<string | null>(null)
   const [voices, setVoices] = useState<AvailableVoice[]>(availableVoices())
+  const [upd, setUpd] = useState<UpdateStatus | null>(null)
+  const [updateBusy, setUpdateBusy] = useState(false)
+
+  // Reads the cached answer main already has; no second request on mount. The
+  // subscription is what keeps the percentage moving during a download.
+  useEffect(() => {
+    void window.triune.invoke('update:check').then(setUpd)
+    return window.triune.on('update:status', setUpd)
+  }, [])
 
   // getVoices() is empty on the first call in Chromium; the list arrives
   // asynchronously and announces itself, so re-read when it does.
@@ -157,6 +170,108 @@ export function Preferences({
         </div>
         <div className="pbody form">
           <RebuildHistory />
+        </div>
+      </section>
+
+      <section className="panel">
+        <div className="phead">
+          <span className="t">Updates</span>
+          <span className="meta">
+            {updateBusy
+              ? 'checking…'
+              : upd?.phase === 'downloading'
+                ? `downloading ${upd.percent}%`
+                : upd?.phase === 'ready'
+                  ? 'ready to install'
+                  : upd?.phase === 'available'
+                    ? `${upd.latest} available`
+                    : upd?.phase === 'error'
+                      ? 'check failed'
+                      : upd?.phase === 'current'
+                        ? 'up to date'
+                        : 'not checked'}
+          </span>
+        </div>
+        <div className="pbody form">
+          <label className="field row">
+            <input
+              type="checkbox"
+              checked={settings.updateCheck}
+              onChange={(e) => void update({ updateCheck: e.target.checked })}
+            />
+            <span>Check GitHub for a newer release on launch</span>
+          </label>
+
+          <div className="field row">
+            <button
+              className="btn"
+              type="button"
+              disabled={!settings.updateCheck || updateBusy}
+              onClick={() => {
+                setUpdateBusy(true)
+                void window.triune
+                  .invoke('update:check', { force: true })
+                  .then(setUpd)
+                  .finally(() => setUpdateBusy(false))
+              }}
+            >
+              Check now
+            </button>
+            <span className="muted">
+              You are running <b>{upd?.current ?? VERSION_UNKNOWN}</b>
+              {upd?.latest ? ` · newest published is ${upd.latest}` : ''}
+            </span>
+          </div>
+
+          {upd && hasUpdate(upd) && (
+            <div className="field row">
+              {upd.phase === 'available' && upd.canSelfInstall && (
+                <button
+                  className="btn"
+                  type="button"
+                  onClick={() => void window.triune.invoke('update:download').then(setUpd)}
+                >
+                  Download {upd.latest}
+                </button>
+              )}
+              {upd.phase === 'downloading' && (
+                <span className="muted">Downloading {upd.percent}%…</span>
+              )}
+              {upd.phase === 'ready' && (
+                <button
+                  className="btn"
+                  type="button"
+                  onClick={() => void window.triune.invoke('update:install')}
+                >
+                  Restart and install {upd.latest}
+                </button>
+              )}
+              {/* Always offered, at every stage. If the updater breaks, this is
+                  the way out, and it must not be hidden behind a failure. */}
+              <button
+                className="btn"
+                type="button"
+                onClick={() => void window.triune.invoke('shell:open', upd.url)}
+              >
+                Open the release page
+              </button>
+            </div>
+          )}
+
+          {/* Stated rather than buried. This is the app's only request that is
+              not needed for it to work, so what it sends is spelled out. */}
+          <span className="fhint">
+            This asks GitHub for one public file — the newest release number — and nothing else.
+            GitHub sees your IP address, exactly as visiting the releases page in a browser would. No
+            character name, no log line and no identifier is sent, ever.
+            <br />
+            <br />
+            Nothing downloads or installs on its own. Finding a new version, fetching it, and
+            restarting into it are three separate clicks you make, so the app never spends your
+            bandwidth or replaces itself mid-raid. The installer it downloads is checked against the
+            hash published with the release. Untick the box and no request is made at all.
+          </span>
+          {upd?.error && <span className="fhint bad">{upd.error}</span>}
         </div>
       </section>
 

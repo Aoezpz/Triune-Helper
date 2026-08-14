@@ -82,4 +82,18 @@ nsis:
   # uninstall - a reinstall should not silently wipe someone's rules.
   deleteAppDataOnUninstall: false
 
-publish: null
+# Where the in-app updater looks.
+#
+# This does NOT upload anything - `npm run package` still only builds locally,
+# and the release is cut by hand with `gh release create`. What it does is make
+# electron-builder write `latest.yml` next to the installer: the small file
+# holding the version number and the installer's SHA-512, which is the whole
+# mechanism electron-updater uses to know a new build exists and to prove the
+# thing it downloaded is the thing that was published.
+#
+# BOTH files must be attached to every release. An installer with no latest.yml
+# is invisible to the updater, and the app will sit there saying it is current.
+publish:
+  provider: github
+  owner: Aoezpz
+  repo: Triune-Helper

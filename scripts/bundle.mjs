@@ -39,6 +39,22 @@ if (megabytes < 40) {
   process.exit(1)
 }
 
+/**
+ * The updater's index. Without it attached to the release, electron-updater
+ * asks GitHub for latest.yml, gets a 404, and every running copy of the app
+ * concludes it is up to date - silently, forever. This has already happened
+ * once: v0.1.0 went out with the installer alone.
+ */
+const manifest = join(root, 'release', version, 'latest.yml')
+if (!existsSync(manifest)) {
+  console.error(
+    `No latest.yml at ${manifest}\n` +
+      'The in-app updater cannot see a release without it. Check that\n' +
+      'electron-builder.yml still has its `publish:` block and re-run `npm run package`.'
+  )
+  process.exit(1)
+}
+
 const stage = join(root, 'release', `Triune-Helper-${version}-test`)
 rmSync(stage, { recursive: true, force: true })
 mkdirSync(stage, { recursive: true })
@@ -67,3 +83,6 @@ execFileSync(
 console.log(`\n  ${zip}`)
 console.log(`  ${(statSync(zip).size / 1024 / 1024).toFixed(1)} MB — installer + README.txt`)
 console.log('\nSend that one file. The README tells them about the SmartScreen warning.')
+console.log('\nCutting the GitHub release, attach BOTH of these or the in-app updater goes blind:')
+console.log(`  release/${version}/Triune-Helper-Setup-${version}.exe`)
+console.log(`  release/${version}/latest.yml`)

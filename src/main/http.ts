@@ -24,11 +24,17 @@ const TIMEOUT_MS = 12_000
 /** A PTDex page is tens of kilobytes. Anything past this is not what we asked for. */
 const MAX_BYTES = 4 * 1024 * 1024
 
-export function request(url: string, form?: Record<string, string>): Promise<string> {
+export function request(
+  url: string,
+  form?: Record<string, string>,
+  /** Extra request headers. The GitHub API wants an Accept and a User-Agent. */
+  headers?: Record<string, string>
+): Promise<string> {
   return new Promise((resolve, reject) => {
     const body = form ? new URLSearchParams(form).toString() : null
     const req = net.request({ url, method: body ? 'POST' : 'GET' })
     if (body) req.setHeader('Content-Type', 'application/x-www-form-urlencoded')
+    for (const [k, v] of Object.entries(headers ?? {})) req.setHeader(k, v)
 
     let done = false
     const finish = (err: Error | null, text?: string): void => {

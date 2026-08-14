@@ -34,6 +34,7 @@ import { Roster } from './roster'
 import { Session } from './session'
 import { Zones } from './zones'
 import { flushTooltips, lookupTip } from './tooltips'
+import { Updates } from './update'
 import { autodetectLogFolder, getSettings, setSettings } from './settings'
 import { createMainWindow } from './windows'
 
@@ -68,6 +69,7 @@ const timers = new Timers(mobs)
 const serverWatch = new ServerWatch()
 const presence = new Presence()
 const buffs = new Buffs()
+const updates = new Updates((s) => send('update:status', s))
 
 const roster = new Roster({
   base: () => getSettings().ptdexBase,
@@ -446,6 +448,19 @@ function registerIpc(): void {
   ipcMain.handle('shell:open', (_e, url: string) => {
     if (/^https?:\/\//i.test(url)) void shell.openExternal(url)
   })
+
+  // Off means off: with the setting disabled no request is made at all, and the
+  // renderer gets the never-checked state rather than a stale answer.
+  ipcMain.handle('update:check', async (_e, arg: { force?: boolean } | undefined) => {
+    if (!getSettings().updateCheck) return updates.status()
+    return updates.check(arg ?? {})
+  })
+
+  // Both of these are only ever reachable from a button the user pressed with
+  // an update already found, and both are no-ops in any other state - so a
+  // renderer that got confused cannot start a download or restart the app.
+  ipcMain.handle('update:download', () => updates.download())
+  ipcMain.handle('update:install', () => updates.install())
 
   ipcMain.handle('alerts:list', () => alerts.list())
   ipcMain.handle('alerts:save', (_e, rules) => alerts.save(rules))

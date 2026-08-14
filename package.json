@@ -1,6 +1,6 @@
 {
   "name": "triune-helper",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Project Triune combat companion - live DPS meter, fight timeline, alerts and progression, read from your EverQuest logs.",
   "main": "./out/main/index.js",
   "author": "Project Triune",
@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "electron-store": "^8.2.0",
+    "electron-updater": "^6.8.9",
     "node-html-parser": "^7.0.1"
   },
   "devDependencies": {

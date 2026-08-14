@@ -10,6 +10,7 @@ import type { ParsedEvent } from './parser/types'
 import type { ProgressState, ProgressSummary, ProgressionData } from './progression'
 import type { RosterState } from './roster'
 import type { FightSummary } from './stats'
+import type { UpdateStatus } from './update'
 import { DEFAULT_THEME } from './themes'
 import type { ManualTimer, TimersData } from './timers'
 import type { TipKind, TipResult } from './tooltip'
@@ -67,6 +68,14 @@ export interface Settings {
   voice: string
   /** Master alert volume, 0-1. */
   alertVolume: number
+  /**
+   * Ask GitHub on launch whether a newer release exists.
+   *
+   * A setting rather than a given, because it is the app's only call that is
+   * not needed for it to do its job. Off means no request is ever made and the
+   * version banner never appears.
+   */
+  updateCheck: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -83,7 +92,8 @@ export const DEFAULT_SETTINGS: Settings = {
   combatView: 'dashboard',
   theme: DEFAULT_THEME,
   voice: 'system',
-  alertVolume: 1
+  alertVolume: 1,
+  updateCheck: true
 }
 
 /** A log file the watcher knows about. */
@@ -221,6 +231,12 @@ export interface InvokeMap {
   'tooltip:get': [{ kind: TipKind; name: string }, TipResult]
   /** Open a URL in the user's browser, never in-app. */
   'shell:open': [string, void]
+  /** Is a newer release published? `force` skips the cache. */
+  'update:check': [{ force?: boolean } | void, UpdateStatus]
+  /** Fetch the new installer. Progress arrives on `update:status`. */
+  'update:download': [void, UpdateStatus]
+  /** Quit and install what was downloaded. The app does not come back on its own. */
+  'update:install': [void, void]
   /** Recent parsed lines for the combat log panel, newest last. */
   'combat:lines': [{ limit?: number; includeUnparsed?: boolean }, ParsedEvent[]]
 }
@@ -241,6 +257,8 @@ export interface EventMap {
   'alerts:fired': AlertHit
   /** The colour scheme changed. Sent to every window, overlays included. */
   'settings:theme': string
+  /** Download progress and phase changes, pushed as they happen. */
+  'update:status': UpdateStatus
 }
 
 export type InvokeChannel = keyof InvokeMap

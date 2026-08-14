@@ -263,6 +263,41 @@
 .navitem:disabled:hover { background: transparent; color: var(--muted); }
 .navitem .chip.dev { margin-left: auto; }
 
+/* "Update to 0.2.0" in the title bar. Gold, because it is the one thing up
+   there worth interrupting for - and absent entirely the rest of the time. */
+.uppill {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: none;
+  padding: 0.25rem 0.7rem;
+  border: var(--line-w) solid var(--gold-deep);
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
+  color: var(--gold-hi);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.uppill:hover { background: color-mix(in srgb, var(--gold) 26%, transparent); }
+/* Mid-download it is a readout, not a button - nothing to click until it
+   lands, so it must not look clickable. */
+.uppill.busy { cursor: default; font-variant-numeric: tabular-nums; }
+.uppill.busy:hover { background: color-mix(in srgb, var(--gold) 14%, transparent); }
+/* Staged and waiting. Green, because at this point the work is done and the
+   only thing left is the user's decision about when. */
+.uppill.ready { border-color: var(--good); color: var(--good); background: color-mix(in srgb, var(--good) 14%, transparent); }
+.uppill.ready:hover { background: color-mix(in srgb, var(--good) 26%, transparent); }
+.uppill.ready .updot { background: var(--good); box-shadow: 0 0 8px rgba(73, 208, 160, 0.7); }
+.uppill .updot {
+  width: 0.4rem; height: 0.4rem;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: var(--glow-gold);
+}
+
 .sidebar .footer {
   flex: none;
   padding: var(--s-3);
