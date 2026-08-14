@@ -62,7 +62,7 @@ export interface Settings {
   lastPage: string
   /** Which Combat view was last open: dashboard or timeline. */
   combatView: string
-  /** Which Server view was last open: blessings, players or market. */
+  /** Which Server view was last open: market, grouping, blessings or players. */
   serverView: string
   /** Colour scheme id - see shared/themes.ts. Applies to the overlays too. */
   theme: string
@@ -92,7 +92,8 @@ export const DEFAULT_SETTINGS: Settings = {
   serverShortname: 'multiclass',
   lastPage: 'overview',
   combatView: 'dashboard',
-  serverView: 'blessings',
+  // The market, because it is the tab that changes while you are looking at it.
+  serverView: 'market',
   theme: DEFAULT_THEME,
   voice: 'system',
   alertVolume: 1,

@@ -129,7 +129,7 @@ export default function App(): JSX.Element {
         {page === 'timers' && <Timers />}
         {page === 'server' && (
           <Server
-            view={(settings.serverView as ServerView) ?? 'blessings'}
+            view={(settings.serverView as ServerView) ?? 'market'}
             onView={(v) => void update({ serverView: v })}
           />
         )}

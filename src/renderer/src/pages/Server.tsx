@@ -14,12 +14,31 @@ import { Tipped } from '../components/Tip'
  * a population.
  *
  * Four views rather than one long scroll, because they are read in completely
- * different ways. Blessings are a glance - four rows, checked once. The census
- * is a slow reference nobody watches. Grouping and the market are live feeds
- * you would leave open. Stacked, the feeds sat below two screens of the other
- * two, which meant the things that change most often were the hardest to see.
+ * different ways. Grouping and the market are live feeds you would leave open;
+ * blessings are a glance you take once a session; the census is reference
+ * material. Stacked, the feeds sat below two screens of the other two, which
+ * meant the things that change most often were the hardest to see - see TABS
+ * for the order that fixes it.
  */
 export type ServerView = 'blessings' | 'players' | 'grouping' | 'market'
+
+/**
+ * Tab order, most-watched first.
+ *
+ * The two live feeds lead, because they are the reason to open this page at
+ * all - trade and grouping change by the minute. Blessings are a glance you
+ * take once a session, and the census is reference material nobody watches, so
+ * they sit at the end.
+ *
+ * Declared here rather than inline so the order lives in one place; the
+ * sections below render on `view` and their order in the file does not matter.
+ */
+const TABS: Array<[ServerView, string]> = [
+  ['market', 'Auction & trade'],
+  ['grouping', 'Grouping'],
+  ['blessings', 'Blessings'],
+  ['players', 'Who is out there']
+]
 
 /** Which intents the market list is showing. */
 type MarketFilter = 'all' | 'sell' | 'buy' | 'give'
@@ -94,18 +113,11 @@ export function Server({
               server broadcast while you were logged in.
             </p>
             <div className="seg" style={{ marginTop: 'var(--s-3)' }}>
-              <button type="button" aria-pressed={view === 'blessings'} onClick={() => onView('blessings')}>
-                Blessings
-              </button>
-              <button type="button" aria-pressed={view === 'players'} onClick={() => onView('players')}>
-                Who is out there
-              </button>
-              <button type="button" aria-pressed={view === 'grouping'} onClick={() => onView('grouping')}>
-                Grouping
-              </button>
-              <button type="button" aria-pressed={view === 'market'} onClick={() => onView('market')}>
-                Auction &amp; trade
-              </button>
+              {TABS.map(([id, label]) => (
+                <button key={id} type="button" aria-pressed={view === id} onClick={() => onView(id)}>
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
           <div className="lh-total">
