@@ -83,6 +83,11 @@ execFileSync(
 console.log(`\n  ${zip}`)
 console.log(`  ${(statSync(zip).size / 1024 / 1024).toFixed(1)} MB — installer + README.txt`)
 console.log('\nSend that one file. The README tells them about the SmartScreen warning.')
-console.log('\nCutting the GitHub release, attach BOTH of these or the in-app updater goes blind:')
+console.log('\nCutting the GitHub release, attach all three:')
 console.log(`  release/${version}/Triune-Helper-Setup-${version}.exe`)
-console.log(`  release/${version}/latest.yml`)
+console.log(`  release/${version}/latest.yml       <- without this the updater is blind`)
+console.log(`  release/${version}/Triune-Helper-Setup-${version}.exe.blockmap`)
+console.log(
+  '\nThe blockmap is what lets an existing install download only the changed\n' +
+    'bytes instead of the whole 80 MB. Miss it and updates still work, just fat.'
+)

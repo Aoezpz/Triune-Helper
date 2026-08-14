@@ -1,3 +1,5 @@
+import { appendFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { app } from 'electron'
 import electronUpdater from 'electron-updater'
 import {
@@ -48,8 +50,23 @@ export class Updates {
   constructor(private readonly onChange: (s: UpdateStatus) => void) {
     if (!this.selfInstall) return
 
+    // A log, because an updater that fails silently is indistinguishable from
+    // one that found nothing - and that is exactly how v0.1.0 shipped with no
+    // latest.yml attached without anybody noticing. Appended to
+    // <userData>/update.log, which is the first thing to ask for when someone
+    // says the update button never appeared.
+    autoUpdater.logger = {
+      info: (m: unknown) => this.log('info', m),
+      warn: (m: unknown) => this.log('warn', m),
+      error: (m: unknown) => this.log('error', m),
+      debug: (m: unknown) => this.log('debug', m)
+    }
+
     autoUpdater.autoDownload = false
     autoUpdater.autoInstallOnAppQuit = false
+    // We ship one NSIS installer, never a web installer. Saying so removes a
+    // startup warning and matches what electron-updater will default to later.
+    autoUpdater.disableWebInstaller = true
     // The app is unsigned, so there is no publisher name to check a downloaded
     // installer against. electron-updater would otherwise refuse the update on
     // Windows. The download is still verified by the SHA-512 in latest.yml,
@@ -87,6 +104,18 @@ export class Updates {
 
   private get current(): string {
     return app.getVersion()
+  }
+
+  /** Best-effort: a log that cannot be written must not break the update. */
+  private log(level: string, message: unknown): void {
+    try {
+      appendFileSync(
+        join(app.getPath('userData'), 'update.log'),
+        `[${new Date().toISOString()}] ${level} ${String(message)}\n`
+      )
+    } catch {
+      // Disk full, folder gone, permissions - none of it is worth a crash.
+    }
   }
 
   private set(phase: UpdatePhase): void {
