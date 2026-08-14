@@ -186,8 +186,21 @@ export interface Offer {
  * Free to a good home. Distinct from a sale because the answer to "what does it
  * cost" is different, and because it is the one kind of offer worth spotting
  * even when you were not shopping.
+ *
+ * The word "free" on its own carries it. That was left out at first as too
+ * loose, and it cost the two most obviously free things anybody has shouted -
+ * "free Mind Worm hide mantle (Legendary), Attuned Spire Shard..." and "2 more
+ * free item, ..." - both filed as untagged chatter. Set phrases like "free to a
+ * good home" are how people write when they are being tidy; most of the time
+ * they just type "free" and list the loot.
+ *
+ * Three things stop it over-reaching. "feel free" is excluded, being the one
+ * common phrase where the word means nothing. Zone names survive because \b
+ * will not split "Freeport". And "anyone free for X" is caught earlier as a
+ * group call, so an invitation never lands here.
  */
-const GIVING = /\b(?:free to a good home|giving (?:it |them |these |those |away)|giveaway|for free|\bfree\b(?= to\b))/
+const GIVING_SAID = /free to a good home|giveaway|giving (?:it |them |these |those |away)|for free/
+const GIVING_BARE = /(?<!feel )\bfree\b/
 
 /**
  * Phrases that carry their own direction, so they survive a question mark.
@@ -228,18 +241,28 @@ export function intentOf(text: string): Offer['intent'] {
   if (/\bwtb\b/.test(t)) return 'buy'
   if (/\bwtt\b/.test(t)) return 'trade'
 
-  if (GIVING.test(t)) return 'give'
+  if (GIVING_SAID.test(t)) return 'give'
+  // A bare "free" follows the same question rule as the rest: stated, it is an
+  // offer; asked, it is somebody hoping to receive. "and the helberd if thats
+  // free too?" was being listed as a giveaway of an item the speaker does not
+  // have.
+  if (GIVING_BARE.test(t)) return t.includes('?') ? 'buy' : 'give'
   if (WANTING.test(t)) return 'buy'
   if (OFFERING.test(t)) return 'sell'
 
-  // Past this point the wording carries no direction of its own, and inside a
-  // question it usually means the opposite of how it reads: "any orb of
-  // masterys out there for sale?" is somebody looking to BUY, and it was being
-  // filed under WTS. A bare question gets no intent and is shown as typed.
-  if (t.trimEnd().endsWith('?')) return null
-
-  if (/\bselling\b|\bfor sale\b/.test(t)) return 'sell'
-  if (/\bbuying\b/.test(t)) return 'buy'
+  // Past this point the wording is about somebody's position rather than the
+  // speaker's, and a question inverts it - you are asking about the other
+  // side of the trade, not announcing your own:
+  //
+  //   "selling my bracer 40k"                 -> they are selling
+  //   "any orb of masterys out there for sale?" -> they want to BUY one
+  //   "anyone buying gems?"                    -> they have gems to SELL
+  //
+  // Read the wrong way round these are exactly backwards, which is worse than
+  // no tag at all - the first version of this rule filed that orb under WTS.
+  const asking = t.includes('?')
+  if (/\bselling\b|\bfor sale\b/.test(t)) return asking ? 'buy' : 'sell'
+  if (/\bbuying\b/.test(t)) return asking ? 'sell' : 'buy'
   if (/\btrading\b/.test(t)) return 'trade'
   return null
 }
@@ -273,6 +296,26 @@ export function itemsIn(text: string): string[] {
 --------------------------------------------------------------------------- */
 
 /**
+ * How long a shout is worth showing.
+ *
+ * Both lists are kept far longer than this on disk - the cap is 400 rows - but
+ * showing all of it turns a feed into an archive. An item somebody advertised
+ * two days ago has been sold or forgotten, and answering it wastes everybody's
+ * time.
+ *
+ * Grouping runs out sooner because a group does not survive being formed.
+ * Nobody is still filling the spots they shouted about ninety minutes ago; by
+ * then the run either went or fell apart.
+ */
+export const MARKET_WINDOW_MS = 6 * 60 * 60 * 1000
+export const GROUPING_WINDOW_MS = 2 * 60 * 60 * 1000
+
+/** Rows still worth showing, newest first. */
+export function recent<T extends { at: number }>(rows: T[], now: number, windowMs: number): T[] {
+  return rows.filter((r) => now - r.at < windowMs).sort((a, b) => b.at - a.at)
+}
+
+/**
  * A shout about forming or joining a group, rather than about an item.
  *
  * These used to be thrown away or, worse, filed as sales: "flagging group,
@@ -292,9 +335,17 @@ export interface GroupCall {
   kind: 'forming' | 'seeking' | null
 }
 
-/** They have a group and need bodies. */
+/**
+ * They have a group and need bodies.
+ *
+ * The last clause is the flag-run shape, which is most of the grouping traffic
+ * on this server: "doing talendor if anyone needs flag", "on to velious flags
+ * if anyone wants in". Both halves are required - a content verb AND an
+ * invitation - because "if anyone needs" on its own also appears at the end of
+ * giveaways, and those belong in the market.
+ */
 const FORMING =
-  /\blfm\b|looking for more|\blf\s?\d+\s?(?:more|m)\b|need(?:s|ed)? \d+ more|\d+ (?:more )?spots?\b|forming (?:a |up )?(?:group|raid|party)|flagging (?:group|run)|(?:any\s?(?:one|body|1)?|who)\s+wants?\s+to\s+\w|any\s?(?:one|body|1)?\s+up for\b/
+  /\blfm\b|looking for more|\blf\s?\d+\s?(?:more|m)\b|need(?:s|ed)? \d+ more|\d+ (?:more )?spots?\b|forming (?:a |up )?(?:group|raid|party)|flagging (?:group|run)|(?:any\s?(?:one|body|1)?|who)\s+wants?\s+to\s+\w|any\s?(?:one|body|1)?\s+(?:up for|free for)\b|\b(?:doing|running|heading to|on to)\b.*\bif any/
 
 /** They want to join something already happening. */
 const SEEKING =

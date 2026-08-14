@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { censusRows, blessingRows, type ServerData } from '@shared/server'
+import {
+  blessingRows,
+  censusRows,
+  GROUPING_WINDOW_MS,
+  MARKET_WINDOW_MS,
+  recent,
+  type ServerData
+} from '@shared/server'
 import { countdown, duration } from '@shared/timers'
 import { Aurora, Starfield } from '../components/Ambient'
 import { Tipped } from '../components/Tip'
@@ -76,27 +83,35 @@ export function Server({
     }
   }, [load])
 
-  const groups = useMemo(() => [...data.groups].reverse().slice(0, 150), [data.groups])
+  // Both feeds age out on their own: `now` ticks every second, so a row leaves
+  // the list the moment it passes the window rather than at the next reload.
+  const groups = useMemo(
+    () => recent(data.groups, now, GROUPING_WINDOW_MS).slice(0, 150),
+    [data.groups, now]
+  )
   const blessings = useMemo(() => blessingRows(data.blessings, now), [data.blessings, now])
   const census = useMemo(() => censusRows(data.census), [data.census])
   const live = blessings.filter((b) => b.active).length
 
-  // Newest first, and only what the filter asks for. The cap is generous now
-  // the market has the page to itself - at thirty rows a busy evening scrolled
-  // out of the window in under an hour.
-  const offers = useMemo(() => {
-    const all = [...data.offers].reverse()
-    return (filter === 'all' ? all : all.filter((o) => o.intent === filter)).slice(0, 150)
-  }, [data.offers, filter])
+  // Newest first, inside the window, and only what the filter asks for. The row
+  // cap is generous now the market has the page to itself - at thirty rows a
+  // busy evening scrolled out of view in under an hour.
+  const fresh = useMemo(() => recent(data.offers, now, MARKET_WINDOW_MS), [data.offers, now])
+  const offers = useMemo(
+    () => (filter === 'all' ? fresh : fresh.filter((o) => o.intent === filter)).slice(0, 150),
+    [fresh, filter]
+  )
 
+  // Counted over the same window the list shows, so a filter reading zero can
+  // never sit next to a button claiming there are twelve.
   const counts = useMemo(
     () => ({
-      all: data.offers.length,
-      sell: data.offers.filter((o) => o.intent === 'sell').length,
-      buy: data.offers.filter((o) => o.intent === 'buy').length,
-      give: data.offers.filter((o) => o.intent === 'give').length
+      all: fresh.length,
+      sell: fresh.filter((o) => o.intent === 'sell').length,
+      buy: fresh.filter((o) => o.intent === 'buy').length,
+      give: fresh.filter((o) => o.intent === 'give').length
     }),
-    [data.offers]
+    [fresh]
   )
 
   return (
@@ -270,7 +285,9 @@ export function Server({
         <section className="panel">
           <div className="phead">
             <span className="t">Grouping</span>
-            <span className="meta">{groups.length} call{groups.length === 1 ? '' : 's'} heard</span>
+            <span className="meta">
+              {groups.length} in the last 2 hours
+            </span>
           </div>
           <div className="pbody">
             {groups.length === 0 ? (
@@ -324,8 +341,8 @@ export function Server({
           <span className="t">Auction &amp; trade</span>
           <span className="meta">
             {offers.length === counts.all
-              ? `${counts.all} lines kept`
-              : `${offers.length} of ${counts.all} lines`}
+              ? `${counts.all} in the last 6 hours`
+              : `${offers.length} of ${counts.all} in the last 6 hours`}
           </span>
         </div>
         {/* A feed is worth filtering; three stacked panels were not. Counts are

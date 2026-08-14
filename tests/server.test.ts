@@ -18,6 +18,9 @@ import {
   foldCensus,
   intentOf,
   itemsIn,
+  GROUPING_WINDOW_MS,
+  MARKET_WINDOW_MS,
+  recent,
   MAX_BLESSING_MS,
   type Blessing,
   type CensusEntry
@@ -441,16 +444,25 @@ describe('reading trade intent', () => {
   })
 
   /**
-   * The regression: this is somebody buying, and it was filed under WTS.
+   * The marker inverts inside a question, because you are asking about the
+   * other side of the trade rather than announcing your own.
    *
-   * Only the direction-free wording is refused. "still available?" and "any
-   * need ...?" are also questions but their phrasing says which way round they
-   * are, and they are covered below - this block once asserted they were null
-   * too, which was the blunt rule's limitation written down as a requirement.
+   * This started as "filed under WTS", was over-corrected to "no tag at all",
+   * and is now what the channel actually means. Twice this block has held my
+   * caution written down as a requirement; both times a real line settled it.
    */
-  it('does not read a direction-free question as an offer to sell', () => {
-    expect(intentOf('any orb of masterys out there for sale?')).toBeNull()
-    expect(intentOf('anything good for sale?')).toBeNull()
+  it('reads a question about a sale as somebody wanting to buy', () => {
+    expect(intentOf('any orb of masterys out there for sale?')).toBe('buy')
+    expect(intentOf('anything good for sale?')).toBe('buy')
+  })
+
+  it('reads a question about buyers as somebody wanting to sell', () => {
+    expect(intentOf('anyone buying gems?')).toBe('sell')
+  })
+
+  it('reads the same wording as a statement the plain way round', () => {
+    expect(intentOf('selling my bracer 40k')).toBe('sell')
+    expect(intentOf('buying gems, 100pp each')).toBe('buy')
   })
 
   /** A question with the shorthand in it is still unambiguous. */
@@ -507,10 +519,14 @@ describe('reading intent from how people actually talk', () => {
     expect(intentOf('anyone have a Hopebringer available?')).toBe('buy')
   })
 
-  /** The 0.1.3 fix, which the new phrasing rules must not undo. */
-  it('still refuses a bare question with no direction in it', () => {
-    expect(intentOf('any orb of masterys out there for sale?')).toBeNull()
+  /**
+   * A line with no marker of any kind still gets nothing. The question mark
+   * flips a marker that is there; it does not invent one.
+   */
+  it('still refuses a line that states no direction at all', () => {
     expect(intentOf('its not worth it to leggo those Froglok Egg Capsule (Legendary)')).toBeNull()
+    expect(intentOf('anyone know where DN is?')).toBeNull()
+    expect(intentOf('Shop Smart, Shop Baalmart!')).toBeNull()
   })
 
   it('still lets the shorthand win over everything', () => {
@@ -563,5 +579,123 @@ describe('spotting a group call', () => {
     expect(intentOf('flagging group, anyone want to come, got more spots')).toBeNull()
     expect(intentOf('anyone want to do DN')).toBeNull()
     expect(intentOf('any one want Monsoon, Sword of the Swiftwind (Enchanted)?')).toBe('sell')
+  })
+})
+
+/**
+ * "free" on its own, which is how people actually type it.
+ *
+ * Both of these are real shouts that were filed as untagged chatter, because
+ * the rule only knew set phrases like "free to a good home".
+ */
+describe('giveaways written the lazy way', () => {
+  it('reads a bare "free" as a giveaway', () => {
+    expect(intentOf('free Mind Worm hide mantle (Legendary), Attuned Spire Shard (Legendary)')).toBe('give')
+    expect(intentOf('2 more free item, Symbol of the Plaguebringer (Legendary)')).toBe('give')
+    expect(intentOf('free stuff at the bazaar campfire')).toBe('give')
+  })
+
+  it('still reads the tidy phrasings', () => {
+    expect(intentOf('Free to a good home: Shadow Footpads')).toBe('give')
+    expect(intentOf('giving away my old bracers')).toBe('give')
+    expect(intentOf('Froglok Egg Capsule for free')).toBe('give')
+  })
+
+  /** The one common phrase where "free" means nothing at all. */
+  it('does not read "feel free" as a giveaway', () => {
+    expect(intentOf('feel free to send me a tell')).toBeNull()
+    expect(intentOf('WTS bracer, feel free to haggle')).toBe('sell')
+  })
+
+  /** A zone name is not an offer. \b will not split Freeport. */
+  it('does not trip on Freeport', () => {
+    expect(intentOf('porting to Freeport in 5')).toBeNull()
+  })
+
+  /** An invitation is a group call, and is caught before intent is read. */
+  it('treats "anyone free for X" as grouping, not a giveaway', () => {
+    expect(groupCallOf('anyone free for a DN run?')).toBe('forming')
+  })
+})
+
+/**
+ * A feed, not an archive.
+ *
+ * Everything is kept on disk; these windows govern what is worth showing. An
+ * item advertised two days ago has been sold or forgotten, and a group does not
+ * survive being formed - nobody is still filling spots they shouted about
+ * ninety minutes ago.
+ */
+describe('how long a shout stays on the page', () => {
+  const row = (at: number): { at: number } => ({ at })
+  const NOW = 1_700_000_000_000
+  const HOURS = 3600_000
+
+  it('keeps trade for six hours and drops it after', () => {
+    const rows = [row(NOW - 1 * HOURS), row(NOW - 5 * HOURS), row(NOW - 7 * HOURS)]
+    expect(recent(rows, NOW, MARKET_WINDOW_MS)).toHaveLength(2)
+  })
+
+  it('drops grouping sooner, because a group does not last', () => {
+    const rows = [row(NOW - 30 * 60_000), row(NOW - 3 * HOURS)]
+    expect(recent(rows, NOW, GROUPING_WINDOW_MS)).toHaveLength(1)
+    // The same pair would both survive the market window.
+    expect(recent(rows, NOW, MARKET_WINDOW_MS)).toHaveLength(2)
+  })
+
+  it('returns newest first', () => {
+    const rows = [row(NOW - 3 * HOURS), row(NOW - 1 * HOURS), row(NOW - 2 * HOURS)]
+    expect(recent(rows, NOW, MARKET_WINDOW_MS).map((r) => r.at)).toEqual([
+      NOW - 1 * HOURS,
+      NOW - 2 * HOURS,
+      NOW - 3 * HOURS
+    ])
+  })
+})
+
+/** Asking whether something is free is not offering it. */
+describe('a bare "free" inside a question', () => {
+  it('reads as somebody hoping to receive, not giving', () => {
+    expect(intentOf('and the helberd if thats free too?')).toBe('buy')
+    expect(intentOf('is the mantle still free?')).toBe('buy')
+  })
+
+  it('still reads a stated giveaway as a giveaway', () => {
+    expect(intentOf('free Mind Worm hide mantle (Legendary)')).toBe('give')
+  })
+
+  /** A set phrase says it outright, so the question mark does not flip it. */
+  it('keeps "free to a good home" a giveaway even when asked', () => {
+    expect(intentOf('free to a good home, anyone want these?')).toBe('give')
+  })
+})
+
+/**
+ * Flag runs, which are most of the grouping traffic on this server.
+ *
+ * All three of these were tagged WTS and filed in the market, because "anyone
+ * needs" and "anyone wants" read as somebody offering goods.
+ */
+describe('flag runs', () => {
+  it('reads a content run with an invitation as a group forming', () => {
+    expect(groupCallOf('doing talendor if anyone needs flag')).toBe('forming')
+    expect(groupCallOf('on to velious flags if anyone wants in')).toBe('forming')
+    expect(groupCallOf('doing vox if anyone needs flag')).toBe('forming')
+    expect(groupCallOf('running DN if anyone wants to come')).toBe('forming')
+  })
+
+  /**
+   * Both halves are needed. An invitation tacked onto a giveaway is still a
+   * giveaway, and belongs in the market.
+   */
+  it('needs a content verb, not just an invitation', () => {
+    expect(groupCallOf('free to a good home if anyone needs them')).toBe(false)
+    expect(intentOf('free to a good home if anyone needs them')).toBe('give')
+  })
+
+  it('leaves those lines out of the market entirely', () => {
+    expect(intentOf('doing talendor if anyone needs flag')).toBe('sell')
+    // ...but groupCallOf is asked first, so the market never sees it.
+    expect(groupCallOf('doing talendor if anyone needs flag')).not.toBe(false)
   })
 })

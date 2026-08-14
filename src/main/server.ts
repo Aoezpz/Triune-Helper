@@ -45,16 +45,37 @@ const store = new Store<Persisted>({
 })
 
 /**
+ * The same shout is not written identically by every client.
+ *
+ * EverQuest reflows a long chat line to the width of the chat window it is
+ * being displayed in, and it logs what it displayed - so one broadcast at one
+ * timestamp arrives as two different strings:
+ *
+ *   Deezel     'free Mind Worm hide mantle (Legendary),Attuned Spire Shard...'
+ *   Thictrader 'free Mind Worm hide mantle (Legendary) , Attuned Spire Shard...'
+ *
+ * An exact-match key never fires on that pair, which is why the same giveaway
+ * appeared twice on the page with the same timestamp.
+ *
+ * ALL whitespace goes, not just runs of it and not just the space in front of a
+ * comma - the first attempt normalised "(Legendary) ," to "(Legendary)," and
+ * still missed this pair, because one client also puts a space AFTER the comma
+ * and the other does not. Two different shouts colliding on this key would need
+ * the same second, the same speaker and the same characters in the same order,
+ * which is the same shout.
+ */
+const sameLine = (text: string): string => text.replace(/\s+/g, '').toLowerCase()
+
+/**
  * One row per thing actually said.
  *
- * Same key as the write-side guard: the line's own timestamp, who said it, and
- * what it said. Two identical shouts a minute apart stay two rows, because the
- * timestamps differ.
+ * Keyed on the line's own timestamp, who said it, and what it said. Two
+ * identical shouts a minute apart stay two rows, because the timestamps differ.
  */
 function dedupe<T extends { at: number; text: string }>(rows: T[], who: (r: T) => string): T[] {
   const seen = new Set<string>()
   return rows.filter((r) => {
-    const key = `${r.at}|${who(r)}|${r.text}`
+    const key = `${r.at}|${who(r)}|${sameLine(r.text)}`
     if (seen.has(key)) return false
     seen.add(key)
     return true
@@ -128,7 +149,7 @@ export class ServerWatch {
       const seen = Math.max(0, this.groups.length - 200)
       for (let i = this.groups.length - 1; i >= seen; i--) {
         const g = this.groups[i]
-        if (g.at === e.ts && g.caller === caller && g.text === text) return
+        if (g.at === e.ts && g.caller === caller && sameLine(g.text) === sameLine(text)) return
       }
       this.groups.push({ caller, channel: e.channel, text, at: e.ts, kind: call })
       if (this.groups.length > MAX_OFFERS) {
@@ -157,7 +178,7 @@ export class ServerWatch {
     const from = Math.max(0, this.offers.length - 200)
     for (let i = this.offers.length - 1; i >= from; i--) {
       const o = this.offers[i]
-      if (o.at === e.ts && o.seller === seller && o.text === text) return
+      if (o.at === e.ts && o.seller === seller && sameLine(o.text) === sameLine(text)) return
     }
 
     this.offers.push({
