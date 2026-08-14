@@ -44,25 +44,39 @@ export function Party({
   party,
   known,
   order,
-  busy
+  busy,
+  offline
 }: {
   party: PartyView
   known: Record<string, Identity>
   /** Your own boxed characters, in their stable order - they get slot colours. */
   order: string[]
   busy: boolean
+  /**
+   * Boxed characters the game has stopped writing for.
+   *
+   * "Not in your group" and "not online" are different answers and were being
+   * given the same heading, so a character camped an hour ago sat in the same
+   * block as one standing next to you in another group.
+   */
+  offline: Set<string>
 }): JSX.Element | null {
   const [refreshing, setRefreshing] = useState(false)
   const { members, alsoOnline } = party
 
+  // partyOf knows who is grouped, not who is playing - it has no clock. The
+  // split happens here, where one does.
+  const apart = alsoOnline.filter((n) => !offline.has(n))
+  const gone = alsoOnline.filter((n) => offline.has(n))
+
   if (members.length === 0 && alsoOnline.length === 0) return null
 
-  const row = (name: string, apart: boolean): JSX.Element => {
+  const row = (name: string, dim: boolean): JSX.Element => {
     const id = known[name]
     const slot = order.indexOf(name)
 
     return (
-      <div className={apart ? 'pty apart' : 'pty'} key={name} title={describe(name, id)}>
+      <div className={dim ? 'pty apart' : 'pty'} key={name} title={describe(name, id)}>
         <span
           className="pty-mark"
           style={{ background: SLOT_VARS[slot] ?? 'var(--line-2)' }}
@@ -113,12 +127,31 @@ export function Party({
       <div className="party-rows">
         {members.map((name) => row(name, false))}
 
-        {alsoOnline.length > 0 && (
+        {apart.length > 0 && (
           <>
-            <div className="party-apart" title="Logs being read for characters who are not in this group">
+            <div
+              className="party-apart"
+              title="Playing right now, but not in this group — a second box at another camp"
+            >
               not grouped
             </div>
-            {alsoOnline.map((name) => row(name, true))}
+            {apart.map((name) => row(name, true))}
+          </>
+        )}
+
+        {/* Said separately, because it is a different fact. These are your
+            characters, still being read, that the game has stopped writing for
+            - camped, or the client is closed. Lumped under "not grouped" they
+            read as somebody standing elsewhere doing something. */}
+        {gone.length > 0 && (
+          <>
+            <div
+              className="party-apart"
+              title="No lines for two minutes — camped, or the client is closed. EverQuest writes nothing for a character standing still, so this is a strong hint rather than a certainty."
+            >
+              offline
+            </div>
+            {gone.map((name) => row(name, true))}
           </>
         )}
       </div>

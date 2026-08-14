@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ParsedEvent } from '@shared/parser/types'
+import { isLive } from '@shared/ipc'
 import { partyOf } from '@shared/roster'
 import type { FightSummary } from '@shared/stats'
 import { clock, short } from '@shared/stats'
@@ -13,6 +14,7 @@ import { Roster } from '../combat/Roster'
 import { Timeline } from '../combat/Timeline'
 import { useCombat, useCombatLines } from '../hooks/useCombat'
 import { useRoster } from '../hooks/useRoster'
+import { useWatcherStatus } from '../hooks/useSettings'
 
 type Scope = 'fight' | 'overall'
 export type View = 'dashboard' | 'timeline'
@@ -55,6 +57,24 @@ export function Combat({
   const roster = useRoster()
   const selfNames = useMemo(() => new Set(characters), [characters])
   const party = useMemo(() => partyOf(roster, characters, active), [roster, characters, active])
+
+  // Who the game has stopped writing for. Recomputed against a ticking clock
+  // rather than read off the pushed status, because logging out is not
+  // something main can observe - the file simply stops growing, and nothing
+  // prompts a new status.
+  const status = useWatcherStatus()
+  const [tick, setTick] = useState(() => Date.now())
+  useEffect(() => {
+    const t = setInterval(() => setTick(Date.now()), 15_000)
+    return () => clearInterval(t)
+  }, [])
+  const offline = useMemo(
+    () =>
+      new Set(
+        (status?.sources ?? []).filter((s) => !isLive(s.lastLineAt, tick)).map((s) => s.character)
+      ),
+    [status, tick]
+  )
 
   const fights: FightSummary[] = useMemo(
     () => (combat.live ? [combat.live, ...combat.history] : combat.history),
@@ -194,7 +214,13 @@ export function Combat({
             </span>
           </div>
           {/* Outside .pbody, so it stays put while the ranked list scrolls. */}
-          <Party party={party} known={roster.known} order={characters} busy={roster.busy} />
+          <Party
+            party={party}
+            known={roster.known}
+            order={characters}
+            busy={roster.busy}
+            offline={offline}
+          />
           <div className="pbody">
             {shown ? (
               <Roster
