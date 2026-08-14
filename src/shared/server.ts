@@ -221,8 +221,13 @@ const WANTING =
  * want to come, got more spots" was tagged WTS and filed in the market - a
  * recruit advertised as a sale. `want to` is followed by a verb, and a verb is
  * not an item.
+ *
+ * One optional word is allowed between "any" and the verb, because people
+ * address a class rather than the room: "any war want? Legionnaire Scale Helm
+ * (Legendary)", "any shm need this". Requiring "anyone" missed all of it.
  */
-const OFFERING = /\b(?:any\s?(?:one|body|1)?\s+(?:wants?|needs?)|who (?:wants?|needs?))\b(?!\s+to\b)/
+const OFFERING =
+  /\bany(?:one|body|1)?\b(?:\s+\w+)?\s+(?:wants?|needs?)\b(?!\s+to\b)|\bwho\s+(?:wants?|needs?)\b(?!\s+to\b)/
 
 /**
  * What somebody is trying to do.
@@ -339,13 +344,23 @@ export interface GroupCall {
  * They have a group and need bodies.
  *
  * The last clause is the flag-run shape, which is most of the grouping traffic
- * on this server: "doing talendor if anyone needs flag", "on to velious flags
- * if anyone wants in". Both halves are required - a content verb AND an
- * invitation - because "if anyone needs" on its own also appears at the end of
- * giveaways, and those belong in the market.
+ * on this server:
+ *
+ *   "doing talendor if anyone needs flag"
+ *   "on to velious flags if anyone wants in"
+ *   "kill gore for flag if anyone needs"
+ *
+ * It keys on the invitation alone. The first version also demanded a content
+ * verb from a list - doing, running, heading to - which was me guessing at how
+ * people would phrase it, and "kill gore for flag" walked straight past it. The
+ * verb is the part that varies; "if anyone needs" is the part that means
+ * "come with me".
+ *
+ * A giveaway can end the same way, so groupCallOf checks for one first rather
+ * than this pattern trying to exclude it.
  */
 const FORMING =
-  /\blfm\b|looking for more|\blf\s?\d+\s?(?:more|m)\b|need(?:s|ed)? \d+ more|\d+ (?:more )?spots?\b|forming (?:a |up )?(?:group|raid|party)|flagging (?:group|run)|(?:any\s?(?:one|body|1)?|who)\s+wants?\s+to\s+\w|any\s?(?:one|body|1)?\s+(?:up for|free for)\b|\b(?:doing|running|heading to|on to)\b.*\bif any/
+  /\blfm\b|looking for more|\blf\s?\d+\s?(?:more|m)\b|need(?:s|ed)? \d+ more|\d+ (?:more )?spots?\b|forming (?:a |up )?(?:group|raid|party)|flagging (?:group|run)|\bany(?:one|body|1)?\b(?:\s+\w+)?\s+wants?\s+to\s+\w|\bwho\s+wants?\s+to\s+\w|any\s?(?:one|body|1)?\s+(?:up for|free for)\b|\bif any\s?(?:one|body|1)?\s+(?:needs?|wants?)\b/
 
 /** They want to join something already happening. */
 const SEEKING =
@@ -363,6 +378,12 @@ export function groupCallOf(text: string): GroupCall['kind'] | false {
   // Trade shorthand wins outright: "WTS port to DN" is a service for sale, not
   // somebody forming a group.
   if (/\bwt[sbt]\b/.test(t)) return false
+
+  // A giveaway can end with an invitation too - "free to a good home if anyone
+  // needs them" - and it is still a giveaway. Asked here rather than worked
+  // around inside FORMING, so the two rules do not have to know about each
+  // other's edge cases.
+  if (intentOf(text) === 'give') return false
 
   if (SEEKING.test(t)) return 'seeking'
   if (FORMING.test(t)) return 'forming'

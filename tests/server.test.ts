@@ -699,3 +699,68 @@ describe('flag runs', () => {
     expect(groupCallOf('doing talendor if anyone needs flag')).not.toBe(false)
   })
 })
+
+/**
+ * People address a class, not the room.
+ *
+ * "any war want? Legionnaire Scale Helm (Legendary)" is a warrior-specific
+ * offer and read as untagged chatter, because the rule wanted the literal word
+ * "anyone". One optional word between "any" and the verb covers it.
+ */
+describe('offers aimed at a class', () => {
+  it('reads "any <class> want" as an offer', () => {
+    expect(intentOf('any war want? Legionnaire Scale Helm (Legendary)')).toBe('sell')
+    expect(intentOf('any shm need this')).toBe('sell')
+    expect(intentOf('any rogue want a Shadowy Assassin Sash (Legendary)?')).toBe('sell')
+    expect(intentOf('any cleric need Guise of the Deceiver?')).toBe('sell')
+  })
+
+  it('still reads the plain forms', () => {
+    expect(intentOf('anyone want a bracer')).toBe('sell')
+    expect(intentOf('who needs a Hopebringer')).toBe('sell')
+  })
+
+  /** The verb guard still holds with a class in the way. */
+  it('keeps "any <class> want to X" out of the market', () => {
+    expect(intentOf('any war want to come to DN')).toBeNull()
+    expect(groupCallOf('any war want to come to DN')).toBe('forming')
+  })
+
+  /** "any" followed by an unrelated noun is not an offer. */
+  it('does not fire on ordinary sentences starting with any', () => {
+    expect(intentOf('any idea what this drops from')).toBeNull()
+    expect(intentOf('anything good happening tonight')).toBeNull()
+  })
+})
+
+/**
+ * The invitation is the signal, not the verb.
+ *
+ * The first flag-run rule demanded a content verb from a list I made up -
+ * doing, running, heading to - and "kill gore for flag if anyone needs" walked
+ * straight past it. The verb is the part that varies.
+ */
+describe('flag runs, however they are phrased', () => {
+  it('reads any activity offered with an invitation', () => {
+    expect(groupCallOf('kill gore for flag if anyone needs')).toBe('forming')
+    expect(groupCallOf('doing talendor if anyone needs flag')).toBe('forming')
+    expect(groupCallOf('on to velious flags if anyone wants in')).toBe('forming')
+    expect(groupCallOf('heading into ToV if anyone wants')).toBe('forming')
+    expect(groupCallOf('CT in 10 if anyone needs it')).toBe('forming')
+  })
+
+  /**
+   * A giveaway ends the same way and is still a giveaway. Checked by asking
+   * for the trade intent rather than by teaching the grouping pattern about
+   * every phrasing of "free".
+   */
+  it('does not steal giveaways that end with an invitation', () => {
+    expect(groupCallOf('free to a good home if anyone needs them')).toBe(false)
+    expect(intentOf('free to a good home if anyone needs them')).toBe('give')
+    expect(groupCallOf('giving away spare bracers if anyone wants')).toBe(false)
+  })
+
+  it('still leaves a plain sale alone', () => {
+    expect(groupCallOf('WTS Legionnaire Scale Helm if anyone needs')).toBe(false)
+  })
+})
