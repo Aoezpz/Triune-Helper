@@ -133,6 +133,7 @@ function enableDevCapture(): void {
   //   target meter          switch to an overlay window (default: main)
   //   click  640 410        a real mouse click, through the compositor
   //   hover  700 520        park the cursor somewhere and leave it there
+  //   scroll 700 500 -1200  wheel by deltaY, for anything below the fold
   //   wait   600            milliseconds
   //   shot   C:\out.png     write the window to a PNG
   //
@@ -189,6 +190,22 @@ function enableDevCapture(): void {
             target.webContents.sendInputEvent({ type: 'mouseDown', x, y, button: 'left', clickCount: 1 })
             target.webContents.sendInputEvent({ type: 'mouseUp', x, y, button: 'left', clickCount: 1 })
           }
+        } else if (verb === 'scroll') {
+          // `scroll 700 500 -1200` - wheel by deltaY at a point. Without this
+          // anything below the fold of a scrolling page cannot be screenshotted
+          // at all, which quietly meant "verified" only ever covered the top of
+          // a long page.
+          const [x, y, dy] = rest.map(Number)
+          target.webContents.focus()
+          target.webContents.sendInputEvent({ type: 'mouseMove', x, y })
+          target.webContents.sendInputEvent({
+            type: 'mouseWheel',
+            x,
+            y,
+            deltaX: 0,
+            deltaY: dy,
+            canScroll: true
+          } as Parameters<typeof target.webContents.sendInputEvent>[0])
         }
       }
       busy = false

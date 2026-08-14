@@ -215,17 +215,33 @@ export function Server(): JSX.Element {
                 <div className="offer" key={`${o.at}-${i}`}>
                   <span
                     className={`o-tag ${o.intent ?? 'none'}`}
-                    title={o.intent === null ? 'No WTS/WTB/WTT in the line — listed for its item names' : undefined}
+                    title={
+                      o.intent === null
+                        ? 'No WTS/WTB/WTT in the line — kept as trade traffic, but shown exactly as it was typed'
+                        : undefined
+                    }
                   >
                     {o.intent === 'sell' ? 'WTS' : o.intent === 'buy' ? 'WTB' : o.intent === 'trade' ? 'WTT' : 'list'}
                   </span>
                   <span className="o-who">{o.seller}</span>
-                  {/* Separated, because run together they read as one absurd
-                      item name. Each is a tooltip, which is also the check:
-                      a name the extractor merged out of two adjacent items
-                      comes back "no item by that name" from PTDex. */}
+                  {/* Item links are only drawn for a line that SAID what it
+                      wanted.
+
+                      A line with no WTS/WTB/WTT is kept, because it is still
+                      trade traffic, but it is shown exactly as it was typed.
+                      Lifting names out of it and rendering them as the same
+                      orange links a real listing gets made a shout with no
+                      marker read as a price list - the app supplying structure
+                      the speaker never did, which is the one thing this page is
+                      not allowed to do. What it says now is only what was said.
+
+                      Where the intent IS stated, the names are separated,
+                      because run together they read as one absurd item name.
+                      Each is a tooltip, which doubles as the check: a name the
+                      extractor merged out of two adjacent items comes back "no
+                      item by that name" from PTDex. */}
                   <span className="o-text" title={o.text}>
-                    {o.items.length > 0
+                    {o.intent !== null && o.items.length > 0
                       ? o.items.map((it, n) => (
                           <span key={it}>
                             {n > 0 && <span className="o-sep">·</span>}
@@ -245,11 +261,13 @@ export function Server(): JSX.Element {
             </div>
           )}
           <p className="fhint" style={{ marginBottom: 0 }}>
-            A chat scraper, not a market index. Item names are only lifted when they carry a tier in
-            brackets, and sellers who list several without punctuation between them will have two run into
-            one — hover a name to check it against PTDex, which is how you spot those. Most lines carry no
-            price at all, <code>list</code> means the line named no WTS/WTB/WTT, and <code>/bazaar</code>{' '}
-            trader stock never reaches the log. Hover any row to read the line exactly as it was said.
+            A chat scraper, not a market index. Item names are only lifted from a line that said what it
+            wanted — a <code>list</code> row named no WTS/WTB/WTT, so it is shown word for word rather than
+            turned into a price list nobody offered. Even then the names are only lifted when they carry a
+            tier in brackets, and sellers who run several together without punctuation will have two merge
+            into one — hover a name to check it against PTDex, which is how you spot those. Most lines carry
+            no price at all, and <code>/bazaar</code> trader stock never reaches the log. Hover any row to
+            read the line exactly as it was said.
           </p>
           <div className="row" style={{ marginTop: 'var(--s-3)' }}>
             <button

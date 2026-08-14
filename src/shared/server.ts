@@ -191,9 +191,23 @@ export interface Offer {
  */
 export function intentOf(text: string): Offer['intent'] {
   const t = text.toLowerCase()
-  if (/\bwt[s]\b|\bselling\b|\bfor sale\b/.test(t)) return 'sell'
-  if (/\bwt[b]\b|\bbuying\b|\blooking to buy\b|\blf\b/.test(t)) return 'buy'
-  if (/\bwt[t]\b|\btrading\b/.test(t)) return 'trade'
+
+  // The shorthand is unambiguous wherever it appears: nobody types WTS while
+  // trying to buy.
+  if (/\bwts\b/.test(t)) return 'sell'
+  if (/\bwtb\b/.test(t)) return 'buy'
+  if (/\bwtt\b/.test(t)) return 'trade'
+
+  // Everything else is prose, and prose inside a question usually means the
+  // opposite of what it says. "any orb of masterys out there for sale?" is
+  // somebody looking to BUY, and it was being filed under WTS - which is worse
+  // than not guessing, because a wrong tag reads as a fact. A question gets no
+  // intent and is shown as it was typed.
+  if (t.trimEnd().endsWith('?')) return null
+
+  if (/\bselling\b|\bfor sale\b/.test(t)) return 'sell'
+  if (/\bbuying\b|\blooking to buy\b|\blf\b/.test(t)) return 'buy'
+  if (/\btrading\b/.test(t)) return 'trade'
   return null
 }
 

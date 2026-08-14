@@ -425,3 +425,40 @@ describe('folding blessings out of several logs', () => {
     expect(rows.map((r) => r.name)).toEqual(['Echo of Luck', 'Echo of Selo'])
   })
 })
+
+/**
+ * Intent, and refusing to guess it.
+ *
+ * A wrong tag is worse than no tag, because "WTS" reads as a fact the speaker
+ * stated. All of these are real lines off the server.
+ */
+describe('reading trade intent', () => {
+  it('trusts the shorthand wherever it appears', () => {
+    expect(intentOf('WTS Bracer of Precision (Legendary)')).toBe('sell')
+    expect(intentOf('WTB Staff of Elemental Water')).toBe('buy')
+    expect(intentOf('WTT my bracer for yours')).toBe('trade')
+  })
+
+  /** The regression: this is somebody buying, and it was filed under WTS. */
+  it('does not read a question as an offer to sell', () => {
+    expect(intentOf('any orb of masterys out there for sale?')).toBeNull()
+    expect(intentOf('Great Cloak of Shadows (Enchanted) still available?')).toBeNull()
+    expect(intentOf('any need a Serpentine Bracer (Legendary)?')).toBeNull()
+  })
+
+  /** A question with the shorthand in it is still unambiguous. */
+  it('still trusts the shorthand inside a question', () => {
+    expect(intentOf('WTB Seru aug with shissar bane damage?')).toBe('buy')
+  })
+
+  it('reads plain prose when it is not a question', () => {
+    expect(intentOf('selling my bracer 40k')).toBe('sell')
+    expect(intentOf('looking to buy a Seru aug')).toBe('buy')
+  })
+
+  /** An advert is not an offer, and never was. */
+  it('gives no intent to a line that states none', () => {
+    expect(intentOf('Shop Smart, Shop Baalmart!')).toBeNull()
+    expect(intentOf('its not worth it to leggo those Froglok Egg Capsule (Legendary)')).toBeNull()
+  })
+})
