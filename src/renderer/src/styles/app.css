@@ -964,6 +964,14 @@ code {
 .offer .o-tag.sell { color: var(--good); }
 .offer .o-tag.buy { color: var(--arcane-hi); }
 .offer .o-tag.trade { color: var(--warn); }
+/* Filled rather than outlined, because a giveaway is the one row type worth
+   catching out of the corner of your eye - and because gold outlined next to
+   the amber WTT would have been two warm hairlines to tell apart. */
+.offer .o-tag.give {
+  color: var(--gold-hi);
+  background: color-mix(in srgb, var(--gold) 22%, transparent);
+  border-color: var(--gold-deep);
+}
 .offer .o-tag.none { color: var(--muted); }
 .offer .o-who { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .offer .o-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

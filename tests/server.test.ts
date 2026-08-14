@@ -439,11 +439,17 @@ describe('reading trade intent', () => {
     expect(intentOf('WTT my bracer for yours')).toBe('trade')
   })
 
-  /** The regression: this is somebody buying, and it was filed under WTS. */
-  it('does not read a question as an offer to sell', () => {
+  /**
+   * The regression: this is somebody buying, and it was filed under WTS.
+   *
+   * Only the direction-free wording is refused. "still available?" and "any
+   * need ...?" are also questions but their phrasing says which way round they
+   * are, and they are covered below - this block once asserted they were null
+   * too, which was the blunt rule's limitation written down as a requirement.
+   */
+  it('does not read a direction-free question as an offer to sell', () => {
     expect(intentOf('any orb of masterys out there for sale?')).toBeNull()
-    expect(intentOf('Great Cloak of Shadows (Enchanted) still available?')).toBeNull()
-    expect(intentOf('any need a Serpentine Bracer (Legendary)?')).toBeNull()
+    expect(intentOf('anything good for sale?')).toBeNull()
   })
 
   /** A question with the shorthand in it is still unambiguous. */
@@ -460,5 +466,54 @@ describe('reading trade intent', () => {
   it('gives no intent to a line that states none', () => {
     expect(intentOf('Shop Smart, Shop Baalmart!')).toBeNull()
     expect(intentOf('its not worth it to leggo those Froglok Egg Capsule (Legendary)')).toBeNull()
+  })
+})
+
+/**
+ * Phrasing that carries direction, including inside a question.
+ *
+ * "anyone want a bracer?" and "anyone have a bracer?" are both questions and
+ * mean opposite things. Blanket-refusing to read questions - which is what
+ * 0.1.3 did - threw both away. Every line below is real traffic off the server.
+ */
+describe('reading intent from how people actually talk', () => {
+  it('reads offering it out, even as a question', () => {
+    expect(intentOf('any one want Monsoon, Sword of the Swiftwind (Enchanted)?')).toBe('sell')
+    expect(intentOf('any need a Serpentine Bracer (Legendary)?')).toBe('sell')
+    expect(intentOf('anyone need a Guise of the Deceiver?')).toBe('sell')
+    expect(intentOf('who wants a Hopebringer')).toBe('sell')
+  })
+
+  it('reads asking for it, even as a question', () => {
+    expect(intentOf('does anyone have a Staff of Elemental Water?')).toBe('buy')
+    expect(intentOf('anyone have an orb of mastery')).toBe('buy')
+    expect(intentOf('Great Cloak of Shadows (Enchanted) still available?')).toBe('buy')
+    expect(intentOf('looking for a Seru aug')).toBe('buy')
+    expect(intentOf('ISO Symbol of Ancient Summoning')).toBe('buy')
+  })
+
+  it('reads a giveaway as its own thing', () => {
+    expect(intentOf('Free to a good home: Shadow Footpads, Grimoire of Enchantment')).toBe('give')
+    expect(intentOf('giving away my old bracers')).toBe('give')
+    expect(intentOf('Froglok Egg Capsule for free')).toBe('give')
+  })
+
+  /**
+   * "anyone have X available" is somebody asking, not advertising - so wanting
+   * has to be tested before offering rather than after.
+   */
+  it('does not mistake asking for advertising', () => {
+    expect(intentOf('anyone have a Hopebringer available?')).toBe('buy')
+  })
+
+  /** The 0.1.3 fix, which the new phrasing rules must not undo. */
+  it('still refuses a bare question with no direction in it', () => {
+    expect(intentOf('any orb of masterys out there for sale?')).toBeNull()
+    expect(intentOf('its not worth it to leggo those Froglok Egg Capsule (Legendary)')).toBeNull()
+  })
+
+  it('still lets the shorthand win over everything', () => {
+    expect(intentOf('WTS anyone have a spare bracer')).toBe('sell')
+    expect(intentOf('WTB free to a good home items')).toBe('buy')
   })
 })

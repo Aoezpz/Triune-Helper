@@ -118,7 +118,18 @@ export class ServerWatch {
     return {
       blessings: this.blessings,
       census: this.census,
-      offers: this.offers,
+      // Intent and item names are DERIVED, so they are re-derived here rather
+      // than trusted from the store. They were being computed once when the
+      // line arrived and persisted alongside it, which quietly meant every
+      // improvement to the rules only applied to lines heard afterwards - four
+      // hundred stored rows kept whatever the old rules decided, forever. The
+      // line itself is the fact; everything read out of it is an opinion, and
+      // an opinion should be recomputed from the current rules.
+      offers: this.offers.map((o) => ({
+        ...o,
+        intent: intentOf(o.text),
+        items: itemsIn(o.text)
+      })),
       bazaar: this.bazaar,
       appliedAt: this.appliedAt
     }

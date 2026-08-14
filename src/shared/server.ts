@@ -176,18 +176,40 @@ export interface Offer {
   /** The line verbatim, because the parse below is best-effort. */
   text: string
   at: number
-  /** WTS / WTB / WTT, when the line says. */
-  intent: 'sell' | 'buy' | 'trade' | null
+  /** WTS / WTB / WTT / giveaway, when the line says. Null when it does not. */
+  intent: 'sell' | 'buy' | 'trade' | 'give' | null
   /** Item names lifted out of the text. Often empty; see the note below. */
   items: string[]
 }
 
 /**
- * What somebody is trying to do, from the shorthand everyone uses.
+ * Free to a good home. Distinct from a sale because the answer to "what does it
+ * cost" is different, and because it is the one kind of offer worth spotting
+ * even when you were not shopping.
+ */
+const GIVING = /\b(?:free to a good home|giving (?:it |them |these |those |away)|giveaway|for free|\bfree\b(?= to\b))/
+
+/**
+ * Phrases that carry their own direction, so they survive a question mark.
  *
- * Deliberately conservative: a line with no marker gets `null` rather than an
- * assumption, because "Shop Smart, Shop Baalmart!" is an advert and guessing
- * `sell` for it would put a catchphrase in a price list.
+ * "anyone want a bracer?" and "anyone have a bracer?" are both questions and
+ * they mean opposite things - the first is offering, the second is asking. The
+ * phrase says which, so these are read before the question guard below.
+ *
+ * Wanting is tested first, because "anyone have X available" is somebody asking
+ * for it, not somebody advertising it.
+ */
+const WANTING =
+  /\b(?:any\s?(?:one|body|1)?\s+ha(?:ve|s)|still (?:available|around)|looking (?:for|to buy)|\biso\b|\blf\b)/
+const OFFERING = /\b(?:any\s?(?:one|body|1)?\s+wants?|who wants?|any\s?(?:one|body|1)?\s+needs?|who needs?)/
+
+/**
+ * What somebody is trying to do.
+ *
+ * Conservative on purpose: a line that states nothing gets `null` rather than
+ * an assumption, because "Shop Smart, Shop Baalmart!" is an advert and guessing
+ * `sell` for it would put a catchphrase in a price list. A wrong tag is worse
+ * than no tag, because a tag reads as something the speaker said.
  */
 export function intentOf(text: string): Offer['intent'] {
   const t = text.toLowerCase()
@@ -198,15 +220,18 @@ export function intentOf(text: string): Offer['intent'] {
   if (/\bwtb\b/.test(t)) return 'buy'
   if (/\bwtt\b/.test(t)) return 'trade'
 
-  // Everything else is prose, and prose inside a question usually means the
-  // opposite of what it says. "any orb of masterys out there for sale?" is
-  // somebody looking to BUY, and it was being filed under WTS - which is worse
-  // than not guessing, because a wrong tag reads as a fact. A question gets no
-  // intent and is shown as it was typed.
+  if (GIVING.test(t)) return 'give'
+  if (WANTING.test(t)) return 'buy'
+  if (OFFERING.test(t)) return 'sell'
+
+  // Past this point the wording carries no direction of its own, and inside a
+  // question it usually means the opposite of how it reads: "any orb of
+  // masterys out there for sale?" is somebody looking to BUY, and it was being
+  // filed under WTS. A bare question gets no intent and is shown as typed.
   if (t.trimEnd().endsWith('?')) return null
 
   if (/\bselling\b|\bfor sale\b/.test(t)) return 'sell'
-  if (/\bbuying\b|\blooking to buy\b|\blf\b/.test(t)) return 'buy'
+  if (/\bbuying\b/.test(t)) return 'buy'
   if (/\btrading\b/.test(t)) return 'trade'
   return null
 }

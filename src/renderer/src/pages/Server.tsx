@@ -221,7 +221,15 @@ export function Server(): JSX.Element {
                         : undefined
                     }
                   >
-                    {o.intent === 'sell' ? 'WTS' : o.intent === 'buy' ? 'WTB' : o.intent === 'trade' ? 'WTT' : 'list'}
+                    {o.intent === 'sell'
+                      ? 'WTS'
+                      : o.intent === 'buy'
+                        ? 'WTB'
+                        : o.intent === 'trade'
+                          ? 'WTT'
+                          : o.intent === 'give'
+                            ? 'FREE'
+                            : 'list'}
                   </span>
                   <span className="o-who">{o.seller}</span>
                   {/* Item links are only drawn for a line that SAID what it
