@@ -16,7 +16,7 @@ import { Preferences } from './pages/Preferences'
 import { Leaderboards } from './pages/Leaderboards'
 import { Progression } from './pages/Progression'
 import { Timers } from './pages/Timers'
-import { Server } from './pages/Server'
+import { Server, type ServerView } from './pages/Server'
 import { installTimers } from './timers/store'
 
 /** Injected from package.json at build time - see electron.vite.config.ts. */
@@ -127,7 +127,12 @@ export default function App(): JSX.Element {
         {page === 'zones' && <Zones />}
         {page === 'mobs' && <Mobs />}
         {page === 'timers' && <Timers />}
-        {page === 'server' && <Server />}
+        {page === 'server' && (
+          <Server
+            view={(settings.serverView as ServerView) ?? 'blessings'}
+            onView={(v) => void update({ serverView: v })}
+          />
+        )}
         {page === 'preferences' && <Preferences settings={settings} update={update} status={status} />}
       </main>
     </div>

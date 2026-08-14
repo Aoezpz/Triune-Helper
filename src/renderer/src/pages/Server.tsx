@@ -12,17 +12,36 @@ import { Tipped } from '../components/Tip'
  * logged in. It is a sample of the server taken during your play, never a
  * total, and the page says so where somebody might otherwise read a count as
  * a population.
+ *
+ * Four views rather than one long scroll, because they are read in completely
+ * different ways. Blessings are a glance - four rows, checked once. The census
+ * is a slow reference nobody watches. Grouping and the market are live feeds
+ * you would leave open. Stacked, the feeds sat below two screens of the other
+ * two, which meant the things that change most often were the hardest to see.
  */
-export function Server(): JSX.Element {
+export type ServerView = 'blessings' | 'players' | 'grouping' | 'market'
+
+/** Which intents the market list is showing. */
+type MarketFilter = 'all' | 'sell' | 'buy' | 'give'
+
+export function Server({
+  view,
+  onView
+}: {
+  view: ServerView
+  onView: (v: ServerView) => void
+}): JSX.Element {
   const [data, setData] = useState<ServerData>({
     blessings: [],
     census: {},
+    groups: [],
     offers: [],
     bazaar: null,
     appliedAt: null
   })
   const [now, setNow] = useState(() => Date.now())
   const [confirmReset, setConfirmReset] = useState(false)
+  const [filter, setFilter] = useState<MarketFilter>('all')
 
   const load = useCallback(async () => {
     setData(await window.triune.invoke('server:get'))
@@ -38,9 +57,28 @@ export function Server(): JSX.Element {
     }
   }, [load])
 
+  const groups = useMemo(() => [...data.groups].reverse().slice(0, 150), [data.groups])
   const blessings = useMemo(() => blessingRows(data.blessings, now), [data.blessings, now])
   const census = useMemo(() => censusRows(data.census), [data.census])
   const live = blessings.filter((b) => b.active).length
+
+  // Newest first, and only what the filter asks for. The cap is generous now
+  // the market has the page to itself - at thirty rows a busy evening scrolled
+  // out of the window in under an hour.
+  const offers = useMemo(() => {
+    const all = [...data.offers].reverse()
+    return (filter === 'all' ? all : all.filter((o) => o.intent === filter)).slice(0, 150)
+  }, [data.offers, filter])
+
+  const counts = useMemo(
+    () => ({
+      all: data.offers.length,
+      sell: data.offers.filter((o) => o.intent === 'sell').length,
+      buy: data.offers.filter((o) => o.intent === 'buy').length,
+      give: data.offers.filter((o) => o.intent === 'give').length
+    }),
+    [data.offers]
+  )
 
   return (
     <div className="page zones">
@@ -55,6 +93,20 @@ export function Server(): JSX.Element {
               World blessings, who is arriving and levelling, and what is being auctioned — everything the
               server broadcast while you were logged in.
             </p>
+            <div className="seg" style={{ marginTop: 'var(--s-3)' }}>
+              <button type="button" aria-pressed={view === 'blessings'} onClick={() => onView('blessings')}>
+                Blessings
+              </button>
+              <button type="button" aria-pressed={view === 'players'} onClick={() => onView('players')}>
+                Who is out there
+              </button>
+              <button type="button" aria-pressed={view === 'grouping'} onClick={() => onView('grouping')}>
+                Grouping
+              </button>
+              <button type="button" aria-pressed={view === 'market'} onClick={() => onView('market')}>
+                Auction &amp; trade
+              </button>
+            </div>
           </div>
           <div className="lh-total">
             <span className="n">{live}</span>
@@ -67,6 +119,7 @@ export function Server(): JSX.Element {
       </header>
 
       {/* ---- Blessings ---- */}
+      {view === 'blessings' && (
       <section className="panel">
         <div className="phead">
           <span className="t">World blessings</span>
@@ -128,8 +181,10 @@ export function Server(): JSX.Element {
           </p>
         </div>
       </section>
+      )}
 
       {/* ---- Census ---- */}
+      {view === 'players' && (
       <section className="panel">
         <div className="phead">
           <span className="t">Who is out there</span>
@@ -196,12 +251,95 @@ export function Server(): JSX.Element {
           </p>
         </div>
       </section>
+      )}
+
+      {/* ---- Grouping ---- */}
+      {view === 'grouping' && (
+        <section className="panel">
+          <div className="phead">
+            <span className="t">Grouping</span>
+            <span className="meta">{groups.length} call{groups.length === 1 ? '' : 's'} heard</span>
+          </div>
+          <div className="pbody">
+            {groups.length === 0 ? (
+              <p className="fhint" style={{ marginBottom: 0 }}>
+                Nothing heard. Shouts about forming or joining a group appear here — LFG, LFM, &ldquo;need
+                2 more&rdquo;, &ldquo;anyone want to do DN&rdquo;, &ldquo;anyone doing progression&rdquo;.
+              </p>
+            ) : (
+              <div className="offers">
+                {groups.map((g, i) => (
+                  <div className="offer" key={`${g.at}-${i}`}>
+                    <span
+                      className={`o-tag ${g.kind ?? 'none'}`}
+                      title={
+                        g.kind === 'forming'
+                          ? 'Has a group and wants people'
+                          : g.kind === 'seeking'
+                            ? 'Looking to join something'
+                            : 'About grouping, but does not say which way round'
+                      }
+                    >
+                      {g.kind === 'forming' ? 'LFM' : g.kind === 'seeking' ? 'LFG' : 'group'}
+                    </span>
+                    <span className="o-who">{g.caller}</span>
+                    {/* Always the raw line. A group call is a sentence, not a
+                        record - there is no structure in it worth lifting out,
+                        and inventing one is what went wrong on the market tab. */}
+                    <span className="o-text" title={g.text}>
+                      {g.text}
+                    </span>
+                    <span className="o-when num dim">{duration(now - g.at)} ago</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            <p className="fhint" style={{ marginBottom: 0 }}>
+              Read off <code>/auction</code> and <code>/ooc</code>, the same two channels as the market —
+              these are the shouts about people rather than goods, which used to be dropped or, worse,
+              filed as sales. <b>LFM</b> means the line reads as somebody who has a group and wants
+              bodies; <b>LFG</b> as somebody looking to join. A line that is merely <em>about</em> a zone
+              is not a group call and does not appear.
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* ---- Market ---- */}
+      {view === 'market' && (
       <section className="panel">
         <div className="phead">
           <span className="t">Auction &amp; trade</span>
-          <span className="meta">{data.offers.length} lines kept</span>
+          <span className="meta">
+            {offers.length === counts.all
+              ? `${counts.all} lines kept`
+              : `${offers.length} of ${counts.all} lines`}
+          </span>
+        </div>
+        {/* A feed is worth filtering; three stacked panels were not. Counts are
+            on the buttons because an empty result should be obviously empty
+            rather than look like a page that failed to load. */}
+        <div className="pbody" style={{ paddingBottom: 0, overflow: 'visible' }}>
+          <div className="seg">
+            {(
+              [
+                ['all', 'Everything'],
+                ['sell', 'Selling'],
+                ['buy', 'Buying'],
+                ['give', 'Free']
+              ] as Array<[MarketFilter, string]>
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                aria-pressed={filter === id}
+                disabled={counts[id] === 0 && id !== 'all'}
+                onClick={() => setFilter(id)}
+              >
+                {label} <span className="dim">{counts[id]}</span>
+              </button>
+            ))}
+          </div>
         </div>
         <div className="pbody">
           {data.offers.length === 0 ? (
@@ -209,9 +347,13 @@ export function Server(): JSX.Element {
               Nothing heard. Lines from <code>/auction</code> and <code>/ooc</code> appear here when they
               mention WTS, WTB, WTT or a tiered item name.
             </p>
+          ) : offers.length === 0 ? (
+            <p className="fhint" style={{ marginBottom: 0 }}>
+              Nothing matching that filter yet.
+            </p>
           ) : (
             <div className="offers">
-              {[...data.offers].reverse().slice(0, 30).map((o, i) => (
+              {offers.map((o, i) => (
                 <div className="offer" key={`${o.at}-${i}`}>
                   <span
                     className={`o-tag ${o.intent ?? 'none'}`}
@@ -297,6 +439,7 @@ export function Server(): JSX.Element {
           </div>
         </div>
       </section>
+      )}
     </div>
   )
 }

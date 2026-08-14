@@ -62,6 +62,8 @@ export interface Settings {
   lastPage: string
   /** Which Combat view was last open: dashboard or timeline. */
   combatView: string
+  /** Which Server view was last open: blessings, players or market. */
+  serverView: string
   /** Colour scheme id - see shared/themes.ts. Applies to the overlays too. */
   theme: string
   /** Persona id for spoken alerts - see shared/voices.ts. */
@@ -90,6 +92,7 @@ export const DEFAULT_SETTINGS: Settings = {
   serverShortname: 'multiclass',
   lastPage: 'overview',
   combatView: 'dashboard',
+  serverView: 'blessings',
   theme: DEFAULT_THEME,
   voice: 'system',
   alertVolume: 1,

@@ -201,7 +201,15 @@ const GIVING = /\b(?:free to a good home|giving (?:it |them |these |those |away)
  */
 const WANTING =
   /\b(?:any\s?(?:one|body|1)?\s+ha(?:ve|s)|still (?:available|around)|looking (?:for|to buy)|\biso\b|\blf\b)/
-const OFFERING = /\b(?:any\s?(?:one|body|1)?\s+wants?|who wants?|any\s?(?:one|body|1)?\s+needs?|who needs?)/
+/**
+ * "anyone want X" is an offer; "anyone want TO come" is a group forming.
+ *
+ * The lookahead is the whole difference. Without it "flagging group, anyone
+ * want to come, got more spots" was tagged WTS and filed in the market - a
+ * recruit advertised as a sale. `want to` is followed by a verb, and a verb is
+ * not an item.
+ */
+const OFFERING = /\b(?:any\s?(?:one|body|1)?\s+(?:wants?|needs?)|who (?:wants?|needs?))\b(?!\s+to\b)/
 
 /**
  * What somebody is trying to do.
@@ -260,9 +268,61 @@ export function itemsIn(text: string): string[] {
   return [...new Set(out)]
 }
 
+/* ---------------------------------------------------------------------------
+   People looking for people
+--------------------------------------------------------------------------- */
+
+/**
+ * A shout about forming or joining a group, rather than about an item.
+ *
+ * These used to be thrown away or, worse, filed as sales: "flagging group,
+ * anyone want to come, got more spots" was tagged WTS because it contains
+ * "anyone want". They are the same channels and the same shouts, they are just
+ * about people rather than goods - so they get their own list.
+ */
+export interface GroupCall {
+  caller: string
+  channel: string
+  text: string
+  at: number
+  /**
+   * `forming` has a group and wants people; `seeking` wants in. Null when the
+   * line is plainly about grouping but does not say which way round.
+   */
+  kind: 'forming' | 'seeking' | null
+}
+
+/** They have a group and need bodies. */
+const FORMING =
+  /\blfm\b|looking for more|\blf\s?\d+\s?(?:more|m)\b|need(?:s|ed)? \d+ more|\d+ (?:more )?spots?\b|forming (?:a |up )?(?:group|raid|party)|flagging (?:group|run)|(?:any\s?(?:one|body|1)?|who)\s+wants?\s+to\s+\w|any\s?(?:one|body|1)?\s+up for\b/
+
+/** They want to join something already happening. */
+const SEEKING =
+  /\blfg\b|looking for (?:a )?group|any\s?(?:one|body|1)?\s+doing\b|any\s?(?:one|body|1)?\s+running\b|can i get (?:an )?in(?:vite|v)\b|need (?:a )?group\b/
+
+/**
+ * Is this shout about grouping at all?
+ *
+ * Deliberately narrow. A line that is merely *about* a zone - "DN is rough" -
+ * is not a group call, and filling this tab with chatter would make it as
+ * useless as the market tab was when it filed questions as listings.
+ */
+export function groupCallOf(text: string): GroupCall['kind'] | false {
+  const t = text.toLowerCase()
+  // Trade shorthand wins outright: "WTS port to DN" is a service for sale, not
+  // somebody forming a group.
+  if (/\bwt[sbt]\b/.test(t)) return false
+
+  if (SEEKING.test(t)) return 'seeking'
+  if (FORMING.test(t)) return 'forming'
+  return false
+}
+
 export interface ServerData {
   blessings: Blessing[]
   census: Record<string, CensusEntry>
+  /** Group and raid calls heard on the broadcast channels. */
+  groups: GroupCall[]
   offers: Offer[]
   /** Traders and items in the bazaar, when the server last said. */
   bazaar: { traders: number; items: number; at: number } | null

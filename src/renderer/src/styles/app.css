@@ -972,6 +972,15 @@ code {
   background: color-mix(in srgb, var(--gold) 22%, transparent);
   border-color: var(--gold-deep);
 }
+/* Grouping. Blue-ish for "wants in", green-ish for "has room" would collide
+   with WTB/WTS, so both take the arcane family and differ by fill - these two
+   never share a list with the trade tags. */
+.offer .o-tag.seeking { color: var(--arcane-hi); }
+.offer .o-tag.forming {
+  color: var(--arcane-hi);
+  background: color-mix(in srgb, var(--arcane) 22%, transparent);
+  border-color: var(--arcane);
+}
 .offer .o-tag.none { color: var(--muted); }
 .offer .o-who { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .offer .o-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

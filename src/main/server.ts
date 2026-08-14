@@ -3,10 +3,12 @@ import type { ParsedEvent } from '@shared/parser/types'
 import {
   foldBlessing,
   foldCensus,
+  groupCallOf,
   intentOf,
   itemsIn,
   type Blessing,
   type CensusEntry,
+  type GroupCall,
   type Offer,
   type ServerData
 } from '@shared/server'
@@ -30,6 +32,7 @@ const MAX_OFFERS = 400
 interface Persisted {
   blessings: Blessing[]
   census: Record<string, CensusEntry>
+  groups: GroupCall[]
   offers: Offer[]
   bazaar: ServerData['bazaar']
   appliedAt: number | null
@@ -37,13 +40,31 @@ interface Persisted {
 
 const store = new Store<Persisted>({
   name: 'triune-server',
-  defaults: { blessings: [], census: {}, offers: [], bazaar: null, appliedAt: null },
+  defaults: { blessings: [], census: {}, groups: [], offers: [], bazaar: null, appliedAt: null },
   clearInvalidConfig: true
 })
+
+/**
+ * One row per thing actually said.
+ *
+ * Same key as the write-side guard: the line's own timestamp, who said it, and
+ * what it said. Two identical shouts a minute apart stay two rows, because the
+ * timestamps differ.
+ */
+function dedupe<T extends { at: number; text: string }>(rows: T[], who: (r: T) => string): T[] {
+  const seen = new Set<string>()
+  return rows.filter((r) => {
+    const key = `${r.at}|${who(r)}|${r.text}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
 
 export class ServerWatch {
   private blessings: Blessing[] = store.get('blessings') ?? []
   private census: Record<string, CensusEntry> = store.get('census') ?? {}
+  private groups: GroupCall[] = store.get('groups') ?? []
   private offers: Offer[] = store.get('offers') ?? []
   private bazaar: ServerData['bazaar'] = store.get('bazaar') ?? null
   private appliedAt: number | null = store.get('appliedAt') ?? null
@@ -98,12 +119,49 @@ export class ServerWatch {
     const text = e.detail ?? ''
     if (!text) return
 
+    // People before goods. A group call goes to its own list and never reaches
+    // the market, which is what stopped "anyone want to come, got more spots"
+    // being advertised as a sale.
+    const call = groupCallOf(text)
+    if (call !== false) {
+      const caller = e.attacker?.name ?? 'someone'
+      const seen = Math.max(0, this.groups.length - 200)
+      for (let i = this.groups.length - 1; i >= seen; i--) {
+        const g = this.groups[i]
+        if (g.at === e.ts && g.caller === caller && g.text === text) return
+      }
+      this.groups.push({ caller, channel: e.channel, text, at: e.ts, kind: call })
+      if (this.groups.length > MAX_OFFERS) {
+        this.groups.splice(0, this.groups.length - MAX_OFFERS)
+      }
+      this.dirty = true
+      return
+    }
+
     const intent = intentOf(text)
     const items = itemsIn(text)
     if (intent === null && items.length === 0) return
 
+    // The same line must not be stored twice.
+    //
+    // On attach the watcher rewinds 64 KB and reads forward, so every restart
+    // re-delivers auction lines that are already here - and this list is
+    // persisted, so they piled up. Three restarts in an evening put three
+    // copies of the same shout on the page.
+    //
+    // Keyed on the line's own timestamp plus who said it and what it said, so
+    // two genuinely separate shouts of identical text a minute apart are still
+    // two rows. Only the recent tail is searched: the log arrives in time order
+    // and MAX_OFFERS is 400, so a duplicate is always near the end.
+    const seller = e.attacker?.name ?? 'someone'
+    const from = Math.max(0, this.offers.length - 200)
+    for (let i = this.offers.length - 1; i >= from; i--) {
+      const o = this.offers[i]
+      if (o.at === e.ts && o.seller === seller && o.text === text) return
+    }
+
     this.offers.push({
-      seller: e.attacker?.name ?? 'someone',
+      seller,
       channel: e.channel,
       text,
       at: e.ts,
@@ -115,17 +173,41 @@ export class ServerWatch {
   }
 
   data(): ServerData {
+    // Anything already stored as an offer that is really a group call moves
+    // across on the way out. Without this the Grouping tab starts empty on a
+    // store built before it existed, and "flagging group, anyone want to come"
+    // stays in the market wearing the WTS tag the old rules gave it. Same
+    // principle as re-deriving intent: what was said is the fact, which list it
+    // belongs in is an opinion.
+    const stored = dedupe(this.offers, (o) => o.seller)
+    const strayCalls: GroupCall[] = []
+    const trade: Offer[] = []
+    for (const o of stored) {
+      const call = groupCallOf(o.text)
+      if (call === false) trade.push(o)
+      else strayCalls.push({ caller: o.seller, channel: o.channel, text: o.text, at: o.at, kind: call })
+    }
+
+    const groups = dedupe([...this.groups, ...strayCalls], (g) => g.caller).sort((a, b) => a.at - b.at)
+
     return {
       blessings: this.blessings,
       census: this.census,
-      // Intent and item names are DERIVED, so they are re-derived here rather
-      // than trusted from the store. They were being computed once when the
-      // line arrived and persisted alongside it, which quietly meant every
-      // improvement to the rules only applied to lines heard afterwards - four
-      // hundred stored rows kept whatever the old rules decided, forever. The
-      // line itself is the fact; everything read out of it is an opinion, and
-      // an opinion should be recomputed from the current rules.
-      offers: this.offers.map((o) => ({
+      groups,
+      // Two things happen on the way out.
+      //
+      // Deduplicated, because the same shout is re-delivered by the 64 KB
+      // attach backfill on every restart and this list is persisted - three
+      // restarts in an evening used to put three copies of one line on the
+      // page. Doing it here as well as on write means a store that already
+      // accumulated copies cleans itself up rather than needing a reset.
+      //
+      // And intent and item names are RE-DERIVED rather than trusted from the
+      // store. They were computed once when the line arrived and persisted
+      // beside it, which quietly meant every improvement to the rules only ever
+      // reached lines heard afterwards. The line is the fact; anything read out
+      // of it is an opinion, and an opinion should follow the current rules.
+      offers: trade.map((o) => ({
         ...o,
         intent: intentOf(o.text),
         items: itemsIn(o.text)
@@ -138,6 +220,7 @@ export class ServerWatch {
   reset(): ServerData {
     this.blessings = []
     this.census = {}
+    this.groups = []
     this.offers = []
     this.bazaar = null
     this.appliedAt = null
@@ -151,6 +234,7 @@ export class ServerWatch {
     this.dirty = false
     store.set('blessings', this.blessings)
     store.set('census', this.census)
+    store.set('groups', this.groups)
     store.set('offers', this.offers)
     store.set('bazaar', this.bazaar)
     store.set('appliedAt', this.appliedAt)

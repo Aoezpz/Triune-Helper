@@ -14,6 +14,7 @@ import {
   blessingRows,
   censusRows,
   foldBlessing,
+  groupCallOf,
   foldCensus,
   intentOf,
   itemsIn,
@@ -515,5 +516,52 @@ describe('reading intent from how people actually talk', () => {
   it('still lets the shorthand win over everything', () => {
     expect(intentOf('WTS anyone have a spare bracer')).toBe('sell')
     expect(intentOf('WTB free to a good home items')).toBe('buy')
+  })
+})
+
+/**
+ * Group calls, which are not sales.
+ *
+ * "flagging group, anyone want to come, got more spots" was tagged WTS and put
+ * in the market, because it contains "anyone want". Grouping shouts share the
+ * channel with trade and nothing else - they are about people, not goods.
+ */
+describe('spotting a group call', () => {
+  it('reads somebody with a group who wants bodies', () => {
+    expect(groupCallOf('flagging group, anyone want to come, got more spots')).toBe('forming')
+    expect(groupCallOf('anyone want to do DN')).toBe('forming')
+    expect(groupCallOf('anyone want to go kill Vindicator')).toBe('forming')
+    expect(groupCallOf('LFM 2 more for HoH')).toBe('forming')
+    expect(groupCallOf('need 2 more for a Seru run')).toBe('forming')
+  })
+
+  it('reads somebody looking to join', () => {
+    expect(groupCallOf('LFG anything')).toBe('seeking')
+    expect(groupCallOf('anyone doing Progression for Kunark?')).toBe('seeking')
+    expect(groupCallOf('anyone running DN tonight')).toBe('seeking')
+  })
+
+  /** The market must not lose lines that really are trade. */
+  it('is not a group call when it is a sale', () => {
+    expect(groupCallOf('WTS Bracer of Precision (Legendary)')).toBe(false)
+    expect(groupCallOf('WTB Staff of Elemental Water')).toBe(false)
+    // A port is a service somebody sells, not a group forming.
+    expect(groupCallOf('WTS ports to DN, anyone want to go')).toBe(false)
+  })
+
+  /** Chatter about a zone is not a group call. */
+  it('refuses lines that merely mention content', () => {
+    expect(groupCallOf('DN is rough without a cleric')).toBe(false)
+    expect(groupCallOf('grats on the clear!')).toBe(false)
+  })
+
+  /**
+   * The corresponding half: a grouping shout must not read as an item offer.
+   * "anyone want a bracer" still does, because there is no verb after "want".
+   */
+  it('keeps "anyone want to X" out of the market', () => {
+    expect(intentOf('flagging group, anyone want to come, got more spots')).toBeNull()
+    expect(intentOf('anyone want to do DN')).toBeNull()
+    expect(intentOf('any one want Monsoon, Sword of the Swiftwind (Enchanted)?')).toBe('sell')
   })
 })
