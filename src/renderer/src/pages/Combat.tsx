@@ -76,6 +76,11 @@ export function Combat({
     [status, tick]
   )
 
+  // When the game last wrote for the character in the title bar - the buff
+  // board needs it to know whether it still has grounds to show anything.
+  const activeLastLine =
+    (status?.sources ?? []).find((s) => s.character === active)?.lastLineAt ?? null
+
   const fights: FightSummary[] = useMemo(
     () => (combat.live ? [combat.live, ...combat.history] : combat.history),
     [combat]
@@ -321,7 +326,7 @@ export function Combat({
                   you are pointed at. Both hide themselves when they have
                   nothing to say, so a quiet moment costs no space. */}
               <div className="ccol-split">
-                <BuffBoard characters={characters} />
+                <BuffBoard character={active} lastLineAt={activeLastLine} />
                 <TargetCard />
               </div>
             </>

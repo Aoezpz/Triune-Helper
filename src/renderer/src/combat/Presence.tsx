@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { buffRows, type BuffsData } from '@shared/buffs'
+import { boardIsCurrent, buffRows, type BuffsData } from '@shared/buffs'
 import { mobRows, type MobsData } from '@shared/mobs'
 import { awayMs, type PresenceData } from '@shared/presence'
 import { clock, short } from '@shared/stats'
@@ -27,14 +27,27 @@ function useNow(everyMs = 1000): number {
 --------------------------------------------------------------------------- */
 
 /**
- * What is on your characters.
+ * What is on the character you are playing.
+ *
+ * One character, not all of them. The board is keyed per character - each log
+ * reports its own second-person effect messages - and it used to render every
+ * key at once, so switching the title-bar picker changed nothing and you sat
+ * looking at a character who logged out hours ago. "On you" has to mean the
+ * one you said you were.
  *
  * There are no durations here and there cannot be: the log states when
  * something landed and when it faded, never how long it was meant to last. So
  * this shows what is up and how long it has been up, and for songs - which
  * re-sing every few seconds - whether they are still pulsing.
  */
-export function BuffBoard({ characters }: { characters: string[] }): JSX.Element | null {
+export function BuffBoard({
+  character,
+  lastLineAt
+}: {
+  character: string | null
+  /** When the game last wrote anything for them. Null if never. */
+  lastLineAt: number | null
+}): JSX.Element | null {
   const [data, setData] = useState<BuffsData>({ states: [] })
   const now = useNow(1000)
 
@@ -48,21 +61,28 @@ export function BuffBoard({ characters }: { characters: string[] }): JSX.Element
     return () => window.clearInterval(t)
   }, [load])
 
-  const rows = buffRows(data.states, now)
+  // A board for a character the game has gone quiet on is not out of date, it
+  // is unfounded - so it goes, rather than sitting there looking current.
+  const mine =
+    character && boardIsCurrent(lastLineAt, now)
+      ? data.states.filter((s) => s.character === character)
+      : []
+  const rows = buffRows(mine, now)
   if (rows.length === 0) return null
 
   return (
     <div className="panel">
       <div className="phead">
-        <span className="t">On you</span>
+        <span className="t">On {character}</span>
         <span className="meta">{rows.length} up</span>
       </div>
       <div className="pbody">
         <div className="buffs">
           {rows.map((b) => (
             <div className={b.quiet ? 'buff quiet' : 'buff'} key={`${b.character}-${b.name}`}>
+              {/* No name chip: every row is the one character in the heading,
+                  so repeating it on all seven was noise. */}
               <span className="b-name">{b.name}</span>
-              {characters.length > 1 && <span className="b-who">{b.character}</span>}
               {b.song ? (
                 <span className="b-tag" title={`Re-sung ${b.pulses} times`}>
                   {b.quiet ? `quiet ${duration(b.heldMs)}` : 'pulsing'}

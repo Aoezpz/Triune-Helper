@@ -53,6 +53,34 @@ export const SONG_PULSE_MS = 30_000
 /** Pulses needed before calling something a song. One repeat is a re-buff. */
 export const SONG_MIN_PULSES = 4
 
+/**
+ * How long the game can be silent for a character before their board means
+ * nothing.
+ *
+ * The board is built entirely from effect messages, so once a character stops
+ * producing lines it freezes on whatever was last true - and a frozen board
+ * is worse than an empty one, because it looks current. Somebody who logged out
+ * two hours ago was still shown holding seven buffs, four of them songs that
+ * had not pulsed since.
+ *
+ * Fifteen minutes rather than the two the party strip uses for "offline".
+ * EverQuest writes nothing at all for a character standing still, and being
+ * quietly AFK for three minutes should not wipe a board that is still true.
+ * Nothing is silent for a quarter of an hour and still playing.
+ */
+export const BOARD_STALE_MS = 15 * 60 * 1000
+
+/**
+ * Is this character's board still worth showing?
+ *
+ * `lastLineAt` is when the game last wrote anything for them, not when a buff
+ * last landed - a character can hold a buff for hours while fighting, and that
+ * board is perfectly good.
+ */
+export function boardIsCurrent(lastLineAt: number | null, now: number): boolean {
+  return lastLineAt !== null && now - lastLineAt < BOARD_STALE_MS
+}
+
 export function buffRows(states: readonly BuffState[], now: number): BuffRow[] {
   return states
     .map((s): BuffRow => {

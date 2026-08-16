@@ -25,7 +25,13 @@ import {
   type Blessing,
   type CensusEntry
 } from '../src/shared/server'
-import { buffRows, SONG_MIN_PULSES, type BuffState } from '../src/shared/buffs'
+import {
+  boardIsCurrent,
+  BOARD_STALE_MS,
+  buffRows,
+  SONG_MIN_PULSES,
+  type BuffState
+} from '../src/shared/buffs'
 
 /**
  * The world outside your group, what is on you, and where you are pointed.
@@ -762,5 +768,40 @@ describe('flag runs, however they are phrased', () => {
 
   it('still leaves a plain sale alone', () => {
     expect(groupCallOf('WTS Legionnaire Scale Helm if anyone needs')).toBe(false)
+  })
+})
+
+/**
+ * The buff board only means something while the game is still writing.
+ *
+ * It is built entirely from effect messages, so once a character goes quiet it
+ * freezes on whatever was last true - and a frozen board is worse than an empty
+ * one, because it looks current. Somebody logged out two hours ago was shown
+ * holding seven buffs, four of them songs that had not pulsed since.
+ */
+describe('whether a buff board still has grounds', () => {
+  const NOW = 1_700_000_000_000
+
+  it('holds while the game is writing', () => {
+    expect(boardIsCurrent(NOW - 60_000, NOW)).toBe(true)
+    expect(boardIsCurrent(NOW - (BOARD_STALE_MS - 60_000), NOW)).toBe(true)
+  })
+
+  it('gives up once the game has been silent a long time', () => {
+    expect(boardIsCurrent(NOW - (BOARD_STALE_MS + 60_000), NOW)).toBe(false)
+    expect(boardIsCurrent(NOW - 2 * 60 * 60_000, NOW)).toBe(false)
+  })
+
+  /**
+   * Deliberately far more forgiving than the two minutes the party strip uses
+   * for "offline": EverQuest writes nothing for a character standing still, and
+   * a short AFK should not wipe a board that is still true.
+   */
+  it('survives a short silence that would read as offline elsewhere', () => {
+    expect(boardIsCurrent(NOW - 5 * 60_000, NOW)).toBe(true)
+  })
+
+  it('shows nothing for a character that has produced no lines at all', () => {
+    expect(boardIsCurrent(null, NOW)).toBe(false)
   })
 })
