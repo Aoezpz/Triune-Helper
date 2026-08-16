@@ -721,6 +721,50 @@ code {
 .disc .d-tier.t-enchanted { color: #7fb8e8; }
 .disc .d-tier.t-legendary { color: #e5cc80; }
 
+/* Parked characters on Leveling: one line each, folded away by default. A full
+   card for each is four zeroes and a flat line, and it pushes the character you
+   are actually playing off the bottom of the page. */
+.lvl-idle {
+  flex: none;
+  margin-top: var(--s-3);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--r-2);
+  background: var(--surface);
+}
+.lvl-idle > summary {
+  cursor: pointer;
+  padding: var(--s-3);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-2);
+  list-style: none;
+}
+.lvl-idle > summary::-webkit-details-marker { display: none; }
+/* A caret that turns, rather than the platform triangle - the platform one is
+   a different shape in every renderer and does not take a colour. */
+.lvl-idle > summary::before {
+  content: '▸';
+  display: inline-block;
+  width: 1rem;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+.lvl-idle[open] > summary::before { transform: rotate(90deg); }
+.lvl-idle > summary:hover { color: var(--text); }
+
+.lvl-idlerows { padding: 0 var(--s-3) var(--s-3); display: flex; flex-direction: column; gap: 0.125rem; }
+.lvl-idlerow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  padding: 0.3rem var(--s-2);
+  border-radius: var(--r-1);
+  font-size: 0.8rem;
+}
+.lvl-idlerow:nth-child(odd) { background: rgba(255, 255, 255, 0.02); }
+.lvl-idlerow .li-name { font-weight: 700; color: var(--text-2); }
+.lvl-idlerow .li-meta { color: var(--muted); font-size: 0.74rem; font-variant-numeric: tabular-nums; }
+
 /* ---- overview --------------------------------------------------------------
    The tiles are buttons: every headline number on this page is a shortcut to
    the page that explains it. */

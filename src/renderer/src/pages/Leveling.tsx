@@ -6,7 +6,9 @@ import {
   type CharacterProgress,
   type LevelingData
 } from '@shared/leveling'
+import { isLive } from '@shared/ipc'
 import { clock } from '@shared/stats'
+import { useWatcherStatus } from '../hooks/useSettings'
 import { Starfield } from '../components/Ambient'
 
 /**
@@ -55,6 +57,44 @@ export function Leveling({ characters }: { characters: string[] }): JSX.Element 
     [names, data, window_]
   )
 
+  /**
+   * Who earns a card, and who gets a line.
+   *
+   * The list was alphabetical, which handed the top of the page to whoever was
+   * named first - three parked alts each showing four zeroes and "no dings
+   * recorded", while the character actually earning AA sat below them and the
+   * one below that was off the bottom of the screen.
+   *
+   * Two signals, and both have to fail before a character is demoted: the game
+   * is still writing for them, or they did something this session. A character
+   * who dinged twice and then camped is still the interesting one.
+   */
+  const status = useWatcherStatus()
+  const [tick, setTick] = useState(() => Date.now())
+  useEffect(() => {
+    const t = setInterval(() => setTick(Date.now()), 15_000)
+    return () => clearInterval(t)
+  }, [])
+
+  const { busy, idle } = useMemo(() => {
+    const lastLine = new Map((status?.sources ?? []).map((s) => [s.character, s.lastLineAt]))
+    const did = (r: CharacterProgress): number => r.aaGained + r.levelsGained
+    const playing = (r: CharacterProgress): boolean => isLive(lastLine.get(r.character) ?? null, tick)
+
+    const busy = rows
+      .filter((r) => playing(r) || did(r) > 0)
+      // Most to show first: what they earned this session, then whether they
+      // are still at it, then name so the order is stable between renders.
+      .sort(
+        (a, b) =>
+          did(b) - did(a) ||
+          Number(playing(b)) - Number(playing(a)) ||
+          a.character.localeCompare(b.character)
+      )
+    const idle = rows.filter((r) => !busy.includes(r))
+    return { busy, idle }
+  }, [rows, status, tick])
+
   const anything =
     data.levels.length + data.aa.length + (data.aaxp?.length ?? 0) + data.ticks.length > 0
 
@@ -98,10 +138,34 @@ export function Leveling({ characters }: { characters: string[] }): JSX.Element 
 
       {anything && (
         <div className="lvl-grid">
-          {rows.map((row, i) => (
+          {busy.map((row, i) => (
             <CharacterCard key={row.character} row={row} color={SLOT_VARS[i] ?? 'var(--series-group)'} window_={window_} />
           ))}
         </div>
+      )}
+
+      {/* One line each, folded away. They are still yours and their lifetime AA
+          is still worth a glance, but a full card per parked alt is four zeroes
+          and a flat line pushing the character you are playing off the page. */}
+      {anything && idle.length > 0 && (
+        <details className="lvl-idle">
+          <summary>
+            {idle.length} inactive character{idle.length === 1 ? '' : 's'}
+            <span className="dim"> · nothing this session</span>
+          </summary>
+          <div className="lvl-idlerows">
+            {idle.map((row) => (
+              <div className="lvl-idlerow" key={row.character}>
+                <span className="li-name">{row.character}</span>
+                <span className="spacer" />
+                <span className="li-meta">
+                  {row.level !== null ? `level ${row.level}` : 'level unknown'}
+                  {row.aaEarned !== null ? ` · ${row.aaEarned.toLocaleString()} AA earned` : ''}
+                </span>
+              </div>
+            ))}
+          </div>
+        </details>
       )}
     </div>
   )
