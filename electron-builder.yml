@@ -1,6 +1,17 @@
+# DELIBERATELY UNCHANGED across the Nexus Reader rename, and it must stay that
+# way until there is a version where a clean break is acceptable.
+#
+# NSIS writes its uninstall entry under this id. A new installer looks the id up
+# to find and remove the previous install, so changing it here would not upgrade
+# a Triune-Helper user - it would install alongside them: two Start Menu
+# entries, two executables, and an old copy still watching this same release
+# feed and still offering to "update" into yet another parallel install.
+#
+# The string is internal (an uninstall registry key and the taskbar's
+# AppUserModelID). Nothing on screen reads it.
 appId: com.projecttriune.helper
-productName: Triune-Helper
-copyright: Project Triune
+productName: Nexus Reader
+copyright: Aoezpz
 
 directories:
   buildResources: build
@@ -76,8 +87,8 @@ nsis:
   runAfterFinish: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: Triune-Helper
-  artifactName: Triune-Helper-Setup-${version}.${ext}
+  shortcutName: Nexus Reader
+  artifactName: Nexus-Reader-Setup-${version}.${ext}
   # Leave the user's settings, alert rules and flag progress behind on
   # uninstall - a reinstall should not silently wipe someone's rules.
   deleteAppDataOnUninstall: false

@@ -12,9 +12,9 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  border: var(--line-w) solid rgba(58, 69, 82, 0.8);
+  border: var(--line-w) solid color-mix(in srgb, var(--line-2) 80%, transparent);
   border-radius: var(--r-md);
-  background: rgba(6, 7, 12, 0.82);
+  background: color-mix(in srgb, var(--void) 82%, transparent);
   overflow: hidden;
   /* The whole window drags, except the buttons. */
   -webkit-app-region: drag;
@@ -23,7 +23,7 @@
 
 /* Locked: clicks pass through, so the chrome steps back to stop competing
    with the game behind it. */
-.ov.locked { background: rgba(6, 7, 12, 0.62); border-color: rgba(58, 69, 82, 0.35); }
+.ov.locked { background: color-mix(in srgb, var(--void) 62%, transparent); border-color: color-mix(in srgb, var(--line-2) 35%, transparent); }
 .ov.locked .ov-head { opacity: 0.35; }
 .ov.locked:hover .ov-head { opacity: 1; }
 
@@ -32,8 +32,8 @@
   align-items: center;
   gap: var(--s-2);
   padding: 0.25rem var(--s-2);
-  border-bottom: var(--line-w) solid rgba(43, 52, 65, 0.7);
-  background: rgba(10, 12, 20, 0.6);
+  border-bottom: var(--line-w) solid color-mix(in srgb, var(--line) 70%, transparent);
+  background: color-mix(in srgb, var(--abyss) 60%, transparent);
   flex: none;
   transition: opacity 0.15s ease;
 }
@@ -56,7 +56,7 @@
   font-size: 0.6rem;
   text-align: center;
   color: var(--muted);
-  background: linear-gradient(180deg, transparent, rgba(6, 7, 12, 0.85) 45%);
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--void) 85%, transparent) 45%);
   opacity: 0;
   transition: opacity 0.12s ease;
   pointer-events: none;
@@ -98,7 +98,7 @@
   border-radius: var(--r-sm);
   font-size: 0.78rem;
   overflow: hidden;
-  background: rgba(37, 44, 56, 0.35);
+  background: color-mix(in srgb, var(--surface-3) 35%, transparent);
 }
 .ov-fill { position: absolute; inset: 0 auto 0 0; opacity: 0.45; border-radius: var(--r-sm); }
 .ov-name {

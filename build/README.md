@@ -8,7 +8,7 @@ loud rather than leaving for someone to find.
 
 - **What it is:** [rcedit](https://github.com/electron/rcedit), Electron's own
   tool for editing Windows executable resources. MIT licensed.
-- **What it does here:** stamps the packaged `Triune-Helper.exe` with the app
+- **What it does here:** stamps the packaged `Nexus Reader.exe` with the app
   icon and version metadata. See `scripts/after-pack.cjs` for why
   electron-builder cannot do this itself on a normal Windows account.
 - **What it does not do:** it does not sign anything. There is no code-signing

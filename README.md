@@ -1,8 +1,14 @@
-# Triune-Helper
+# Nexus Reader
 
-A companion app for **Project Triune**. It reads the log files EverQuest already
-writes and turns them into a live DPS meter, a fight timeline, trigger alerts,
-flag progression and the server's raid boards.
+**An emu multitool for three-classes-in-one EverQuest emulator servers.** It
+reads the log files EverQuest already writes and turns them into a live DPS
+meter, a fight timeline, trigger alerts, flag progression and the server's raid
+boards.
+
+It is not built for one server. The server shortname it looks for in your log
+filenames, and the item database it can pull tooltips from, are both settings —
+clear the database field and the app runs entirely on its bundled data with no
+network access at all.
 
 **It only reads your log.** Nothing is injected into EverQuest, no game file is
 touched, no memory is read, and nothing is played for you. Turn logging off and
@@ -14,9 +20,10 @@ the app has nothing to show.
 
 1. Install and run it. It is a per-user install like Discord — no admin prompt.
 2. In game, type `/log on` for **each character you box**.
-3. That's it. The app finds `eqlog_<Character>_multiclass.txt` on its own,
-   usually under `…\Logs\`. If your install lives somewhere unusual, point it at
-   the right folder in **Preferences** and it attaches immediately.
+3. That's it. The app finds `eqlog_<Character>_<server>.txt` on its own, usually
+   under `…\Logs\`. If your install lives somewhere unusual, point it at the
+   right folder in **Preferences** and it attaches immediately — and set the
+   **server shortname** there if yours isn't `multiclass`.
 
 Windows will warn about an unrecognised app the first time you run the
 installer. That is SmartScreen reacting to an unsigned binary, not a virus
@@ -112,7 +119,7 @@ node scripts/make-icon.mjs                             # build/icon.png + icon.i
 ### Finding what the parser misses
 
 ```bash
-node scripts/unparsed.mjs "<path>\eqlog_<Char>_multiclass.txt"
+node scripts/unparsed.mjs "<path>\eqlog_<Char>_<server>.txt"
 ```
 
 Ranks every log line the parser currently ignores, commonest first. Almost every
@@ -128,8 +135,8 @@ EverQuest client's `spells_us.txt` and is not this project's to license.
 
 The idea came from **[EQ Legends Companion](https://github.com/jmoyers/everquest-companion)**
 by Josh Moyers — a companion app for a different server that showed what a log
-reader could be. No code was taken from it; the parser was built against Project
-Triune's own logs and the theme is PTDex's. The shared shape of the two repos
+reader could be. No code was taken from it; the parser was built against real
+logs from a live trio server. The shared shape of the two repos
 (`src/main`, `src/preload`, `src/renderer`, `electron.vite.config.ts`,
 `electron-builder.yml`) is the `create-electron` react-ts scaffold both started
 from, not a common ancestor.
@@ -142,8 +149,12 @@ which is the same ground log parsers have stood on since GamParse.
 ### Known rough edges
 
 - **Scraped pages can rot.** The leaderboards and the bundled progression data
-  come from PTDex's own markup, because there is no JSON endpoint for either. If
-  the site changes, the page says so plainly rather than showing empty boards.
+  come from the configured site's own markup, because there is no JSON endpoint
+  for either. If the site changes, the page says so plainly rather than showing
+  empty boards.
+- **Progression is one server's flag list.** `data/progression.json` was
+  exported from a particular site. On another server the gates will be close but
+  not identical, and there is no auto-detection for that yet.
 - **The buff board only shows unambiguous spells.** It reads effect messages out
   of the client's `spells_us.txt`, and keeps only those naming exactly one spell.
   "Your protection fades." belongs to 26 of them and is skipped rather than

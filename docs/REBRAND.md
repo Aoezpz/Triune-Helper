@@ -138,8 +138,54 @@ The second is cleaner long-term. Neither is optional — losing a month of ledge
 on a rename is exactly the kind of quiet data loss this app is supposed to be
 better than.
 
+## As built — 0.2.0
+
+Steps 1-9 are done. Where the build departed from the spec above, and why:
+
+- **The fonts are vendored, not linked.** Confirmed the app's CSP is
+  `default-src 'self'` with no `font-src`, so a Google Fonts `<link>` would have
+  been blocked outright. `src/shared/theme/fonts/` holds Cinzel 700 and Manrope
+  (one variable file covers 400/500/700), 55 KB total, with both OFL licences.
+- **The ring in the mark is `#8778ab`, not `#5b5170`.** The spec's value was
+  read off a light artboard; on the app's near-black ground it vanished and left
+  three bars floating.
+- **The `--gold`/`--arcane`/`--ember` token NAMES stayed.** Retuned in place, as
+  the spec recommended. Same for `window.triune` in the preload bridge and the
+  `TRIA1:` alert-share prefix - the second is a wire format, and renaming it
+  would break every rule anyone has already pasted into Discord.
+- **`appId` stayed `com.projecttriune.helper`.** NSIS finds the previous install
+  through that key. Changing it would have installed alongside 0.1.x rather than
+  upgrading it. It is internal; nothing on screen reads it.
+- **`productName` was added to `package.json` as well as electron-builder.yml.**
+  Without it, dev resolves userData from `name` (`nexus-reader`) and the packaged
+  build from `productName` (`Nexus Reader`) - two different folders, and the
+  divergence would only show up in production.
+- **The default scheme id went `voidforge` -> `obelisk`.** Safe by construction:
+  `isTheme` rejects the old id, so a stored `voidforge` falls through to the
+  default, which is that same scheme retuned.
+
+Fixed along the way, all pre-existing:
+
+- `--r-1`, `--r-2` and `--r-3` were used a dozen times in `app.css` and defined
+  nowhere, so those radii resolved to nothing and rendered square. Aliased.
+- `.dot` had no `display`, so inside a `<p>` - the Overview hero - it ignored its
+  own width and painted a green rectangle across the line box.
+- `.btn.primary`'s dark label over the deep end of the accent gradient fell under
+  4.5:1 in two schemes.
+
+Also added: the Overview banner carries key art (`assets/hero-portal.jpg`). The
+source was a mock-up, so the invented character name and the seven lines of
+invented log text in its left third were painted out before bundling - this app
+does not put fabricated log lines on screen beside real ones.
+
 ## Still open
 
+- **Step 10, the GitHub rename**, which needs a decision rather than a commit:
+  every `github.com/Aoezpz/Triune-Helper` URL in `docs/index.html`,
+  `src/shared/update.ts` and `electron-builder.yml` is deliberately unchanged
+  until the repo itself is renamed. They work today; renaming the repo makes
+  GitHub redirect them, so either state is consistent - a half-done rename is
+  not.
+- The Zones and Loot page banners still draw the procedural starfield.
 - Whether the window title stays "Nexus Reader" alone or carries the server it is
   pointed at.
-- The `--gold`/`--arcane` token rename (mechanical, deferrable).

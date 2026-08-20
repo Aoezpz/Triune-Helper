@@ -1,41 +1,47 @@
+@import './fonts.css';
+
 /* ============================================================
-   Triune-Helper - "Voidforge, gilded"
+   Nexus Reader - "Obelisk"
 
-   Two lineages meet here. The tokens are lifted verbatim from the website's
-   nms.css (weathered gold + arcane blue + ember on deep slate) so the app and
-   PTDex read as one product. The attitude is KissTriune's theme.lua: a near
-   black void ground, an aurora band across the header, a sigil that actually
-   turns, hairline rules with diamond caps, and glow reserved for things that
-   are genuinely live.
+   A near black violet ground, an aurora band across the header, a broken ring
+   that actually turns, hairline rules with diamond caps, and glow reserved for
+   things that are genuinely live.
 
-   The rule that governs all of it, straight from kisstriune/theme.lua:
+   The rule that governs all of it:
 
        The chrome is deliberately loud. The data is not.
 
    Chrome may shimmer. Damage rows may not - twelve glowing bars are twelve
    unreadable bars, and this window is operated, not admired.
 
-   Chart series colours do NOT live here: brand gold is an accent, and an
+   Chart series colours do NOT live here: the accent is an accent, and an
    accent makes a bad categorical ramp. See charts.css.
+
+   Historical note on the token NAMES. --gold, --arcane and --ember were named
+   for the values they used to carry, which came from one particular server's
+   stylesheet. The values are gone; the names stayed because they are threaded
+   through several thousand lines of CSS and a rename buys nothing a reader
+   cannot get from this paragraph. Read --gold as "accent", --arcane as
+   "secondary accent".
    ============================================================ */
 
 :root {
-  /* ---- PTDex brand tokens (nms.css:7-48, unchanged) ---- */
-  --ink: #0f1319; --ink-2: #0b0e13;
-  --surface: #171c24; --surface-2: #1e242e; --surface-3: #252c38;
-  --line: #2b3441; --line-2: #3a4552;
-  --gold: #ff8a4a; --gold-hi: #ffb289; --gold-deep: #b35422;
-  --arcane: #5aa0e0; --arcane-hi: #86c2ff;
-  --ember: #d9633a;
-  --text: #ece5d6; --text-2: #b3b0a4; --muted: #8a8f98;
+  /* ---- Brand ---- */
+  --ink: #15111f; --ink-2: #0f0c18;
+  --surface: #15111f; --surface-2: #1d1729; --surface-3: #252036;
+  --line: #2a2338; --line-2: #352c47;
+  --gold: #a855f7; --gold-hi: #c9a2ff; --gold-deep: #7c3aed;
+  --arcane: #56b8e0; --arcane-hi: #8fd8f5;
+  --ember: #8b6ce8;
+  --text: #ece9f2; --text-2: #a29bb0; --muted: #6f6880;
 
-  /* ---- Voidforge depth: a ground darker than the site's, so the gold reads
-     as forged metal rather than as a web accent ---- */
-  --void: #06070c;
-  --abyss: #0a0c14;
+  /* ---- Depth: a ground darker than any panel, so the violet reads as lit
+     stone rather than as a web accent ---- */
+  --void: #0a0810;
+  --abyss: #120e1b;
 
-  --nms-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --nms-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --nms-sans: Manrope, "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+  --nms-serif: Cinzel, "Trajan Pro", "Palatino Linotype", Georgia, serif;
   --nms-mono: ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
 
   /* 4px-based spacing scale, in rem so it tracks the reader's font size */
@@ -43,6 +49,13 @@
   --s-5: 1.5rem;  --s-6: 2rem;    --s-7: 3rem;
 
   --r-sm: 0.375rem; --r-md: 0.625rem; --r-lg: 0.875rem; --r-pill: 999px;
+
+  /* Numeric aliases for the same three steps. app.css was written against a
+     --r-1/--r-2/--r-3 scale that was never defined here, so a dozen radii - the
+     page banners, the zone and mob rows, the loot cards - resolved to nothing
+     and rendered square while everything around them was rounded. Aliasing is a
+     smaller and safer diff than renaming twelve call sites. */
+  --r-1: var(--r-sm); --r-2: var(--r-md); --r-3: var(--r-lg);
 
   /* Hairlines stay in px on purpose: fractional rem borders land between
      device pixels and render blurry. */
@@ -68,10 +81,10 @@
   /* Ambient layers. Tokens rather than literals so a scheme can retune the
      atmosphere - these three blurred blobs are the largest coloured area in
      the app, and a scheme that left them behind would only be half applied. */
-  --aurora-1: #1f6dd0;
-  --aurora-2: #7b53d6;
-  --aurora-3: #b35422;
-  --star: #8fd0ff;
+  --aurora-1: #6d28d9;
+  --aurora-2: #a855f7;
+  --aurora-3: #2f6fb8;
+  --star: #d3b8ff;
 
   --shadow-panel: 0 10px 30px rgba(0, 0, 0, 0.45);
   --shadow-lift: 0 18px 44px rgba(0, 0, 0, 0.55), 0 0 0 1px color-mix(in srgb, var(--arcane) 14%, transparent);
@@ -94,7 +107,7 @@
      - chart series colours (charts.css) were validated against the panel
        surface. They are data, and the rule here is that chrome may shimmer
        while data may not.
-     - the Project Triune crest, which is a brand mark rather than an accent.
+     - the app mark, which is a brand mark rather than an accent.
 
    So every accent below is chosen to sit clear of mint-green, red and amber -
    the three status hues - rather than merely to look nice next to them.
@@ -197,7 +210,17 @@ body {
 /* ============================================================
    Type
    ============================================================ */
-h1, h2, h3 { font-family: var(--nms-serif); font-weight: 700; margin: 0; color: #f0e8d6; }
+/* Cinzel is all-caps by design and sits noticeably tighter than a text serif,
+   so headings get a little tracking back rather than a size bump. The colour is
+   a token so the scheme carries it - it used to be a hardcoded cream, which was
+   invisible until a scheme changed the ground under it. */
+h1, h2, h3 {
+  font-family: var(--nms-serif);
+  font-weight: 700;
+  margin: 0;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
 
 .eyebrow {
   font-size: 0.66rem;
@@ -280,68 +303,76 @@ h1, h2, h3 { font-family: var(--nms-serif); font-weight: 700; margin: 0; color: 
 .rule::before { left: 0; }
 .rule::after  { right: 0; }
 
-/* --- Gold rule, the site's footer treatment --- */
+/* --- Accent rule, the footer treatment --- */
 .rule-gold {
   height: 2px; border: 0; margin: 0;
   background: linear-gradient(90deg, transparent, var(--gold-deep), var(--gold), var(--gold-deep), transparent);
 }
 
-/* --- PTUI emblem ---------------------------------------------------------
-   Motion mirrors NMSTheme::DrawEmblem, the same numbers the guild portal uses:
-   0.55 rad/s out (11.4s), 0.38 rad/s back (16.5s), a 4.5s halo breath, and the
-   node glows on a 3.0s pulse offset by a third each, so the trio shimmers
+/* --- The mark ------------------------------------------------------------
+   The gap in the ring sweeps round once every 18s, the halo breathes on 5.4s,
+   and the three bars pulse on 3.6s offset by a third each so the trio shimmers
    rather than blinking in unison.
 
-   `transform-box: view-box` is load-bearing. Without it an SVG group rotates
-   about its own bounding box, so the ring and the triad each wobble around
-   their own centre instead of turning about the emblem's. */
-.ptui-emblem {
+   Everything here is slower than an emblem usually is, on purpose. This mark
+   sits in the title bar above a live damage meter; anything quicker becomes
+   something that moves in the corner of your eye while you are reading a
+   number, which is the one thing chrome must never do.
+
+   `transform-box: view-box` is load-bearing. Without it an SVG element rotates
+   about its own bounding box, so the arc would swing around its own centre
+   instead of turning about the mark's. */
+.mark {
   display: block;
   overflow: visible;
-  filter: drop-shadow(0 0 14px rgba(143, 208, 255, 0.3));
+  filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.28));
 }
-.ptui-emblem .pt-out,
-.ptui-emblem .pt-in,
-.ptui-emblem .pt-h3 {
+.mark .mk-ring,
+.mark .mk-halo {
   transform-box: view-box;
-  transform-origin: 100px 100px;
+  transform-origin: 24px 24px;
 }
-.ptui-emblem .pt-out { animation: vfSpin 11.4s linear infinite; }
-.ptui-emblem .pt-in { animation: vfSpin 16.5s linear infinite reverse; }
-.ptui-emblem .pt-h3 { animation: vfBreath 4.5s ease-in-out infinite; }
+.mark .mk-ring { animation: vfSpin 18s linear infinite; }
+.mark .mk-halo { animation: vfBreath 5.4s ease-in-out infinite; }
 
-/* The glow shell carries its own falloff, so the pulse only breathes its size
-   and opacity - it is scaled about its own centre, hence fill-box here. */
-.ptui-emblem .pt-g1 {
+/* The bars breathe about their own base, not the mark's centre - scaling them
+   from the middle would make them grow downward through the ring. */
+.mark .mk-b1,
+.mark .mk-spire,
+.mark .mk-b3 {
   transform-box: fill-box;
-  transform-origin: center;
-  animation: vfPulseNode 3s ease-in-out infinite;
+  transform-origin: 50% 100%;
+  animation: vfPulseBar 3.6s ease-in-out infinite;
 }
-.ptui-emblem .pt-n2 .pt-g1 { animation-delay: -1s; }
-.ptui-emblem .pt-n3 .pt-g1 { animation-delay: -2s; }
+.mark .mk-spire { animation-delay: -1.2s; }
+.mark .mk-b3 { animation-delay: -2.4s; }
 
 @keyframes vfSpin { to { transform: rotate(360deg); } }
 @keyframes vfBreath {
   0%, 100% { transform: scale(0.96); opacity: 0.6; }
   50%      { transform: scale(1.05); opacity: 1; }
 }
-@keyframes vfPulseNode {
-  0%, 100% { transform: scale(0.88); opacity: 0.7; }
-  50%      { transform: scale(1.12); opacity: 1; }
+/* Height only. A bar that also widened would read as a wobble rather than as a
+   meter moving. */
+@keyframes vfPulseBar {
+  0%, 100% { transform: scaleY(0.9); }
+  50%      { transform: scaleY(1.06); }
 }
 
-.ptui-emblem.still .pt-out,
-.ptui-emblem.still .pt-in,
-.ptui-emblem.still .pt-h3,
-.ptui-emblem.still .pt-g1 { animation: none; }
+.mark.still .mk-ring,
+.mark.still .mk-halo,
+.mark.still .mk-b1,
+.mark.still .mk-spire,
+.mark.still .mk-b3 { animation: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .aurora i,
   .starfield i,
-  .ptui-emblem .pt-out,
-  .ptui-emblem .pt-in,
-  .ptui-emblem .pt-h3,
-  .ptui-emblem .pt-g1 { animation: none !important; }
+  .mark .mk-ring,
+  .mark .mk-halo,
+  .mark .mk-b1,
+  .mark .mk-spire,
+  .mark .mk-b3 { animation: none !important; }
 }
 
 /* ============================================================
@@ -399,7 +430,7 @@ h1, h2, h3 { font-family: var(--nms-serif); font-weight: 700; margin: 0; color: 
   flex: none;
   padding: var(--s-3) var(--s-4);
   border-bottom: var(--line-w) solid var(--line);
-  background: rgba(10, 12, 20, 0.35);
+  background: rgba(10, 8, 16, 0.35);
 }
 
 .panel > .phead .t {
@@ -448,7 +479,19 @@ h1, h2, h3 { font-family: var(--nms-serif); font-weight: 700; margin: 0; color: 
   padding: 0.0625rem 0.4375rem;
 }
 
-.dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--muted); flex: none; }
+/* inline-block, not the default inline. A .dot inside a flex row is blockified
+   by the flex container and sizes correctly; the same span inside a <p> - which
+   is where the Overview hero puts it - stayed inline, ignored its width and
+   height, and painted its background over the whole line box as a green
+   rectangle. Blockifying it here fixes that without touching the flex uses. */
+.dot {
+  display: inline-block;
+  vertical-align: middle;
+  width: 0.5rem; height: 0.5rem;
+  border-radius: 50%;
+  background: var(--muted);
+  flex: none;
+}
 .dot.live {
   background: var(--good);
   box-shadow: 0 0 0 0 rgba(73, 208, 160, 0.6);
@@ -513,12 +556,18 @@ h1, h2, h3 { font-family: var(--nms-serif); font-weight: 700; margin: 0; color: 
 }
 .btn:hover { border-color: var(--gold-deep); color: var(--gold-hi); box-shadow: var(--glow-gold); }
 .btn:focus-visible { outline: 2px solid var(--arcane); outline-offset: 2px; }
+/* The gradient runs --gold-hi -> --gold, not --gold -> --gold-deep, and that is
+   a contrast fix rather than taste. Dark label text over the old deep end fell
+   to about 4:1 in this scheme and 3:1 in emberwatch - under the 4.5:1 that
+   0.82rem text needs. Starting a step higher keeps the darkest pixel the label
+   sits on light enough in every scheme. The label colour is a neutral near
+   black so it stays right whatever hue the accent is. */
 .btn.primary {
-  background: linear-gradient(180deg, var(--gold), var(--gold-deep));
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
   border-color: var(--gold-deep);
-  color: #1a130a;
+  color: #0d0d12;
 }
-.btn.primary:hover { color: #1a130a; filter: brightness(1.07); }
+.btn.primary:hover { color: #0d0d12; filter: brightness(1.07); }
 .btn:disabled, .btn[aria-disabled='true'] { opacity: 0.4; cursor: default; }
 .btn:disabled:hover { border-color: var(--line-2); color: var(--text-2); box-shadow: none; }
 

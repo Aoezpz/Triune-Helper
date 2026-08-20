@@ -1,9 +1,10 @@
 {
-  "name": "triune-helper",
-  "version": "0.1.11",
-  "description": "Project Triune combat companion - live DPS meter, fight timeline, alerts and progression, read from your EverQuest logs.",
+  "name": "nexus-reader",
+  "productName": "Nexus Reader",
+  "version": "0.2.0",
+  "description": "Emu multitool for three-classes-in-one EverQuest emulator servers - live DPS meter, fight timeline, alerts and progression, read from your own logs.",
   "main": "./out/main/index.js",
-  "author": "Project Triune",
+  "author": "Aoezpz",
   "license": "MIT",
   "private": true,
   "scripts": {

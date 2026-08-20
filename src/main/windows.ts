@@ -42,7 +42,7 @@ export function createMainWindow(): BrowserWindow {
     icon: iconPath(),
     // Paint the shell colour immediately so launching doesn't flash white.
     backgroundColor: '#0f1319',
-    title: 'Triune-Helper',
+    title: 'Nexus Reader',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,

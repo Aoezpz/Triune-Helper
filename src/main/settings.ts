@@ -26,16 +26,26 @@ export function setSettings(patch: Partial<Settings>): Settings {
 }
 
 /**
- * Common EverQuest install locations, newest-launcher-first. We only ever read
- * from the Logs subfolder - the app never writes into the game directory.
+ * Common EverQuest install locations. We only ever read from the Logs
+ * subfolder - the app never writes into the game directory.
+ *
+ * Emulator launchers each pick their own root, so this list is a guess-list
+ * rather than a spec, and being wrong is free: a candidate only wins if its
+ * Logs folder actually holds a file matching the configured server shortname.
+ * Adding a server's usual folder here costs one `existsSync` on a path that
+ * isn't there.
  */
 const CANDIDATE_ROOTS = [
   'C:\\ProjectTriune',
   'C:\\Triune',
+  'C:\\THJ',
   'C:\\EverQuest',
+  'C:\\EQ',
+  'C:\\Games\\EverQuest',
   'C:\\Program Files (x86)\\Sony\\EverQuest',
   'C:\\Program Files\\Sony\\EverQuest',
-  'C:\\Games\\EverQuest'
+  'D:\\EverQuest',
+  'D:\\Games\\EverQuest'
 ]
 
 /**

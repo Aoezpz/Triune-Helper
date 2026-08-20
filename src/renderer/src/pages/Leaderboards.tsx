@@ -40,8 +40,8 @@ export function Leaderboards(): JSX.Element {
             <p className="eyebrow">raid.encounters</p>
             <h1>The Race Board</h1>
             <p className="lede">
-              Every ranked clear on Project Triune, by boss and group size. Recorded by the server, not by this
-              app.
+              Every ranked clear your server publishes, by boss and group size. Recorded by the server, not by
+              this app.
             </p>
           </div>
           <span className="spacer" />

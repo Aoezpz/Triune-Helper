@@ -21,10 +21,10 @@ export interface ThemeDef {
 
 export const THEMES: ThemeDef[] = [
   {
-    id: 'voidforge',
-    name: 'Voidforge',
-    note: 'Near-black ground, weathered gold. Matches PTDex.',
-    swatch: ['#0a0c14', '#ff8a4a', '#5aa0e0']
+    id: 'obelisk',
+    name: 'Obelisk',
+    note: 'Near-black violet, amethyst accent, cyan highlights.',
+    swatch: ['#120e1b', '#a855f7', '#56b8e0']
   },
   {
     id: 'nightfall',
@@ -52,7 +52,13 @@ export const THEMES: ThemeDef[] = [
   }
 ]
 
-export const DEFAULT_THEME = 'voidforge'
+/**
+ * Renaming this id from 'voidforge' is safe by construction: `isTheme` rejects
+ * the old id, so a settings file still holding it falls through to the default
+ * - which is the same scheme, retuned. Nobody lands on a broken theme, and
+ * nothing has to migrate.
+ */
+export const DEFAULT_THEME = 'obelisk'
 
 export function isTheme(id: string): boolean {
   return THEMES.some((t) => t.id === id)
@@ -62,7 +68,7 @@ export function isTheme(id: string): boolean {
  * Put a scheme on the document.
  *
  * The default is written as an absent attribute rather than as
- * `data-theme="voidforge"`, because its values ARE the `:root` block - a
+ * `data-theme="obelisk"`, because its values ARE the `:root` block - a
  * scheme selector that restates the defaults is a second copy to keep in step.
  *
  * The element is typed structurally rather than as an HTMLElement: this module

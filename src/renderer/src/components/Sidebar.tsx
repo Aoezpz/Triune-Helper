@@ -134,7 +134,7 @@ export function Sidebar({
       <div className="footer">
         <span>v{version}</span>
         <span className="spacer" />
-        <span title="Triune-Helper never writes to your game folder">read-only</span>
+        <span title="Nexus Reader never writes to your game folder">read-only</span>
       </div>
     </aside>
   )

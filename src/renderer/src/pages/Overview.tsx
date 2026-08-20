@@ -168,10 +168,10 @@ export function Overview({
           <Starfield count={60} seed={7} />
           <div className="hero-inner">
             <Crest size={140} />
-            <p className="eyebrow">Project Triune</p>
+            <p className="eyebrow">Emu Multitool</p>
             <h1>Read your logs. See your trio.</h1>
             <p className="lede">
-              Triune-Helper tails the log files EverQuest already writes — a live meter, a fight timeline,
+              Nexus Reader tails the log files EverQuest already writes — a live meter, a fight timeline,
               trigger alerts and progression, with nothing injected and nothing in your game folder touched.
             </p>
             <div className="row" style={{ justifyContent: 'center', marginTop: 'var(--s-5)' }}>
@@ -191,9 +191,10 @@ export function Overview({
 
   return (
     <div className="page ov">
-      <header className="loot-hero">
-        <Aurora />
-        <Starfield count={26} seed={3} />
+      {/* No Aurora and no Starfield here: the banner carries key art, and two
+          decorative layers on top of a picture is one too many. Both are still
+          used on the first-run hero below, which has no art behind it. */}
+      <header className="loot-hero hero-art">
         <div className="lh-in">
           <div className="lh-copy">
             <p className="eyebrow">

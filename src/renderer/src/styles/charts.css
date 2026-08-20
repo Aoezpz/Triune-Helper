@@ -1,18 +1,22 @@
 /* ============================================================
    Series colours.
 
-   Deliberately NOT the brand palette. Brand gold is an accent, and an accent
-   makes a bad categorical ramp - four hues have to stay apart from each other,
-   not harmonise with the chrome.
+   Deliberately NOT the brand palette. The brand accent is an accent, and an
+   accent makes a bad categorical ramp - four hues have to stay apart from each
+   other, not harmonise with the chrome. That is also why the Nexus Reader
+   retune did not touch a single value below: the surface moved from slate to
+   violet, the marks did not, and re-running the validator against the new
+   surface returned the same five results it did against the old one.
 
    These are slots 1, 2, 3 and 8 of the validated dark categorical ramp, in
    that order. Verified with the palette validator against this app's panel
-   surface (#171c24):
+   surface (#15111f):
 
-     lightness band  PASS   chroma floor  PASS
-     normal-vision   PASS (worst adjacent dE 26.5)
+     lightness band  PASS (all inside L 0.48-0.67)
+     chroma floor    PASS (all >= 0.1)
+     normal-vision   PASS (worst adjacent dE 26.5, green<->orange)
      contrast        PASS (all >= 3:1)
-     CVD separation  WARN (aqua<->red dE 6.5 protan)
+     CVD separation  WARN (red<->green dE 6.5 protan, tritan 31.6)
 
    That warn is why `incoming` is drawn as a 2px LINE while you/pet/group are
    stacked areas, and why every series carries a legend swatch and a direct
@@ -31,8 +35,8 @@
   --bar-heal: #199e70;
 
   /* Grid and axis are recessive: present, never competing with the marks. */
-  --chart-grid: rgba(236, 229, 214, 0.07);
-  --chart-axis: rgba(236, 229, 214, 0.28);
+  --chart-grid: color-mix(in srgb, var(--text) 7%, transparent);
+  --chart-axis: color-mix(in srgb, var(--text) 28%, transparent);
 }
 
 .legend {
@@ -56,7 +60,7 @@
   position: absolute;
   pointer-events: none;
   z-index: 2;
-  background: rgba(6, 7, 12, 0.94);
+  background: color-mix(in srgb, var(--void) 94%, transparent);
   border: var(--line-w) solid var(--line-2);
   border-radius: var(--r-sm);
   padding: var(--s-2) var(--s-3);

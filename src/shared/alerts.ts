@@ -172,6 +172,13 @@ export function patternFromLine(line: string, names: string[] = []): string {
    payload is base64url so it survives chat clients that mangle `+` and `/`.
 --------------------------------------------------------------------------- */
 
+/**
+ * DELIBERATELY UNCHANGED across the Nexus Reader rename. This is a wire format,
+ * not branding: every rule anyone has ever pasted into a Discord channel starts
+ * with these six characters, and a rename here would turn all of them into
+ * strings this app refuses to read. The `1` is the version to bump if the
+ * payload shape ever changes.
+ */
 const PREFIX = 'TRIA1:'
 
 /** Fields worth sharing. Ids and enabled-state are local, so they're dropped. */
@@ -187,7 +194,7 @@ export function exportRules(rules: AlertRule[]): string {
 export function importRules(text: string): AlertRule[] {
   const trimmed = text.trim()
   if (!trimmed.startsWith(PREFIX)) {
-    throw new Error(`Not a Triune alert string - it should start with ${PREFIX}`)
+    throw new Error(`Not an alert string - it should start with ${PREFIX}`)
   }
   const b64 = trimmed.slice(PREFIX.length).replace(/-/g, '+').replace(/_/g, '/')
   const json = atobUtf8(b64 + '='.repeat((4 - (b64.length % 4)) % 4))

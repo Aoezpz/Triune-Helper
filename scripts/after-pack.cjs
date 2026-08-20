@@ -56,12 +56,12 @@ exports.default = async function afterPack(context) {
       '--set-icon', icon,
       '--set-file-version', version,
       '--set-product-version', version,
-      '--set-version-string', 'ProductName', 'Triune-Helper',
-      '--set-version-string', 'FileDescription', 'Triune-Helper',
-      '--set-version-string', 'CompanyName', 'Project Triune',
-      '--set-version-string', 'LegalCopyright', 'Project Triune',
-      '--set-version-string', 'OriginalFilename', 'Triune-Helper.exe',
-      '--set-version-string', 'InternalName', 'Triune-Helper'
+      '--set-version-string', 'ProductName', 'Nexus Reader',
+      '--set-version-string', 'FileDescription', 'Nexus Reader',
+      '--set-version-string', 'CompanyName', 'Aoezpz',
+      '--set-version-string', 'LegalCopyright', 'Aoezpz',
+      '--set-version-string', 'OriginalFilename', 'Nexus Reader.exe',
+      '--set-version-string', 'InternalName', 'Nexus Reader'
     ],
     { stdio: 'inherit' }
   )

@@ -1,6 +1,7 @@
-# Triune-Helper — test build
+# Nexus Reader — test build
 
-Thanks for trying this. It is a companion app for **Project Triune**: it reads
+Thanks for trying this. It is an **emu multitool** for three-classes-in-one
+EverQuest emulator servers: it reads
 the log file EverQuest already writes and turns it into a live DPS meter, fight
 history, alerts, loot and zone ledgers, timers and a few other things.
 
@@ -12,7 +13,7 @@ the app has nothing to show. It also needs no admin rights.
 
 ## 1. Install
 
-Run **`Triune-Helper-Setup-0.1.0.exe`**.
+Run **`Nexus-Reader-Setup-0.1.0.exe`**.
 
 Windows will say *"Windows protected your PC"* and offer only a **Don't run**
 button. Click **More info → Run anyway**.
@@ -23,16 +24,16 @@ warning is bought, not earned by the app being safe — so every tester will see
 it.
 
 Then click through the installer. It finishes on a page with **Run
-Triune-Helper** ticked, so the app opens straight away. No admin prompt.
+Nexus Reader** ticked, so the app opens straight away. No admin prompt.
 
 ### If nothing seems to happen
 
 It installs per-user and quietly. You should end up with all of these:
 
-- **Start menu → Triune-Helper**
-- a **Triune-Helper** shortcut on your desktop
+- **Start menu → Nexus Reader**
+- a **Nexus Reader** shortcut on your desktop
 - the program itself at
-  `%LOCALAPPDATA%\Programs\triune-helper\Triune-Helper.exe` — paste that into
+  `%LOCALAPPDATA%\Programs\Nexus Reader\Nexus Reader.exe` — paste that into
   the address bar of File Explorer to check
 
 If the shortcuts are there but the app never opens, that is worth reporting, and
@@ -137,12 +138,12 @@ they should show as separate, not as a party.
 All of its own data lives in:
 
 ```
-%APPDATA%\triune-helper
+%APPDATA%\Nexus Reader
 ```
 
 Settings, alert rules, flag progress and the lifetime ledgers are all there —
 **nothing is written anywhere near your EverQuest folder.** Uninstall from
-Windows *Apps & features*; that leaves `%APPDATA%\triune-helper` alone on
+Windows *Apps & features*; that leaves `%APPDATA%\Nexus Reader` alone on
 purpose, so reinstalling doesn't wipe your rules. Delete that folder by hand for
 a genuinely clean slate.
 

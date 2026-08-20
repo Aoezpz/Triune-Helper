@@ -89,7 +89,7 @@ export function Preferences({
               <input
                 type="text"
                 value={settings.logFolder}
-                placeholder="C:\ProjectTriune\Logs"
+                placeholder="C:\EverQuest\Logs"
                 onChange={(e) => void update({ logFolder: e.target.value })}
                 style={{ flex: 1 }}
               />
@@ -101,7 +101,7 @@ export function Preferences({
               </button>
             </div>
             <span className="fhint">
-              Read-only. Triune-Helper never writes into your game directory. Turn logging on in-game with{' '}
+              Read-only. Nexus Reader never writes into your game directory. Turn logging on in-game with{' '}
               <code>/log on</code>.
             </span>
             {detectMsg && <span className="err">{detectMsg}</span>}

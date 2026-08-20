@@ -2,6 +2,11 @@ import { readFileSync, rmSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
+// FIRST, and it has to stay first. Renaming the app moved userData, so this
+// carries a Triune-Helper install's stores into the new folder - and every
+// module below builds its Store the moment it is imported, by which point the
+// path is already fixed. See src/main/migrate.ts.
+import './migrate'
 import type {
   CombatState,
   OverlayPreset,

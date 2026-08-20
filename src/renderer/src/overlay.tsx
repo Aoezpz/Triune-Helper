@@ -120,7 +120,7 @@ function Meter({ locked }: { locked: boolean }): JSX.Element {
 
   if (!fight) {
     return (
-      <Chrome title="Triune" locked={locked}>
+      <Chrome title="Nexus" locked={locked}>
         <div className="ov-idle">waiting for combat</div>
       </Chrome>
     )

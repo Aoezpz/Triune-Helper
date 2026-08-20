@@ -110,8 +110,13 @@ export function TitleBar({
       <div className="brand">
         <Crest size={32} />
         <span className="wordmark">
-          Triune-Helper
-          <small>Project Triune</small>
+          Nexus Reader
+          {/* The descriptor, not the server. This app is pointed at whichever
+              trio server you play; naming one here would be a lie on every
+              other one. The server you ARE on is named in the character picker
+              at the other end of this bar, where it is a fact rather than a
+              claim. */}
+          <small>Emu Multitool</small>
         </span>
       </div>
 

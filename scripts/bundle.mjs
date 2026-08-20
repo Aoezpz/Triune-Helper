@@ -8,7 +8,7 @@
  *
  *   npm run bundle
  *
- * Produces release/Triune-Helper-<version>-test.zip. Run `npm run package`
+ * Produces release/Nexus-Reader-<version>-test.zip. Run `npm run package`
  * first - this only collects what is already built.
  */
 import { execFileSync } from 'node:child_process'
@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 
-const installer = join(root, 'release', version, `Triune-Helper-Setup-${version}.exe`)
+const installer = join(root, 'release', version, `Nexus-Reader-Setup-${version}.exe`)
 if (!existsSync(installer)) {
   console.error(`No installer at ${installer}\nRun \`npm run package\` first.`)
   process.exit(1)
@@ -55,11 +55,11 @@ if (!existsSync(manifest)) {
   process.exit(1)
 }
 
-const stage = join(root, 'release', `Triune-Helper-${version}-test`)
+const stage = join(root, 'release', `Nexus-Reader-${version}-test`)
 rmSync(stage, { recursive: true, force: true })
 mkdirSync(stage, { recursive: true })
 
-copyFileSync(installer, join(stage, `Triune-Helper-Setup-${version}.exe`))
+copyFileSync(installer, join(stage, `Nexus-Reader-Setup-${version}.exe`))
 // Named README so it is the obvious thing to open, and .txt so it opens in
 // Notepad for somebody who has no markdown viewer and just double-clicks.
 copyFileSync(join(root, 'docs', 'TESTING.md'), join(stage, 'README.txt'))
@@ -84,9 +84,9 @@ console.log(`\n  ${zip}`)
 console.log(`  ${(statSync(zip).size / 1024 / 1024).toFixed(1)} MB — installer + README.txt`)
 console.log('\nSend that one file. The README tells them about the SmartScreen warning.')
 console.log('\nCutting the GitHub release, attach all three:')
-console.log(`  release/${version}/Triune-Helper-Setup-${version}.exe`)
+console.log(`  release/${version}/Nexus-Reader-Setup-${version}.exe`)
 console.log(`  release/${version}/latest.yml       <- without this the updater is blind`)
-console.log(`  release/${version}/Triune-Helper-Setup-${version}.exe.blockmap`)
+console.log(`  release/${version}/Nexus-Reader-Setup-${version}.exe.blockmap`)
 console.log(
   '\nThe blockmap is what lets an existing install download only the changed\n' +
     'bytes instead of the whole 80 MB. Miss it and updates still work, just fat.'

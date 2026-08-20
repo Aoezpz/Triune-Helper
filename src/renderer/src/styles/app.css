@@ -37,7 +37,7 @@
      later in the DOM and would otherwise paint over it. */
   z-index: 100;
   border-bottom: var(--line-w) solid var(--line);
-  background: linear-gradient(180deg, rgba(10, 12, 20, 0.97), rgba(10, 12, 20, 0.88));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--abyss) 97%, transparent), color-mix(in srgb, var(--abyss) 88%, transparent));
   -webkit-app-region: drag;
 }
 /* Buttons and inputs must stay clickable inside a drag region. */
@@ -65,13 +65,16 @@
   gap: var(--s-2);
   min-width: 0;
 }
+/* Cinzel is inscriptional: it wants air between the letters, and its lowercase
+   are small caps, so "Nexus Reader" sets as NEXUS READER without a
+   text-transform. 0.06em is where the caps stop touching at 1rem. */
 .titlebar .brand .wordmark {
   font-family: var(--nms-serif);
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--gold-hi);
-  line-height: 1.05;
-  letter-spacing: 0.01em;
+  line-height: 1.1;
+  letter-spacing: 0.06em;
   white-space: nowrap;
 }
 .titlebar .brand .wordmark small {
@@ -94,7 +97,7 @@
   padding: 0 var(--s-2) 0 var(--s-3);
   border: var(--line-w) solid var(--line-2);
   border-radius: var(--r-sm);
-  background: rgba(6, 7, 12, 0.6);
+  background: color-mix(in srgb, var(--void) 60%, transparent);
   color: var(--text);
   font-size: 0.84rem;
   font-weight: 600;
@@ -290,7 +293,7 @@
    only thing left is the user's decision about when. */
 .uppill.ready { border-color: var(--good); color: var(--good); background: color-mix(in srgb, var(--good) 14%, transparent); }
 .uppill.ready:hover { background: color-mix(in srgb, var(--good) 26%, transparent); }
-.uppill.ready .updot { background: var(--good); box-shadow: 0 0 8px rgba(73, 208, 160, 0.7); }
+.uppill.ready .updot { background: var(--good); box-shadow: 0 0 8px color-mix(in srgb, var(--good) 70%, transparent); }
 .uppill .updot {
   width: 0.4rem; height: 0.4rem;
   border-radius: 50%;
@@ -385,9 +388,9 @@
   border: var(--line-w) solid var(--line);
   border-radius: var(--r-lg);
   background:
-    radial-gradient(60% 90% at 15% 100%, rgba(217, 99, 58, 0.22), transparent 60%),
+    radial-gradient(60% 90% at 15% 100%, color-mix(in srgb, var(--ember) 22%, transparent), transparent 60%),
     radial-gradient(60% 90% at 85% 100%, color-mix(in srgb, var(--arcane) 22%, transparent), transparent 60%),
-    linear-gradient(180deg, #10151d, #0a0d13);
+    linear-gradient(180deg, var(--surface), var(--void));
 }
 .hero-inner {
   position: relative;
@@ -405,7 +408,7 @@
   margin: var(--s-2) 0 var(--s-1);
   max-width: 18ch;
   text-wrap: balance;
-  color: #f4ecda;
+  color: var(--text);
   text-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
 }
 .hero-inner .lede {
@@ -423,7 +426,7 @@ code {
   font-size: 0.9em;
   padding: 0.0625rem 0.3125rem;
   border-radius: var(--r-sm);
-  background: rgba(6, 7, 12, 0.7);
+  background: color-mix(in srgb, var(--void) 70%, transparent);
   border: var(--line-w) solid var(--line);
   color: var(--arcane-hi);
 }
@@ -535,10 +538,14 @@ code {
 .cbar-mid { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }
 .cbar-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.125rem; }
 
+/* Sans, not the display serif. This holds a mob name - "a bloodthirsty gnoll
+   pup" - which is data, and Cinzel renders lowercase as small caps. A fight
+   title set in it stops being scannable and starts being a monument. */
 .ctitle {
-  font-family: var(--nms-serif);
+  font-family: var(--nms-sans);
+  font-weight: 600;
   font-size: 1.05rem;
-  color: #f0e8d6;
+  color: var(--text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -595,7 +602,7 @@ code {
      rather than sixteen competing highlighter pens. The text stays full
      strength, because the text is the part being read. */
   border: var(--line-w) solid color-mix(in oklab, currentColor 40%, transparent);
-  background: color-mix(in oklab, currentColor 10%, rgba(6, 7, 12, 0.45));
+  background: color-mix(in oklab, currentColor 10%, color-mix(in srgb, var(--void) 45%, transparent));
   color: var(--muted);
   white-space: nowrap;
 }
@@ -613,10 +620,59 @@ code {
   overflow: hidden;
   border: var(--line-w) solid var(--line);
   border-radius: var(--r-3);
-  background: linear-gradient(160deg, rgba(23, 28, 36, 0.9), rgba(10, 12, 20, 0.9));
+  background: linear-gradient(160deg, color-mix(in srgb, var(--surface) 90%, transparent), color-mix(in srgb, var(--abyss) 90%, transparent));
   padding: var(--s-5) var(--s-4);
   margin-bottom: var(--s-3);
 }
+/* --- The Overview banner, with key art -----------------------------------
+   Key art instead of the procedural starfield. The art is bundled
+   (assets/hero-portal.jpg) rather than fetched: the app has no network at first
+   paint and its CSP allows 'self' only.
+
+   Two things about the crop, both deliberate:
+
+   - It is the RIGHT-HAND HALF of the source. The left third of that artwork is
+     a mock-up carrying an invented character name and seven lines of invented
+     log text. Real log lines and fabricated ones do not share a screen in this
+     app, decorative or not.
+   - The scrim runs to 26% at full strength before it starts to fade. That is
+     what the copy sits on, and it is a token rather than a colour so the
+     banner stays legible in every scheme.
+
+   The art runs FULL BLEED at `cover`, which only works because its left third
+   is genuinely black - the copy sits on the picture rather than on a panel laid
+   over it. The scrim above it is therefore light: enough to hold the text at a
+   narrow window, where `cover` slides the lit half leftwards, and no more. */
+.loot-hero.hero-art {
+  /* The art is 8:3. A banner much flatter than that gets `cover`-cropped down
+     to a bright band with no subject in it - the figure, the ring and the ruins
+     all fall outside. 18rem against a ~68rem content column is about 4:1, close
+     enough that the whole scene survives the crop. */
+  min-height: 18rem;
+  display: flex;
+  align-items: center;
+  background-color: var(--void);
+  background-image:
+    linear-gradient(
+      90deg,
+      var(--void) 0%,
+      color-mix(in srgb, var(--void) 62%, transparent) 22%,
+      color-mix(in srgb, var(--void) 22%, transparent) 38%,
+      transparent 50%
+    ),
+    url('../assets/hero-portal.jpg');
+  /* `100% auto`, not `cover`. The whole width of the scene is the point - the
+     figure on the left, the ring on the right - so the crop has to happen in
+     the one axis we have spare. */
+  background-size: 100% 100%, 100% auto;
+  background-position: center, center center;
+  background-repeat: no-repeat, no-repeat;
+}
+/* The copy stops well short of the ring rather than overlapping it. */
+.loot-hero.hero-art .lh-copy { flex: 0 1 34rem; }
+.loot-hero.hero-art .lh-copy h1,
+.loot-hero.hero-art .lh-copy .lede { text-shadow: 0 2px 18px var(--void); }
+
 .lh-in {
   position: relative;
   z-index: 1;
@@ -624,6 +680,7 @@ code {
   align-items: center;
   gap: var(--s-4);
   flex-wrap: wrap;
+  width: 100%;
 }
 .lh-copy { min-width: 0; flex: 1 1 20rem; }
 .lh-copy h1 { font-family: var(--nms-serif); font-size: 2rem; margin: 0.15rem 0 0.35rem; color: var(--gold-hi); }
@@ -653,7 +710,7 @@ code {
   padding: var(--s-3);
   border: var(--line-w) solid var(--line);
   border-radius: var(--r-2);
-  background: rgba(23, 28, 36, 0.55);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
@@ -667,7 +724,7 @@ code {
   height: 0.2rem;
   margin-top: 0.3rem;
   border-radius: var(--r-pill);
-  background: rgba(6, 7, 12, 0.6);
+  background: color-mix(in srgb, var(--void) 60%, transparent);
   overflow: hidden;
 }
 .lsplit-bar i { display: block; height: 100%; border-radius: var(--r-pill); }
@@ -786,7 +843,7 @@ code {
   flex: 1 0 100%;
   height: 0.2rem;
   border-radius: var(--r-pill);
-  background: rgba(6, 7, 12, 0.6);
+  background: color-mix(in srgb, var(--void) 60%, transparent);
   overflow: hidden;
 }
 .ovchar .oc-aa i { display: block; height: 100%; background: var(--gold); border-radius: var(--r-pill); }
@@ -821,7 +878,7 @@ code {
   gap: 0.3rem;
 }
 .ovflags .of-pct { font-size: 1.6rem; font-weight: 800; color: var(--gold-hi); line-height: 1; }
-.ovflags .of-bar { height: 0.3rem; border-radius: var(--r-pill); background: rgba(6, 7, 12, 0.6); overflow: hidden; }
+.ovflags .of-bar { height: 0.3rem; border-radius: var(--r-pill); background: color-mix(in srgb, var(--void) 60%, transparent); overflow: hidden; }
 .ovflags .of-bar i { display: block; height: 100%; background: var(--gold); border-radius: var(--r-pill); }
 .ovflags .of-sub { font-size: 0.7rem; color: var(--muted); }
 
@@ -1217,7 +1274,7 @@ code {
   padding: var(--s-2) var(--s-3);
   border: var(--line-w) solid var(--line-2);
   border-radius: var(--r-2);
-  background: rgba(14, 18, 25, 0.97);
+  background: color-mix(in srgb, var(--ink) 97%, transparent);
   box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.65);
   /* Cannot be hovered itself. The card follows the cursor's dwell, so letting
      it take pointer events would mean it could steal the mouseleave that is
@@ -1231,7 +1288,8 @@ code {
 }
 
 .tc-head { display: flex; align-items: baseline; gap: var(--s-2); margin-bottom: 0.375rem; }
-.tc-name { font-family: var(--nms-serif); font-size: 0.95rem; color: var(--gold-hi); font-weight: 600; }
+/* A spawn name is data too - same reason as .ctitle above. */
+.tc-name { font-family: var(--nms-sans); font-size: 0.95rem; color: var(--gold-hi); font-weight: 600; }
 .tc-kind {
   margin-left: auto;
   font-size: 0.55rem;
@@ -1279,7 +1337,7 @@ code {
 .party {
   padding: var(--s-2) var(--s-3);
   border-bottom: var(--line-w) solid var(--line);
-  background: rgba(6, 7, 12, 0.25);
+  background: color-mix(in srgb, var(--void) 25%, transparent);
   flex: none;
 }
 .party-head {
@@ -1332,11 +1390,11 @@ code {
   border: var(--line-w) solid transparent;
   border-radius: var(--r-md);
   padding: var(--s-2);
-  background: rgba(37, 44, 56, 0.28);
+  background: color-mix(in srgb, var(--surface-3) 28%, transparent);
   transition: border-color 0.14s ease, background 0.14s ease;
 }
-.rcard:hover { background: rgba(37, 44, 56, 0.45); }
-.rcard.open { border-color: var(--line-2); background: rgba(37, 44, 56, 0.55); }
+.rcard:hover { background: color-mix(in srgb, var(--surface-3) 45%, transparent); }
+.rcard.open { border-color: var(--line-2); background: color-mix(in srgb, var(--surface-3) 55%, transparent); }
 
 .rhead {
   appearance: none;
@@ -1379,7 +1437,7 @@ code {
 .rbar {
   height: 0.25rem;
   border-radius: var(--r-pill);
-  background: rgba(6, 7, 12, 0.55);
+  background: color-mix(in srgb, var(--void) 55%, transparent);
   margin: var(--s-2) 0 0.375rem;
   overflow: hidden;
 }
@@ -1432,7 +1490,7 @@ code {
 .aabar-track {
   height: 0.4rem;
   border-radius: var(--r-pill);
-  background: rgba(6, 7, 12, 0.6);
+  background: color-mix(in srgb, var(--void) 60%, transparent);
   border: var(--line-w) solid var(--line);
   overflow: hidden;
 }
@@ -1551,7 +1609,7 @@ code {
   padding: 0.125rem 0.25rem;
   border-radius: var(--r-sm);
 }
-.al-del:hover { color: var(--bad); background: rgba(224, 100, 92, 0.12); }
+.al-del:hover { color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, transparent); }
 /* Armed: the second click deletes, so it stops looking like an idle icon. */
 .al-del.arm {
   color: #fff;
@@ -1604,7 +1662,7 @@ code {
   text-transform: uppercase;
   font-weight: 700;
   color: var(--warn);
-  border: var(--line-w) solid rgba(230, 180, 85, 0.35);
+  border: var(--line-w) solid color-mix(in srgb, var(--warn) 35%, transparent);
   border-radius: var(--r-pill);
   padding: 0.0625rem 0.375rem;
   margin-top: 0.125rem;
@@ -1627,7 +1685,7 @@ code {
   border: var(--line-w) solid var(--line);
   border-radius: var(--r-md);
   padding: var(--s-2);
-  background: rgba(6, 7, 12, 0.4);
+  background: color-mix(in srgb, var(--void) 40%, transparent);
 }
 .vl-row {
   display: grid;
@@ -1664,7 +1722,7 @@ code {
   border-radius: var(--r-sm);
   border-left: 2px solid var(--gold-deep);
   margin-bottom: 0.1875rem;
-  background: rgba(37, 44, 56, 0.3);
+  background: color-mix(in srgb, var(--surface-3) 30%, transparent);
 }
 .al-fname { font-size: 0.8rem; font-weight: 600; color: var(--gold-hi); }
 .al-ftime { font-size: 0.68rem; color: var(--muted); font-variant-numeric: tabular-nums; }

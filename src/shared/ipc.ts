@@ -56,7 +56,12 @@ export interface Settings {
    * app runs entirely on its bundled data.
    */
   ptdexBase: string
-  /** Server shortname used in log filenames. Project Triune's loginserver is `multiclass`. */
+  /**
+   * Server shortname, as it appears in the log filename
+   * (`eqlog_<Char>_<shortname>.txt`). It is the loginserver's short name, not
+   * the server's display name, and it differs per emulator server - which is
+   * exactly why this is a setting and not a constant.
+   */
   serverShortname: string
   /** The section the app was last on, so relaunching lands where you left off. */
   lastPage: string
@@ -86,8 +91,10 @@ export const DEFAULT_SETTINGS: Settings = {
   primaryCharacter: '',
   activeCharacter: '',
   fightTimeoutSeconds: 8,
-  // The PTDex deployment for Project Triune. Confirmed from the site itself:
-  // this host serves the PTDex wordmark and the Project Triune crest.
+  // A PTDex deployment - the item and spell database this app can pull
+  // tooltips from. It is a DATA SOURCE, not a dependency: clear the field and
+  // every network feature switches off, leaving the app running on its bundled
+  // data. Point it at whatever your server publishes, or at nothing.
   ptdexBase: 'https://nms.bestemu.com',
   serverShortname: 'multiclass',
   lastPage: 'overview',
@@ -296,7 +303,14 @@ export interface EventMap {
 export type InvokeChannel = keyof InvokeMap
 export type EventChannel = keyof EventMap
 
-/** Shape exposed on `window.triune` by the preload bridge. */
+/**
+ * Shape exposed on `window.triune` by the preload bridge.
+ *
+ * The name survives the Nexus Reader rename on purpose. It is an internal
+ * symbol threaded through every hook and page in the renderer; renaming it
+ * would be a several-hundred-line diff that no user can see and no behaviour
+ * depends on. Read `window.triune` as "the preload bridge".
+ */
 export interface TriuneBridge {
   invoke<C extends InvokeChannel>(channel: C, payload?: InvokeMap[C][0]): Promise<InvokeMap[C][1]>
   /** Subscribe to a push channel. Returns an unsubscribe function. */
