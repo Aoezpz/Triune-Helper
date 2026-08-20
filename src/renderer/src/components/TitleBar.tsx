@@ -5,7 +5,7 @@ import { Aurora } from './Ambient'
 import { Crest } from './Crest'
 import { IconClose, IconMax, IconMin, IconOverlay } from './Icons'
 
-/** Slot colours are positional (see theme.css) - character 1 is always sky. */
+/** Slot colors are positional (see theme.css) - character 1 is always sky. */
 const SLOT_VARS = ['var(--slot-1)', 'var(--slot-2)', 'var(--slot-3)']
 
 /**

@@ -74,7 +74,7 @@ Roughly in order of how likely something is to be wrong:
 | **Overlays** (`Overlay ▾`) | Do they stay on top of the game? Does a click on one leave your character running? |
 | **Alerts** | Make a rule, get it to fire, check the sound and speech. |
 | **Timers** | Set a countdown, minimise the app, confirm it still goes off. |
-| **Preferences** | Try the colour schemes. Try a different alert voice. |
+| **Preferences** | Try the color schemes. Try a different alert voice. |
 
 **If you have played this character for a while**, press **Preferences → History
 → Rebuild from logs** once. It replays every log on disk into the Zones, Mobs,

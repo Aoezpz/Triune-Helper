@@ -14,7 +14,7 @@
    Chrome may shimmer. Damage rows may not - twelve glowing bars are twelve
    unreadable bars, and this window is operated, not admired.
 
-   Chart series colours do NOT live here: the accent is an accent, and an
+   Chart series colors do NOT live here: the accent is an accent, and an
    accent makes a bad categorical ramp. See charts.css.
 
    Historical note on the token NAMES. --gold, --arcane and --ember were named
@@ -69,7 +69,7 @@
   --bad: #e0645c;
   --warn: #e6b455;
 
-  /* Trio slot colours, by POSITION not class (kisstriune/theme.lua:56-60), so
+  /* Trio slot colors, by POSITION not class (kisstriune/theme.lua:56-60), so
      three distinct hues always read as three whichever classes are played.
      Sky / amber / orchid stays separable under protan and deutan vision - the
      pairs differ in blue-yellow as well as red-green, which a red/green/orange
@@ -79,7 +79,7 @@
   --slot-3: #e879f9;
 
   /* Ambient layers. Tokens rather than literals so a scheme can retune the
-     atmosphere - these three blurred blobs are the largest coloured area in
+     atmosphere - these three blurred blobs are the largest colored area in
      the app, and a scheme that left them behind would only be half applied. */
   --aurora-1: #6d28d9;
   --aurora-2: #a855f7;
@@ -93,18 +93,18 @@
 }
 
 /* ============================================================
-   Colour schemes
+   Color schemes
    ------------------------------------------------------------
    A scheme retunes the ground, the accent and the atmosphere. It does NOT
    touch four things, on purpose:
 
-     - status colours (--good/--bad/--warn) are reserved. They mean something,
+     - status colors (--good/--bad/--warn) are reserved. They mean something,
        they appear inline among data, and a scheme that repainted them would
        make "you died" a decorative choice.
-     - trio slot colours are positional and were picked to stay separable
+     - trio slot colors are positional and were picked to stay separable
        under protan and deutan vision. Rehueing them per scheme would quietly
        undo that.
-     - chart series colours (charts.css) were validated against the panel
+     - chart series colors (charts.css) were validated against the panel
        surface. They are data, and the rule here is that chrome may shimmer
        while data may not.
      - the app mark, which is a brand mark rather than an accent.
@@ -178,6 +178,75 @@
   --star: #cfe0ee;
 }
 
+/* ------------------------------------------------------------
+   The three below were added with the Nexus Reader rebrand.
+
+   Worth knowing if you add a ninth: the free hue space is genuinely narrow.
+   Four hues are reserved outright by the status colors and the trio slots
+   (mint 158, red 8, amber 42, sky 203, amber 43, orchid 292), and five more
+   are spoken for by the schemes above (violet 278, periwinkle 236, pink 337,
+   lime 78, steel 203). An accent needs to be findable at a glance AND not be
+   mistaken for "you died" sitting inline in a damage row, and most of the
+   wheel fails one of those two. The way out is not always a new hue: Monolith
+   below has no hue at all and separates on lightness instead.
+   ------------------------------------------------------------ */
+
+/* Cool near-black slate, weathered gold, arcane blue.
+   This IS the app's original palette, kept whole. It was the default through
+   0.1.x and a lot of people ran it for a month; the rebrand replaced it as the
+   brand, which is not a reason to take it away from anyone who liked it. The
+   name is the only thing that changed - it used to carry a server's. */
+:root[data-theme='goldvein'] {
+  --void: #06070c; --abyss: #0a0c14;
+  --ink: #0f1319; --ink-2: #0b0e13;
+  --surface: #171c24; --surface-2: #1e242e; --surface-3: #252c38;
+  --line: #2b3441; --line-2: #3a4552;
+  --gold: #ff8a4a; --gold-hi: #ffb289; --gold-deep: #b35422;
+  --arcane: #5aa0e0; --arcane-hi: #86c2ff;
+  --ember: #d9633a;
+  --text: #ece5d6; --text-2: #b3b0a4; --muted: #8a8f98;
+  --aurora-1: #1f6dd0; --aurora-2: #7b53d6; --aurora-3: #b35422;
+  --star: #8fd0ff;
+}
+
+/* Deep petrol ground, cyan accent, violet secondary.
+   The secondary is violet rather than the warm sand this ground asks for,
+   because warm sand lands on top of --warn and the two would be indistinguish-
+   able in a row that carries both. The cyan sits near the slot-1 sky, which is
+   allowed: slot colors are 8px markers and this is chrome. */
+:root[data-theme='meridian'] {
+  --void: #03090e; --abyss: #061620;
+  --ink: #0a1c26; --ink-2: #07161e;
+  --surface: #0e2531; --surface-2: #14303e; --surface-3: #1b3c4c;
+  --line: #204657; --line-2: #2d5d72;
+  --gold: #34c3e8; --gold-hi: #85dcf5; --gold-deep: #17708c;
+  --arcane: #8b7ff0; --arcane-hi: #b3a8ff;
+  --ember: #2f9fb8;
+  --text: #e3f0f5; --text-2: #a4bfc8; --muted: #7793a0;
+  --aurora-1: #10606e; --aurora-2: #4a3fa8; --aurora-3: #1d7fa0;
+  --star: #9fe4f5;
+}
+
+/* Neutral graphite, white accent. No hue anywhere in the chrome.
+   Ironclad is the understated one; this is the SILENT one. The accent is pure
+   white and the body text is deliberately dimmer than usual, because with no
+   hue to separate them the hierarchy has to come from lightness alone - get
+   that backwards and the active nav item disappears into the paragraph next to
+   it. The side effect is that every status color and every chart series is the
+   only saturated thing on screen, which is arguably how it should always be. */
+:root[data-theme='monolith'] {
+  --void: #050506; --abyss: #0a0a0b;
+  --ink: #101012; --ink-2: #0b0b0d;
+  --surface: #161618; --surface-2: #1d1d20; --surface-3: #26262a;
+  --line: #303035; --line-2: #434349;
+  --gold: #eef0f4; --gold-hi: #ffffff; --gold-deep: #8b8f98;
+  --arcane: #9aa2ae; --arcane-hi: #c4cad3;
+  --ember: #b9bfc8;
+  --text: #c9ccd2; --text-2: #91959d; --muted: #6b6f77;
+  --aurora-1: #2a2d33; --aurora-2: #3a3d45; --aurora-3: #23262b;
+  --star: #d8dce2;
+}
+
 * { box-sizing: border-box; }
 
 html, body, #root { height: 100%; margin: 0; }
@@ -211,7 +280,7 @@ body {
    Type
    ============================================================ */
 /* Cinzel is all-caps by design and sits noticeably tighter than a text serif,
-   so headings get a little tracking back rather than a size bump. The colour is
+   so headings get a little tracking back rather than a size bump. The color is
    a token so the scheme carries it - it used to be a hardcoded cream, which was
    invisible until a scheme changed the ground under it. */
 h1, h2, h3 {
@@ -560,7 +629,7 @@ h1, h2, h3 {
    a contrast fix rather than taste. Dark label text over the old deep end fell
    to about 4:1 in this scheme and 3:1 in emberwatch - under the 4.5:1 that
    0.82rem text needs. Starting a step higher keeps the darkest pixel the label
-   sits on light enough in every scheme. The label colour is a neutral near
+   sits on light enough in every scheme. The label color is a neutral near
    black so it stays right whatever hue the accent is. */
 .btn.primary {
   background: linear-gradient(180deg, var(--gold-hi), var(--gold));

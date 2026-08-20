@@ -15,7 +15,7 @@ import { Tipped } from '../components/Tip'
  * separate "breakdown" view means nobody looks at it. Here it is one click
  * away, in place, without losing your position in the list.
  *
- * Slot colour is positional and follows the entity, never its rank - so
+ * Slot color is positional and follows the entity, never its rank - so
  * switching from Outgoing to Healing, where the order changes completely,
  * doesn't repaint everyone.
  */
@@ -41,7 +41,7 @@ const UNATTRIBUTED_HELP =
 function roleColor(row: SourceRow, order: string[]): string {
   if (row.kind === 'mob') return 'var(--series-incoming)'
   if (row.kind === 'pet') return 'var(--series-pet)'
-  // Neutral, and deliberately not a series colour: wearing the group hue made
+  // Neutral, and deliberately not a series color: wearing the group hue made
   // it look like a fourth group member called "Unattributed".
   if (row.kind === 'unknown') return 'var(--line-2)'
   const i = order.indexOf(row.owner ?? row.name)
@@ -55,7 +55,7 @@ export function Roster({
   known = {}
 }: {
   rows: SourceRow[]
-  /** Stable character order, so slot colours never shuffle. */
+  /** Stable character order, so slot colors never shuffle. */
   order: string[]
   unit?: 'dps' | 'hps'
   /** PTDex identities by name, for the class chips. */

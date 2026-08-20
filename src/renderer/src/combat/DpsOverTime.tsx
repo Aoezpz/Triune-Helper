@@ -249,7 +249,7 @@ function niceCeil(v: number): number {
   return step * mag
 }
 
-/** Canvas has no colour-mix, so alpha is applied by hand. */
+/** Canvas has no color-mix, so alpha is applied by hand. */
 function withAlpha(color: string, alpha: number): string {
   const hex = color.replace('#', '')
   if (hex.length !== 6) return color

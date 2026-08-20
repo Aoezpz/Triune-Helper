@@ -1,6 +1,6 @@
 /* ============================================================
    App shell layout: title bar across the top, sidebar down the left, the
-   active page filling the rest. Only structure lives here - every colour,
+   active page filling the rest. Only structure lives here - every color,
    radius and space is a token from theme.css.
    ============================================================ */
 
@@ -585,7 +585,7 @@ code {
 }
 
 /* ---- class chips ----------------------------------------------------------
-   One colour per class, set inline from CLASS_COLOR - see shared/roster.ts for
+   One color per class, set inline from CLASS_COLOR - see shared/roster.ts for
    why sixteen hues is the right call here and not on a chart. The border and
    the glow both ride on currentColor, so a chip needs exactly one property set
    to be fully themed. */
@@ -597,7 +597,7 @@ code {
   line-height: 1;
   padding: 0.2rem 0.3rem;
   border-radius: var(--r-1);
-  /* The border is the class colour at a quarter strength and the fill at a
+  /* The border is the class color at a quarter strength and the fill at a
      tenth, so sixteen saturated hues sit on the page as sixteen quiet tints
      rather than sixteen competing highlighter pens. The text stays full
      strength, because the text is the part being read. */
@@ -625,29 +625,22 @@ code {
   margin-bottom: var(--s-3);
 }
 /* --- The Overview banner, with key art -----------------------------------
-   Key art instead of the procedural starfield. The art is bundled
+   Key art instead of the procedural starfield. It is bundled
    (assets/hero-portal.jpg) rather than fetched: the app has no network at first
    paint and its CSP allows 'self' only.
 
-   Two things about the crop, both deliberate:
+   FULL BLEED, edge to edge. The art fills the whole panel and the copy sits on
+   the picture, not on a dark field beside it.
 
-   - It is the RIGHT-HAND HALF of the source. The left third of that artwork is
-     a mock-up carrying an invented character name and seven lines of invented
-     log text. Real log lines and fabricated ones do not share a screen in this
-     app, decorative or not.
-   - The scrim runs to 26% at full strength before it starts to fade. That is
-     what the copy sits on, and it is a token rather than a colour so the
-     banner stays legible in every scheme.
+   The art is 21:9 and the panel is nearer 15:4, so `cover` gives up some
+   height. `center 38%` decides which: biased upward, because the top of the
+   frame holds the ring's crown and the bottom holds foreground paving, and of
+   the two the crown is worth keeping.
 
-   The art runs FULL BLEED at `cover`, which only works because its left third
-   is genuinely black - the copy sits on the picture rather than on a panel laid
-   over it. The scrim above it is therefore light: enough to hold the text at a
-   narrow window, where `cover` slides the lit half leftwards, and no more. */
+   The scrim is the only thing between the copy and a lit background, so it is
+   doing real work here rather than decorating. Every stop is a token, so it
+   tracks the scheme instead of pinning the banner to one palette. */
 .loot-hero.hero-art {
-  /* The art is 8:3. A banner much flatter than that gets `cover`-cropped down
-     to a bright band with no subject in it - the figure, the ring and the ruins
-     all fall outside. 18rem against a ~68rem content column is about 4:1, close
-     enough that the whole scene survives the crop. */
   min-height: 18rem;
   display: flex;
   align-items: center;
@@ -655,21 +648,18 @@ code {
   background-image:
     linear-gradient(
       90deg,
-      color-mix(in srgb, var(--void) 70%, transparent) 0%,
-      color-mix(in srgb, var(--void) 40%, transparent) 26%,
-      transparent 46%
+      color-mix(in srgb, var(--void) 88%, transparent) 0%,
+      color-mix(in srgb, var(--void) 72%, transparent) 20%,
+      color-mix(in srgb, var(--void) 38%, transparent) 38%,
+      color-mix(in srgb, var(--void) 12%, transparent) 54%,
+      transparent 68%
     ),
     url('../assets/hero-portal.jpg');
-  /* `cover`, and the art is authored at this banner's own aspect ratio (about
-     15:4) so that at a typical window there is nothing to crop. Away from that
-     width cover gives up whichever axis has the surplus, which is the right
-     failure: `100% auto` would leave bare background above and below the
-     picture the moment the window narrowed. */
   background-size: 100% 100%, cover;
-  background-position: center, center center;
+  background-position: center, center 38%;
   background-repeat: no-repeat, no-repeat;
 }
-/* The copy stops well short of the ring rather than overlapping it. */
+/* The copy stops short of the ring rather than overlapping it. */
 .loot-hero.hero-art .lh-copy { flex: 0 1 34rem; }
 .loot-hero.hero-art .lh-copy h1,
 .loot-hero.hero-art .lh-copy .lede { text-shadow: 0 2px 18px var(--void); }
@@ -799,7 +789,7 @@ code {
 }
 .lvl-idle > summary::-webkit-details-marker { display: none; }
 /* A caret that turns, rather than the platform triangle - the platform one is
-   a different shape in every renderer and does not take a colour. */
+   a different shape in every renderer and does not take a color. */
 .lvl-idle > summary::before {
   content: '▸';
   display: inline-block;
@@ -1124,7 +1114,7 @@ code {
 .tgt .tgt-stats .bad { color: var(--bad); }
 .tgt .tgt-stats.dim { color: var(--muted); }
 
-/* ---- colour scheme picker -------------------------------------------------
+/* ---- color scheme picker -------------------------------------------------
    The swatch is a literal, not a token: it has to show a scheme you are NOT
    currently using, so it cannot be drawn from the live variables. */
 .themegrid {

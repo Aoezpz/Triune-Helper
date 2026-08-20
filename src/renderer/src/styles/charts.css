@@ -1,5 +1,5 @@
 /* ============================================================
-   Series colours.
+   Series colors.
 
    Deliberately NOT the brand palette. The brand accent is an accent, and an
    accent makes a bad categorical ramp - four hues have to stay apart from each
@@ -20,7 +20,7 @@
 
    That warn is why `incoming` is drawn as a 2px LINE while you/pet/group are
    stacked areas, and why every series carries a legend swatch and a direct
-   end-label. Shape and text carry the identity; colour only reinforces it.
+   end-label. Shape and text carry the identity; color only reinforces it.
    ============================================================ */
 :root {
   --series-you: #3987e5;
@@ -130,7 +130,7 @@
 .clog .a { color: var(--text); font-variant-numeric: tabular-nums; }
 .clog .crit { color: var(--gold-hi); }
 
-/* Narrow column: the kind column is dropped and its colour moves onto the
+/* Narrow column: the kind column is dropped and its color moves onto the
    description, so the row still says what kind of event it was. */
 .clog.compact { font-size: 0.7rem; line-height: 1.55; }
 .clog.compact .row { grid-template-columns: 3.9rem 1fr auto; gap: var(--s-2); }

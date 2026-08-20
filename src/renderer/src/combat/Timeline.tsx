@@ -21,7 +21,7 @@ const LABEL_W = 150
 const AXIS_H = 20
 const PAD_R = 10
 
-/** Positional trio colours, the same ones the roster and overlay use. */
+/** Positional trio colors, the same ones the roster and overlay use. */
 const SLOT_VARS = ['--slot-1', '--slot-2', '--slot-3']
 
 type Lane = {
@@ -77,7 +77,7 @@ export function Timeline({
 }: {
   events: ParsedEvent[]
   selfNames: Set<string>
-  /** Stable character order, so lane colours match the roster. */
+  /** Stable character order, so lane colors match the roster. */
   order: string[]
   start: number
   end: number
@@ -177,9 +177,9 @@ export function Timeline({
         ctx.font = '11px system-ui, Segoe UI, sans-serif'
         ctx.restore()
 
-        // Colour by WHO, using the same positional slot colours as the roster -
+        // Color by WHO, using the same positional slot colors as the roster -
         // on a trio server every lane belongs to "you" in some sense, so one
-        // shared colour for all three would make the view unreadable.
+        // shared color for all three would make the view unreadable.
         const isPet = lane.events[0]?.attacker?.kind === 'pet'
         const slotIndex = order.indexOf(lane.actor)
         const color = isPet
@@ -200,7 +200,7 @@ export function Timeline({
             ctx.fillRect(Math.round(px), y - 6, 2, 12)
           } else {
             // Hollow: a 1px outline reads as "nothing landed here" at a glance,
-            // where a filled mark in another colour just reads as another hit.
+            // where a filled mark in another color just reads as another hit.
             ctx.strokeStyle = bad
             ctx.lineWidth = 1
             ctx.strokeRect(Math.round(px) + 0.5, y - 5.5, 3, 11)

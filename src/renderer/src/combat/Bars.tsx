@@ -4,7 +4,7 @@ import { isSpellName } from '@shared/tooltip'
 import { Tipped } from '../components/Tip'
 
 /**
- * Ranked bars. Length carries the magnitude, so colour only has to say what
+ * Ranked bars. Length carries the magnitude, so color only has to say what
  * kind of thing the row is - one hue per role, not a ramp, which would
  * double-encode what the length already shows.
  */
@@ -13,7 +13,7 @@ function pct(value: number, max: number): string {
   return `${max > 0 ? Math.max(1.5, (value / max) * 100) : 0}%`
 }
 
-/** Which series colour a combatant wears, by what it IS - never by its rank,
+/** Which series color a combatant wears, by what it IS - never by its rank,
  *  so filtering the list never repaints the survivors. */
 function roleColor(row: SourceRow, selfNames: Set<string>): string {
   if (row.kind === 'pet') return 'var(--series-pet)'

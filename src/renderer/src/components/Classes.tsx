@@ -6,7 +6,7 @@ import { CLASS_NAMES, classColor, type Identity } from '@shared/roster'
  * Chips rather than the site's plain `War/Rng/Brd` string, because the thing
  * being read is usually one class out of three - "does this trio have a
  * Necromancer in it" - and a slash-separated run of abbreviations makes you
- * read all three to find out. One colour per class answers it peripherally.
+ * read all three to find out. One color per class answers it peripherally.
  *
  * Nothing renders when the identity is unknown. A row that quietly says just
  * the name is honest; a row that says "???" implies the app failed at
@@ -28,7 +28,7 @@ export function ClassChips({
           className="cchip"
           key={`${c}-${i}`}
           title={CLASS_NAMES[c] ?? c}
-          // Inline rather than sixteen CSS rules: the colour belongs next to
+          // Inline rather than sixteen CSS rules: the color belongs next to
           // the class it names, and the chip's border already rides on
           // currentColor.
           style={{ color: classColor(c) }}

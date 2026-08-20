@@ -1,6 +1,6 @@
 /**
  * Line icons, drawn on a 24-grid with `currentColor` so they inherit the nav's
- * active/idle colour. Inline rather than an icon font: no network, no FOUT, and
+ * active/idle color. Inline rather than an icon font: no network, no FOUT, and
  * the CSP stays locked to 'self'.
  */
 type P = { className?: string }

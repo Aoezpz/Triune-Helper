@@ -213,21 +213,21 @@ describe('display helpers', () => {
     expect(classLine(id({ classes: [] }))).toBeNull()
   })
 
-  it('names and colours every class PTDex can print', () => {
+  it('names and colors every class PTDex can print', () => {
     // The sixteen abbreviations were read off the site's own search results,
     // including SK - which is two letters where every other class is three,
     // and would have been "Shd" in any list written from memory.
     const all = ['War', 'Clr', 'Pal', 'Rng', 'SK', 'Dru', 'Mnk', 'Brd', 'Rog', 'Shm', 'Nec', 'Wiz', 'Mag', 'Enc', 'Bst', 'Ber']
     for (const c of all) {
       expect(CLASS_NAMES[c], `${c} has no full name`).toBeTruthy()
-      expect(CLASS_COLOR[c], `${c} has no colour`).toMatch(/^#[0-9a-f]{6}$/)
+      expect(CLASS_COLOR[c], `${c} has no color`).toMatch(/^#[0-9a-f]{6}$/)
     }
     expect(Object.keys(CLASS_COLOR)).toHaveLength(all.length)
   })
 
-  it('gives every class its own colour', () => {
+  it('gives every class its own color', () => {
     // A duplicate would silently make two classes indistinguishable, which is
-    // exactly the thing per-class colours exist to prevent.
+    // exactly the thing per-class colors exist to prevent.
     const hexes = Object.values(CLASS_COLOR)
     expect(new Set(hexes).size).toBe(hexes.length)
   })

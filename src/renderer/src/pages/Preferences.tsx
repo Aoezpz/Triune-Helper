@@ -277,7 +277,7 @@ export function Preferences({
 
       <section className="panel">
         <div className="phead">
-          <span className="t">Colour scheme</span>
+          <span className="t">Color scheme</span>
           <span className="meta">applies to the overlays too</span>
         </div>
         <div className="pbody form">
@@ -305,7 +305,7 @@ export function Preferences({
             })}
           </div>
           <span className="fhint">
-            Every scheme is dark. Status colours, the three trio slot markers and the chart series colours
+            Every scheme is dark. Status colors, the three trio slot markers and the chart series colors
             are the same in all of them on purpose — they carry meaning, and a scheme that repainted them
             would turn &ldquo;you died&rdquo; into a decorative choice.
           </span>

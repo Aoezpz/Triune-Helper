@@ -40,7 +40,7 @@ export function createMainWindow(): BrowserWindow {
     show: false,
     frame: false,
     icon: iconPath(),
-    // Paint the shell colour immediately so launching doesn't flash white.
+    // Paint the shell color immediately so launching doesn't flash white.
     backgroundColor: '#0f1319',
     title: 'Nexus Reader',
     webPreferences: {

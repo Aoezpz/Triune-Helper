@@ -1,12 +1,12 @@
 /**
- * The colour schemes, as data.
+ * The color schemes, as data.
  *
  * The values themselves live in theme.css - this is only what the picker needs
  * to draw a swatch and what the app needs to validate a stored id. Keeping the
  * two in step is the cost of having a picker at all; the alternative is
  * reading computed styles off a hidden element, which is worse.
  *
- * The three swatch colours are ground / accent / secondary, in that order,
+ * The three swatch colors are ground / accent / secondary, in that order,
  * which is enough to recognise a scheme without applying it.
  */
 
@@ -49,6 +49,24 @@ export const THEMES: ThemeDef[] = [
     name: 'Ironclad',
     note: 'Neutral slate, steel blue. The quiet one.',
     swatch: ['#0c0e11', '#7fb6d4', '#8a95a5']
+  },
+  {
+    id: 'goldvein',
+    name: 'Goldvein',
+    note: 'Cool near-black slate, weathered gold. The original palette.',
+    swatch: ['#0a0c14', '#ff8a4a', '#5aa0e0']
+  },
+  {
+    id: 'meridian',
+    name: 'Meridian',
+    note: 'Deep petrol, cyan accent, violet highlights.',
+    swatch: ['#061620', '#34c3e8', '#8b7ff0']
+  },
+  {
+    id: 'monolith',
+    name: 'Monolith',
+    note: 'Graphite and white. No hue at all in the chrome.',
+    swatch: ['#0a0a0b', '#ffffff', '#9aa2ae']
   }
 ]
 

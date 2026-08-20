@@ -45,8 +45,8 @@ export default function App(): JSX.Element {
     setAlertVolume(settings.alertVolume)
   }, [loaded, settings.voice, settings.alertVolume])
 
-  // The scheme is one attribute on <html>; every colour in the app is a token
-  // under it, so nothing here has to know which colours exist.
+  // The scheme is one attribute on <html>; every color in the app is a token
+  // under it, so nothing here has to know which colors exist.
   useEffect(() => {
     if (loaded) applyTheme(settings.theme, document.documentElement)
   }, [loaded, settings.theme])
@@ -78,7 +78,7 @@ export default function App(): JSX.Element {
    * which of them is "you".
    *
    * The fallback is the log written to most recently, NOT the first one. The
-   * source list is sorted by name so the trio slot colours stay put, and
+   * source list is sorted by name so the trio slot colors stay put, and
    * taking its first entry meant the app opened by declaring whichever
    * character sorts earliest to be you - an alt parked in the Bazaar, or in at
    * least one real folder a GM account that never fights.

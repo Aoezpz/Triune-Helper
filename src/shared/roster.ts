@@ -85,22 +85,22 @@ export const CLASS_NAMES: Record<string, string> = {
 }
 
 /**
- * A colour per class - sixteen of them, not four by role.
+ * A color per class - sixteen of them, not four by role.
  *
  * Role tinting was the first attempt and it was wrong for this server. On a
  * multiclass server nobody is "the healer": a character is three classes at
- * once, so a chip coloured by role would paint two thirds of every trio the
+ * once, so a chip colored by role would paint two thirds of every trio the
  * same and tell you nothing about which classes those actually are. The class
- * is the identity, so the class gets the colour.
+ * is the identity, so the class gets the color.
  *
  * Built in OKLCH so the sixteen are perceptually spread rather than evenly
- * spread in a colour space nobody's eyes use, then checked against the panel
+ * spread in a color space nobody's eyes use, then checked against the panel
  * surface: every one clears 4.9:1 contrast, which small bold text needs, and
  * the closest pair in normal vision is Ber/Mag at ΔE 8.4.
  *
  * That ΔE is below the 15 a chart series would have to clear, and deliberately
- * so - the rule there exists because a chart's only label IS its colour.
- * Here the chip has the class written on it in three letters. The colour is a
+ * so - the rule there exists because a chart's only label IS its color.
+ * Here the chip has the class written on it in three letters. The color is a
  * mnemonic on top of a label, never the thing carrying the meaning, which is
  * also why red/green pairs are acceptable: a deuteranope reads "Rng" and "War"
  * exactly as fast as anyone else.
@@ -129,7 +129,7 @@ export const CLASS_COLOR: Record<string, string> = {
   Ber: '#ff966a' // salmon
 }
 
-/** The chip colour, or a neutral for a class abbreviation we don't know. */
+/** The chip color, or a neutral for a class abbreviation we don't know. */
 export function classColor(abbrev: string): string {
   return CLASS_COLOR[abbrev] ?? 'var(--muted)'
 }

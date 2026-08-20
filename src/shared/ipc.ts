@@ -69,7 +69,7 @@ export interface Settings {
   combatView: string
   /** Which Server view was last open: market, grouping, blessings or players. */
   serverView: string
-  /** Colour scheme id - see shared/themes.ts. Applies to the overlays too. */
+  /** Color scheme id - see shared/themes.ts. Applies to the overlays too. */
   theme: string
   /** Persona id for spoken alerts - see shared/voices.ts. */
   voice: string
@@ -294,7 +294,7 @@ export interface EventMap {
   'roster:changed': RosterState
   /** A rule matched a line. The renderer makes the noise. */
   'alerts:fired': AlertHit
-  /** The colour scheme changed. Sent to every window, overlays included. */
+  /** The color scheme changed. Sent to every window, overlays included. */
   'settings:theme': string
   /** Download progress and phase changes, pushed as they happen. */
   'update:status': UpdateStatus

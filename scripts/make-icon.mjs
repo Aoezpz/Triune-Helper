@@ -148,9 +148,9 @@ function buildIco(images) {
     const at = i * ENTRY
     entries.writeUInt8(img.size >= 256 ? 0 : img.size, at)
     entries.writeUInt8(img.size >= 256 ? 0 : img.size, at + 1)
-    entries.writeUInt8(0, at + 2) // palette size, 0 for truecolour
+    entries.writeUInt8(0, at + 2) // palette size, 0 for truecolor
     entries.writeUInt8(0, at + 3) // reserved
-    entries.writeUInt16LE(1, at + 4) // colour planes
+    entries.writeUInt16LE(1, at + 4) // color planes
     entries.writeUInt16LE(32, at + 6) // bits per pixel
     entries.writeUInt32LE(img.data.length, at + 8)
     entries.writeUInt32LE(offset, at + 12)

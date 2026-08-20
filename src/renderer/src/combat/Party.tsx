@@ -49,7 +49,7 @@ export function Party({
 }: {
   party: PartyView
   known: Record<string, Identity>
-  /** Your own boxed characters, in their stable order - they get slot colours. */
+  /** Your own boxed characters, in their stable order - they get slot colors. */
   order: string[]
   busy: boolean
   /**

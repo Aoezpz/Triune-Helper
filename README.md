@@ -46,7 +46,7 @@ reputation that suppresses the warning is bought, not earned by being safe.
 | **Server** | World blessings with live countdowns, who is levelling and arriving, and auction traffic. |
 | **Overlays** | Always-on-top meter and stream windows. They open **locked** — click-through, so a stray click lands on the game instead of stealing focus from it. |
 
-Preferences also carries five colour schemes and a **Rebuild from logs** button that
+Preferences also carries eight color schemes and a **Rebuild from logs** button that
 replays every `eqlog` on disk into the lifetime ledgers, so a folder with a year of
 history in it does not start at zero.
 

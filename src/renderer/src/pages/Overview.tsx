@@ -122,9 +122,9 @@ export function Overview({
   /**
    * One character's row.
    *
-   * The slot colour is looked up by the character's place in the FULL source
+   * The slot color is looked up by the character's place in the FULL source
    * list, not by its index within its own group - otherwise a character going
-   * quiet would repaint everyone below it, and these colours are the same ones
+   * quiet would repaint everyone below it, and these colors are the same ones
    * the combat meter uses to say who is who.
    */
   const charRow = (s: LogSource): JSX.Element => {
