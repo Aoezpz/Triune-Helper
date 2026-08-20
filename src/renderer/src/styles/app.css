@@ -661,10 +661,12 @@ code {
       transparent 50%
     ),
     url('../assets/hero-portal.jpg');
-  /* `100% auto`, not `cover`. The whole width of the scene is the point - the
-     figure on the left, the ring on the right - so the crop has to happen in
-     the one axis we have spare. */
-  background-size: 100% 100%, 100% auto;
+  /* `cover`, and the art is authored at this banner's own aspect ratio (about
+     15:4) so that at a typical window there is nothing to crop. Away from that
+     width cover gives up whichever axis has the surplus, which is the right
+     failure: `100% auto` would leave bare background above and below the
+     picture the moment the window narrowed. */
+  background-size: 100% 100%, cover;
   background-position: center, center center;
   background-repeat: no-repeat, no-repeat;
 }
