@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Karla:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; background: #12100c; font-family: "Karla", "Segoe UI", system-ui, sans-serif; }
+    a { color: #e3b873; } a:hover { color: #f0cf9b; }
+    .lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: #6d6455; }
+  </style>
+</helmet>
+
+<div style="width: 700px; box-sizing: border-box; padding: 40px; color: #f2ece0">
+
+  <div class="lbl" style="margin-bottom: 26px">Direction C</div>
+
+  <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 14px">
+    <svg width="80" height="80" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <ellipse cx="16.5" cy="27" rx="5" ry="6.6" transform="rotate(-14 16.5 27)" fill="#38bdf8"/>
+      <ellipse cx="24" cy="23.5" rx="5" ry="6.6" fill="#fbbf24"/>
+      <ellipse cx="31.5" cy="27" rx="5" ry="6.6" transform="rotate(14 31.5 27)" fill="#e879f9"/>
+      <path d="M7 33C13 42 35 42 41 33" stroke="{{accent}}" stroke-width="4.5" stroke-linecap="round"/>
+    </svg>
+    <div>
+      <div style="font-family: 'Instrument Serif', 'Iowan Old Style', Georgia, serif; font-size: 52px; letter-spacing: -0.01em; line-height: 1">Roost</div>
+      <div style="margin-top: 4px; font-size: 15px; color: #a29684">Where your three characters come home.</div>
+    </div>
+  </div>
+
+  <p style="margin: 0 0 34px; max-width: 56ch; font-size: 14px; line-height: 1.65; color: #a29684">
+    No bird in the name, but the nest carries it — and three eggs say &ldquo;three in one&rdquo; faster
+    than any word would. They are the same sky, amber and orchid the meter already uses for your three
+    characters, so the mark and the app agree without being told to.
+  </p>
+
+  <div class="lbl" style="margin-bottom: 14px">Mark at size</div>
+  <div style="display: flex; align-items: flex-end; gap: 28px; padding: 22px 24px; background: #1c1913; border: 1px solid #2b2419; border-radius: 12px; margin-bottom: 32px">
+    <svg width="44" height="44" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <ellipse cx="16.5" cy="27" rx="5" ry="6.6" transform="rotate(-14 16.5 27)" fill="#38bdf8"/>
+      <ellipse cx="24" cy="23.5" rx="5" ry="6.6" fill="#fbbf24"/>
+      <ellipse cx="31.5" cy="27" rx="5" ry="6.6" transform="rotate(14 31.5 27)" fill="#e879f9"/>
+      <path d="M7 33C13 42 35 42 41 33" stroke="{{accent}}" stroke-width="4.5" stroke-linecap="round"/>
+    </svg>
+    <svg width="28" height="28" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <ellipse cx="16" cy="26" rx="5.6" ry="7.4" fill="#38bdf8"/>
+      <ellipse cx="24" cy="23" rx="5.6" ry="7.4" fill="#fbbf24"/>
+      <ellipse cx="32" cy="26" rx="5.6" ry="7.4" fill="#e879f9"/>
+      <path d="M6 33C13 43 35 43 42 33" stroke="{{accent}}" stroke-width="6" stroke-linecap="round"/>
+    </svg>
+    <svg width="18" height="18" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <ellipse cx="15" cy="24" rx="6.5" ry="8.5" fill="#38bdf8"/>
+      <ellipse cx="24" cy="21" rx="6.5" ry="8.5" fill="#fbbf24"/>
+      <ellipse cx="33" cy="24" rx="6.5" ry="8.5" fill="#e879f9"/>
+      <path d="M5 33C13 44 35 44 43 33" stroke="{{accent}}" stroke-width="8" stroke-linecap="round"/>
+    </svg>
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-left: auto">
+      <div style="width: 56px; height: 56px; border-radius: 13px; background: linear-gradient(150deg, #241f16, #12100c); border: 1px solid #3a3024; display: grid; place-items: center">
+        <svg width="36" height="36" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <ellipse cx="16" cy="26" rx="5.4" ry="7.2" fill="#38bdf8"/>
+          <ellipse cx="24" cy="23" rx="5.4" ry="7.2" fill="#fbbf24"/>
+          <ellipse cx="32" cy="26" rx="5.4" ry="7.2" fill="#e879f9"/>
+          <path d="M6 33C13 43 35 43 42 33" stroke="{{accent}}" stroke-width="5.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div style="font-size: 10px; text-align: center; color: #6d6455">app icon</div>
+    </div>
+  </div>
+
+  <div class="lbl" style="margin-bottom: 14px">Ground and accent</div>
+  <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-bottom: 32px">
+    <div>
+      <div style="height: 52px; border-radius: 9px; background: #12100c; border: 1px solid #3a3024"></div>
+      <div style="margin-top: 7px; font-size: 11px">#12100C</div>
+      <div style="font-size: 10px; color: #6d6455">ground</div>
+    </div>
+    <div>
+      <div style="height: 52px; border-radius: 9px; background: #1c1913; border: 1px solid #3a3024"></div>
+      <div style="margin-top: 7px; font-size: 11px">#1C1913</div>
+      <div style="font-size: 10px; color: #6d6455">surface</div>
+    </div>
+    <div>
+      <div style="height: 52px; border-radius: 9px; background: {{accent}}"></div>
+      <div style="margin-top: 7px; font-size: 11px">{{accentHex}}</div>
+      <div style="font-size: 10px; color: #6d6455">accent</div>
+    </div>
+    <div>
+      <div style="height: 52px; border-radius: 9px; background: linear-gradient(90deg, #38bdf8 33%, #fbbf24 33% 66%, #e879f9 66%)"></div>
+      <div style="margin-top: 7px; font-size: 11px">slots</div>
+      <div style="font-size: 10px; color: #6d6455">kept as-is</div>
+    </div>
+    <div>
+      <div style="height: 52px; border-radius: 9px; background: #f2ece0"></div>
+      <div style="margin-top: 7px; font-size: 11px">#F2ECE0</div>
+      <div style="font-size: 10px; color: #6d6455">text</div>
+    </div>
+  </div>
+
+  <div class="lbl" style="margin-bottom: 14px">Type</div>
+  <div style="padding: 22px 24px; background: #1c1913; border: 1px solid #2b2419; border-radius: 12px">
+    <div style="font-family: 'Instrument Serif', 'Iowan Old Style', Georgia, serif; font-size: 34px; margin-bottom: 6px">Instrument Serif</div>
+    <div style="font-size: 15px; color: #a29684; margin-bottom: 14px">Karla carries the interface; the serif appears only at the wordmark and page titles.</div>
+    <div style="font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: 14px; color: {{accent}}">1,284,663p · 27:36:44 · 4,912 dps</div>
+    <div style="margin-top: 6px; font-size: 11px; color: #6d6455">Closest to what the app already does — it pairs a serif title with a sans body today.</div>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#e3b873","options":["#e3b873","#d99a4e","#c8b088","#9fb37a"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#e3b873';
+    return { accent, accentHex: accent.toUpperCase() };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Manrope:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; background: #0a0810; font-family: "Manrope", "Segoe UI", system-ui, sans-serif; }
+    a { color: #a855f7; } a:hover { color: #c9a2ff; }
+    .lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: #6f6880; }
+    .card { background: #15111f; border: 1px solid #2a2338; border-radius: 12px; }
+  </style>
+</helmet>
+
+<div style="width: 1160px; box-sizing: border-box; padding: 40px; color: #ece9f2">
+
+  <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 26px">
+    <span class="lbl">Direction E</span>
+    <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; background: {{accent}}; color: #0a0810">your art</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 34px; align-items: start">
+
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <img src="keyart.jpg" alt="Nexus Reader key art: an obsidian ring around a glowing violet bar chart" style="width: 300px; border-radius: 12px; border: 1px solid #2a2338; display: block">
+      <div style="font-size: 11px; line-height: 1.5; color: #6f6880">
+        Keep this. It is the release banner, the GitHub header and the installer splash — the places
+        a picture gets a whole screen to itself.
+      </div>
+    </div>
+
+    <div>
+      <div style="font-family: 'Cinzel', 'Trajan Pro', Georgia, serif; font-size: 46px; font-weight: 700; letter-spacing: 0.02em; line-height: 1; margin-bottom: 8px">Nexus Reader</div>
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px">
+        <span style="width: 26px; height: 1px; background: {{accent}}"></span>
+        <span style="font-family: 'Cinzel', Georgia, serif; font-size: 14px; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: {{accentHi}}">Emu Multitool</span>
+        <span style="flex-grow: 1; height: 1px; background: #2a2338"></span>
+      </div>
+
+      <p style="margin: 0 0 20px; max-width: 62ch; font-size: 14px; line-height: 1.7; color: #a29bb0">
+        The name does two things the other four could not. <strong style="color: #ece9f2">Emu Multitool</strong>
+        says server-agnostic without naming a server — and <strong style="color: #ece9f2">Reader</strong>
+        happens to state the app's whole promise, which is that it only ever reads. That is worth more
+        than the pun was.
+      </p>
+
+      <div class="card" style="padding: 18px 20px">
+        <div class="lbl" style="margin-bottom: 12px">What has to change before it ships</div>
+        <div style="display: flex; flex-direction: column; gap: 11px; font-size: 13px; line-height: 1.55; color: #a29bb0">
+          <div style="display: flex; gap: 11px">
+            <span style="flex-shrink: 0; width: 18px; height: 18px; border-radius: 5px; background: #2a2338; color: {{accentHi}}; font-size: 10px; font-weight: 700; display: grid; place-items: center">1</span>
+            <span><strong style="color: #ece9f2">It cannot be the app icon.</strong> Hundreds of faceted shards, glow and rune columns become a violet smudge at 16px, which is the size it lives at in the taskbar and the Start menu. It needs a flat mark derived from it — below.</span>
+          </div>
+          <div style="display: flex; gap: 11px">
+            <span style="flex-shrink: 0; width: 18px; height: 18px; border-radius: 5px; background: #2a2338; color: {{accentHi}}; font-size: 10px; font-weight: 700; display: grid; place-items: center">2</span>
+            <span><strong style="color: #ece9f2">The lettering is art, not type.</strong> Bevelled and gradient-filled, it cannot be set at 15px in a title bar. Cinzel carries the same inscriptional feel and is a real font.</span>
+          </div>
+          <div style="display: flex; gap: 11px">
+            <span style="flex-shrink: 0; width: 18px; height: 18px; border-radius: 5px; background: #2a2338; color: {{accentHi}}; font-size: 10px; font-weight: 700; display: grid; place-items: center">3</span>
+            <span><strong style="color: #ece9f2">The glow stays out of the data.</strong> The app already holds that line — chrome may shimmer, damage rows may not. Twelve glowing bars are twelve unreadable bars.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height: 1px; background: #2a2338; margin: 34px 0"></div>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 34px">
+
+    <div>
+      <div class="lbl" style="margin-bottom: 14px">The mark, reduced</div>
+      <div class="card" style="padding: 24px; display: flex; align-items: flex-end; gap: 30px">
+        <svg width="72" height="72" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <path d="M11.14 8.68A20 20 0 1 1 11.14 39.32" stroke="{{ring}}" stroke-width="3.6" stroke-linecap="round"/>
+          <rect x="14.5" y="25" width="4.6" height="9" rx="1.6" fill="{{accent}}" opacity="0.55"/>
+          <path d="M21.7 34V19.5L24 14.5L26.3 19.5V34Z" fill="{{accentHi}}"/>
+          <rect x="28.9" y="22" width="4.6" height="12" rx="1.6" fill="{{accent}}" opacity="0.8"/>
+        </svg>
+        <svg width="40" height="40" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <path d="M11.14 8.68A20 20 0 1 1 11.14 39.32" stroke="{{ring}}" stroke-width="4.2" stroke-linecap="round"/>
+          <rect x="14.5" y="25" width="4.6" height="9" rx="1.6" fill="{{accent}}" opacity="0.55"/>
+          <path d="M21.7 34V19.5L24 14.5L26.3 19.5V34Z" fill="{{accentHi}}"/>
+          <rect x="28.9" y="22" width="4.6" height="12" rx="1.6" fill="{{accent}}" opacity="0.8"/>
+        </svg>
+        <svg width="24" height="24" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <path d="M11.14 8.68A20 20 0 1 1 11.14 39.32" stroke="{{ring}}" stroke-width="5" stroke-linecap="round"/>
+          <path d="M21.2 34V19L24 13.5L26.8 19V34Z" fill="{{accentHi}}"/>
+          <rect x="14" y="26" width="4.4" height="8" rx="1.6" fill="{{accent}}" opacity="0.7"/>
+          <rect x="29.6" y="23" width="4.4" height="11" rx="1.6" fill="{{accent}}" opacity="0.85"/>
+        </svg>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 7px">
+          <svg width="16" height="16" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <path d="M11.14 8.68A20 20 0 1 1 11.14 39.32" stroke="{{ring}}" stroke-width="6.5" stroke-linecap="round"/>
+            <path d="M20 35V19L24 12L28 19V35Z" fill="{{accentHi}}"/>
+          </svg>
+          <span style="font-size: 9.5px; color: #6f6880">16px</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 7px; margin-left: auto">
+          <div style="width: 58px; height: 58px; border-radius: 13px; background: radial-gradient(circle at 50% 40%, #241a38, #0a0810); border: 1px solid #352c47; display: grid; place-items: center">
+            <svg width="38" height="38" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+              <path d="M11.14 8.68A20 20 0 1 1 11.14 39.32" stroke="{{ring}}" stroke-width="3.8" stroke-linecap="round"/>
+              <rect x="14.5" y="25" width="4.6" height="9" rx="1.6" fill="{{accent}}" opacity="0.55"/>
+              <path d="M21.7 34V19.5L24 14.5L26.3 19.5V34Z" fill="{{accentHi}}"/>
+              <rect x="28.9" y="22" width="4.6" height="12" rx="1.6" fill="{{accent}}" opacity="0.8"/>
+            </svg>
+          </div>
+          <span style="font-size: 9.5px; text-align: center; color: #6f6880">app icon</span>
+        </div>
+      </div>
+      <p style="margin: 12px 0 0; font-size: 12.5px; line-height: 1.6; color: #8b8399">
+        The broken ring is the silhouette worth keeping — nothing else in this genre has it. Inside,
+        three bars: a meter and a trio at once, with the centre one drawn as the obelisk from your art.
+        At 16px the two outer bars drop and the ring plus spire still reads.
+      </p>
+    </div>
+
+    <div>
+      <div class="lbl" style="margin-bottom: 14px">Tokens</div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-bottom: 18px">
+        <div><div style="height: 46px; border-radius: 8px; background: #0a0810; border: 1px solid #352c47"></div><div style="margin-top: 6px; font-size: 10.5px">#0A0810</div><div style="font-size: 9.5px; color: #6f6880">ground</div></div>
+        <div><div style="height: 46px; border-radius: 8px; background: #15111f; border: 1px solid #352c47"></div><div style="margin-top: 6px; font-size: 10.5px">#15111F</div><div style="font-size: 9.5px; color: #6f6880">surface</div></div>
+        <div><div style="height: 46px; border-radius: 8px; background: #2a2338"></div><div style="margin-top: 6px; font-size: 10.5px">#2A2338</div><div style="font-size: 9.5px; color: #6f6880">line</div></div>
+        <div><div style="height: 46px; border-radius: 8px; background: {{accent}}"></div><div style="margin-top: 6px; font-size: 10.5px">{{accentHex}}</div><div style="font-size: 9.5px; color: #6f6880">accent</div></div>
+        <div><div style="height: 46px; border-radius: 8px; background: {{accentHi}}"></div><div style="margin-top: 6px; font-size: 10.5px">#C9A2FF</div><div style="font-size: 9.5px; color: #6f6880">accent hi</div></div>
+        <div><div style="height: 46px; border-radius: 8px; background: #ece9f2"></div><div style="margin-top: 6px; font-size: 10.5px">#ECE9F2</div><div style="font-size: 9.5px; color: #6f6880">text</div></div>
+      </div>
+
+      <div class="lbl" style="margin-bottom: 14px">Type</div>
+      <div class="card" style="padding: 20px">
+        <div style="font-family: 'Cinzel', Georgia, serif; font-size: 27px; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 4px">Cinzel</div>
+        <div style="font-size: 13px; color: #8b8399; margin-bottom: 13px">Inscriptional Roman caps — the closest real font to the lettering in your art. Wordmark and page titles only.</div>
+        <div style="font-size: 15px; font-weight: 500; margin-bottom: 3px">Manrope carries the interface.</div>
+        <div style="font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: 13.5px; color: {{accentHi}}">1,284,663p · 27:36:44 · 4,912 dps</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#a855f7","options":["#a855f7","#8b5cf6","#c026d3","#7c3aed"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#a855f7';
+    return { accent, accentHex: accent.toUpperCase(), accentHi: '#c9a2ff', ring: '#5b5170' };
+  }
+}
+</script>
+</body>
+</html>

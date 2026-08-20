@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; background: #0b0e12; font-family: "Sora", "Segoe UI", system-ui, sans-serif; }
+    a { color: #8b7cf6; } a:hover { color: #b3a7fa; }
+    .lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: #626b76; }
+  </style>
+</helmet>
+
+<div style="width: 700px; box-sizing: border-box; padding: 40px; color: #e8ecf1">
+
+  <div class="lbl" style="margin-bottom: 26px">Direction D</div>
+
+  <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 14px">
+    <svg width="76" height="76" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <rect x="11" y="30" width="7" height="14" rx="3.5" fill="{{accent}}" opacity="0.45"/>
+      <rect x="20.5" y="21" width="7" height="23" rx="3.5" fill="{{accent}}" opacity="0.72"/>
+      <rect x="30" y="10" width="7" height="34" rx="3.5" fill="{{accent}}"/>
+    </svg>
+    <div>
+      <div style="font-size: 44px; font-weight: 700; letter-spacing: -0.035em; line-height: 1">Trilog</div>
+      <div style="margin-top: 6px; font-size: 15px; color: #8b939e">Three logs. One meter.</div>
+    </div>
+  </div>
+
+  <p style="margin: 0 0 34px; max-width: 56ch; font-size: 14px; line-height: 1.65; color: #8b939e">
+    The only direction that says what the app is for in the name. Three ascending bars are a meter and
+    a count at once, and there is no mascot to grow tired of. It also stays sensible if the app ever
+    reads more than three logs.
+  </p>
+
+  <div class="lbl" style="margin-bottom: 14px">Mark at size</div>
+  <div style="display: flex; align-items: flex-end; gap: 28px; padding: 22px 24px; background: #151a21; border: 1px solid #232b35; border-radius: 12px; margin-bottom: 32px">
+    <svg width="44" height="44" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <rect x="11" y="30" width="7" height="14" rx="3.5" fill="{{accent}}" opacity="0.45"/>
+      <rect x="20.5" y="21" width="7" height="23" rx="3.5" fill="{{accent}}" opacity="0.72"/>
+      <rect x="30" y="10" width="7" height="34" rx="3.5" fill="{{accent}}"/>
+    </svg>
+    <svg width="28" height="28" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <rect x="9" y="30" width="8.5" height="14" rx="4.25" fill="{{accent}}" opacity="0.45"/>
+      <rect x="19.75" y="21" width="8.5" height="23" rx="4.25" fill="{{accent}}" opacity="0.72"/>
+      <rect x="30.5" y="10" width="8.5" height="34" rx="4.25" fill="{{accent}}"/>
+    </svg>
+    <svg width="18" height="18" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <rect x="7" y="29" width="10" height="15" rx="5" fill="{{accent}}" opacity="0.5"/>
+      <rect x="19" y="20" width="10" height="24" rx="5" fill="{{accent}}" opacity="0.75"/>
+      <rect x="31" y="9" width="10" height="35" rx="5" fill="{{accent}}"/>
+    </svg>
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-left: auto">
+      <div style="width: 56px; height: 56px; border-radius: 13px; background: #151a21; border: 1px solid #2b3441; display: grid; place-items: center">
+        <svg width="32" height="32" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <rect x="9" y="30" width="8.5" height="14" rx="4.25" fill="{{accent}}" opacity="0.45"/>
+          <rect x="19.75" y="21" width="8.5" height="23" rx="4.25" fill="{{accent}}" opacity="0.72"/>
+          <rect x="30.5" y="10" width="8.5" height="34" rx="4.25" fill="{{accent}}"/>
+        </svg>
+      </div>
+      <div style="font-size: 10px; text-align: center; color: #626b76">app icon</div>
+    </div>
+  </div>
+
+  <div class="lbl" style="margin-bottom: 14px">Ground and accent</div>
+  <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-bottom: 32px">
+    <div>
+      <div style="height: 52px; border-radius: 9px; background: #0b0e12; border: 1px solid #2b3441"></div>
+      <div style="margin-top: 7px; font-size: 11px">#0B0E12</div>
+      <div style="font-size: 10px; color: #626b76">ground</div>
+    </div>
+    <div>
+      <div style="height: 52px; border-radius: 9px; background: #151a21; border: 1px solid #2b3441"></div>
+      <div style="margin-top: 7px; font-size: 11px">#151A21</div>
+      <div style="font-size: 10px; color: #626b76">surface</div>
+    </div>
+    <div>
+      <div style="height: 52px; border-radius: 9px; background: {{accent}}"></div>
+      <div style="margin-top: 7px; font-size: 11px">{{accentHex}}</div>
+      <div style="font-size: 10px; color: #626b76">accent</div>
+    </div>
+    <div>
+      <div style="height: 52px; border-radius: 9px; background: #232b35"></div>
+      <div style="margin-top: 7px; font-size: 11px">#232B35</div>
+      <div style="font-size: 10px; color: #626b76">line</div>
+    </div>
+    <div>
+      <div style="height: 52px; border-radius: 9px; background: #e8ecf1"></div>
+      <div style="margin-top: 7px; font-size: 11px">#E8ECF1</div>
+      <div style="font-size: 10px; color: #626b76">text</div>
+    </div>
+  </div>
+
+  <div class="lbl" style="margin-bottom: 14px">Type</div>
+  <div style="padding: 22px 24px; background: #151a21; border: 1px solid #232b35; border-radius: 12px">
+    <div style="font-size: 30px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 6px">Sora Bold</div>
+    <div style="font-size: 15px; color: #8b939e; margin-bottom: 14px">Geometric and slightly severe — it holds up in the small label sizes this app is mostly made of.</div>
+    <div style="font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: 14px; color: {{accent}}">1,284,663p · 27:36:44 · 4,912 dps</div>
+    <div style="margin-top: 6px; font-size: 11px; color: #626b76">The coolest ground of the four; furthest from where the app is today.</div>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#8b7cf6","options":["#8b7cf6","#6ea8fe","#22d3ee","#f472b6"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#8b7cf6';
+    return { accent, accentHex: accent.toUpperCase() };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1120, "h": 700, "title": "Five directions" },
+    { "file": "NexusReader.dc.html", "x": 1200, "y": 0, "w": 1160, "h": 700, "title": "E · Nexus Reader" },
+    { "file": "InApp.dc.html", "x": 0, "y": 800, "w": 1200, "h": 720, "title": "In the app — switch direction above" },
+    { "file": "EmuBuddy.dc.html", "x": 1280, "y": 800, "w": 700, "h": 880, "title": "A · Emu Buddy" },
+    { "file": "Emu.dc.html", "x": 2040, "y": 800, "w": 700, "h": 880, "title": "B · Emu" },
+    { "file": "Roost.dc.html", "x": 2800, "y": 800, "w": 700, "h": 880, "title": "C · Roost" },
+    { "file": "Trilog.dc.html", "x": 3560, "y": 800, "w": 700, "h": 880, "title": "D · Trilog" }
+  ],
+  "annotations": [
+    {
+      "id": "chrome-note",
+      "x": 0,
+      "y": 1580,
+      "w": 340,
+      "text": "The app chrome here is the real thing: 46px title bar, 224px sidebar, the actual nav groups, icons and spacing lifted from the source.\n\nOnly the brand tokens change — the tweak above the artboard swaps all five directions in place."
+    },
+    {
+      "id": "keep-note",
+      "x": 380,
+      "y": 1580,
+      "w": 340,
+      "text": "Not up for grabs: the three character colours (sky / amber / orchid) and the status colours. They were picked to stay separable under red-green colour blindness and to mean something inline among data.\n\nThe violet reads clearly against all three."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

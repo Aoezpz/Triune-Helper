@@ -6,3 +6,7 @@ release/
 .vite/
 .DS_Store
 tsconfig.*.tsbuildinfo
+
+# The assembled design canvas: 2.3 MB of editor payload, regenerated from the
+# .dc.html working files beside it. Those are the source; this is the build.
+design/emu-rebrand.html

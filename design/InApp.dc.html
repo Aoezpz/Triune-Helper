@@ -1,0 +1,287 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&family=Karla:wght@400;500;700&family=Instrument+Serif&family=Sora:wght@400;500;700&family=Cinzel:wght@500;700&family=Manrope:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; background: #0a0a0c; }
+    a { color: #48c4b0; } a:hover { color: #7ad9c9; }
+    .nav { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 6px; font-size: 14.4px; font-weight: 600; position: relative; }
+    .grp { font-size: 9.6px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; padding: 0 12px; margin: 0 0 4px; }
+  </style>
+</helmet>
+
+<div style="width: 1200px; height: 720px; box-sizing: border-box; display: flex; flex-direction: column; border-radius: 10px; overflow: hidden; border: 1px solid {{line}}; font-family: {{font}}; background: {{ground}}">
+
+  <!-- Title bar: 46px, padding 0 8px 0 16px, gap 12px - the app's real chrome -->
+  <div style="height: 46px; flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding: 0 8px 0 16px; border-bottom: 1px solid {{line}}; background: {{titlebar}}; position: relative">
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, {{accent}} 0%, {{accentFade}} 28%, transparent 60%)"></div>
+
+    <div style="display: flex; align-items: center; gap: 8px">
+      <sc-if value="{{isBuddy}}" hint-placeholder-val="{{true}}">
+        <svg width="30" height="30" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <path d="M18 44C15 33 16 25 23 19" stroke="{{accent}}" stroke-width="4.5" stroke-linecap="round"/>
+          <circle cx="30" cy="15" r="8" stroke="{{accent}}" stroke-width="4.5"/>
+          <path d="M37 12.5L47 16.5L37 20.5Z" fill="#e8c9a0"/>
+        </svg>
+      </sc-if>
+      <sc-if value="{{isEmu}}" hint-placeholder-val="{{false}}">
+        <svg width="30" height="30" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <circle cx="24" cy="24" r="21" stroke="{{line}}" stroke-width="2"/>
+          <path d="M19 38C16.5 28 18.5 20.5 26 17C32 14.2 38 17.5 38 22.5C38 26.5 34 28.5 30 27.5" stroke="{{accent}}" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+      </sc-if>
+      <sc-if value="{{isRoost}}" hint-placeholder-val="{{false}}">
+        <svg width="30" height="30" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <ellipse cx="16" cy="26" rx="5.4" ry="7.2" fill="#38bdf8"/>
+          <ellipse cx="24" cy="23" rx="5.4" ry="7.2" fill="#fbbf24"/>
+          <ellipse cx="32" cy="26" rx="5.4" ry="7.2" fill="#e879f9"/>
+          <path d="M6 33C13 43 35 43 42 33" stroke="{{accent}}" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      </sc-if>
+      <sc-if value="{{isTrilog}}" hint-placeholder-val="{{false}}">
+        <svg width="30" height="30" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <rect x="9" y="30" width="8.5" height="14" rx="4.25" fill="{{accent}}" opacity="0.45"/>
+          <rect x="19.75" y="21" width="8.5" height="23" rx="4.25" fill="{{accent}}" opacity="0.72"/>
+          <rect x="30.5" y="10" width="8.5" height="34" rx="4.25" fill="{{accent}}"/>
+        </svg>
+      </sc-if>
+      <sc-if value="{{isNexus}}" hint-placeholder-val="{{false}}">
+        <svg width="30" height="30" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <path d="M11.14 8.68A20 20 0 1 1 11.14 39.32" stroke="#5b5170" stroke-width="4" stroke-linecap="round"/>
+          <rect x="14.5" y="25" width="4.6" height="9" rx="1.6" fill="{{accent}}" opacity="0.55"/>
+          <path d="M21.7 34V19.5L24 14.5L26.3 19.5V34Z" fill="{{accentHi}}"/>
+          <rect x="28.9" y="22" width="4.6" height="12" rx="1.6" fill="{{accent}}" opacity="0.8"/>
+        </svg>
+      </sc-if>
+      <div style="display: flex; flex-direction: column; line-height: 1.15">
+        <span style="font-family: {{markFont}}; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: {{accentHi}}">{{wordmark}}</span>
+        <span style="font-size: 8.5px; letter-spacing: 0.18em; text-transform: uppercase; color: {{muted}}">{{tagline}}</span>
+      </div>
+    </div>
+
+    <div style="flex-grow: 1"></div>
+
+    <span style="width: 8px; height: 8px; border-radius: 50%; background: #49d0a0; box-shadow: 0 0 8px rgba(73,208,160,0.7)"></span>
+
+    <div style="display: flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid {{line}}; border-radius: 6px; font-size: 12.5px; font-weight: 600; color: {{text2}}">
+      Overlay
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 8px; padding: 4px 10px; border: 1px solid {{line}}; border-radius: 6px; font-size: 12.5px; color: {{text}}">
+      <span style="width: 9px; height: 9px; transform: rotate(45deg); background: #38bdf8"></span>
+      <span style="font-weight: 700">Hexzo</span>
+      <span style="color: {{muted}}">· multiclass</span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 2px; color: {{muted}}">
+      <span style="width: 30px; height: 26px; display: grid; place-items: center"><svg width="12" height="12" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14"/></svg></span>
+      <span style="width: 30px; height: 26px; display: grid; place-items: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"/></svg></span>
+      <span style="width: 30px; height: 26px; display: grid; place-items: center"><svg width="12" height="12" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0">
+
+    <!-- Sidebar: 224px, its own gradient ground -->
+    <div style="width: 224px; flex-shrink: 0; display: flex; flex-direction: column; border-right: 1px solid {{line}}; background: {{sidebar}}">
+      <div style="flex-grow: 1; padding: 12px 8px; display: flex; flex-direction: column">
+
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <div class="grp" style="color: {{muted}}">Live</div>
+          <div class="nav" style="color: {{text2}}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.2"/><rect x="14" y="3" width="7" height="5" rx="1.2"/><rect x="14" y="12" width="7" height="9" rx="1.2"/><rect x="3" y="16" width="7" height="5" rx="1.2"/></svg>
+            Overview
+          </div>
+          <div class="nav" style="color: {{accentHi}}; background: {{activeWash}}">
+            <span style="position: absolute; left: 0; top: 6px; bottom: 6px; width: 2px; border-radius: 999px; background: {{accent}}"></span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 20V13"/><path d="M10 20V8"/><path d="M16 20V11"/><path d="M22 20V4"/></svg>
+            Combat
+          </div>
+          <div class="nav" style="color: {{text2}}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18z"/></svg>
+            Server
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 16px">
+          <div class="grp" style="color: {{muted}}">Progress</div>
+          <div class="nav" style="color: {{text2}}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l5.5-6 4 4L21 6"/><path d="M15 6h6v6"/></svg>
+            Leveling
+          </div>
+          <div class="nav" style="color: {{text2}}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4v-4H4zM10 20h4v-8h-4zM16 20h4v-12h-4z"/><path d="M3 4h6M6 2v4"/></svg>
+            Progression
+          </div>
+          <div class="nav" style="color: {{text2}}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 5H5v1.5A3.5 3.5 0 0 0 8.5 10M16 5h3v1.5A3.5 3.5 0 0 1 15.5 10"/><path d="M12 13v4M9 20h6"/></svg>
+            Leaderboards
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 16px">
+          <div class="grp" style="color: {{muted}}">Ledgers</div>
+          <div class="nav" style="color: {{text2}}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5z"/><path d="M9 4v13M15 6.5v13"/></svg>
+            Zones
+          </div>
+          <div class="nav" style="color: {{text2}}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 11a7 7 0 1 1 14 0v3.5a1.5 1.5 0 0 1-1.5 1.5H16v3H8v-3H6.5A1.5 1.5 0 0 1 5 14.5z"/><circle cx="9.2" cy="11" r="1.7"/><circle cx="14.8" cy="11" r="1.7"/><path d="M12 14.5v1.5"/></svg>
+            Mobs
+          </div>
+          <div class="nav" style="color: {{text2}}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M3 12h18"/><path d="M12 8v12"/><path d="M7 8V6a5 5 0 0 1 10 0v2"/></svg>
+            Loot
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 16px">
+          <div class="grp" style="color: {{muted}}">Tools</div>
+          <div class="nav" style="color: {{text2}}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M10.5 20a2 2 0 0 0 3 0"/></svg>
+            Alerts
+          </div>
+          <div class="nav" style="color: {{text2}}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
+            Timers
+          </div>
+        </div>
+
+        <div style="flex-grow: 1"></div>
+        <div style="height: 1px; background: {{line}}; margin: 0 8px 8px"></div>
+        <div class="nav" style="color: {{text2}}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1v.2a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 9 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 4.6 15a1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 9a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 9 4.6h.1A1.6 1.6 0 0 0 10 3.1V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>
+          Preferences
+        </div>
+      </div>
+
+      <div style="flex-shrink: 0; padding: 12px; border-top: 1px solid {{line}}; display: flex; align-items: center; font-size: 11.2px; color: {{muted}}">
+        <span>v0.2.0</span>
+        <span style="flex-grow: 1"></span>
+        <span>read-only</span>
+      </div>
+    </div>
+
+    <!-- Content: one real panel, to show the accent among data -->
+    <div style="flex-grow: 1; min-width: 0; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+
+      <div style="display: flex; align-items: baseline; gap: 14px">
+        <div style="font-family: {{markFont}}; font-size: 23px; font-weight: 700; letter-spacing: -0.02em; color: {{accentHi}}">Server</div>
+        <div style="font-size: 12.5px; color: {{muted}}">what the world is doing</div>
+      </div>
+
+      <div style="display: flex; gap: 2px; padding: 3px; border: 1px solid {{line}}; border-radius: 8px; align-self: flex-start; background: {{surface}}">
+        <span style="padding: 6px 13px; border-radius: 6px; font-size: 12.5px; font-weight: 600; background: {{activeWash}}; color: {{accentHi}}">Auction &amp; trade</span>
+        <span style="padding: 6px 13px; border-radius: 6px; font-size: 12.5px; font-weight: 600; color: {{text2}}">Grouping</span>
+        <span style="padding: 6px 13px; border-radius: 6px; font-size: 12.5px; font-weight: 600; color: {{text2}}">Blessings</span>
+        <span style="padding: 6px 13px; border-radius: 6px; font-size: 12.5px; font-weight: 600; color: {{text2}}">Who is out there</span>
+      </div>
+
+      <div style="flex-grow: 1; border: 1px solid {{line}}; border-radius: 10px; background: {{surface}}; overflow: hidden">
+        <div style="display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid {{line}}">
+          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: {{text2}}">Auction &amp; trade</span>
+          <span style="flex-grow: 1"></span>
+          <span style="font-size: 12px; color: {{muted}}">32 in the last 6 hours</span>
+        </div>
+
+        <div style="padding: 8px 12px; display: flex; flex-direction: column; gap: 2px">
+          <div style="display: grid; grid-template-columns: 52px 108px minmax(0, 1fr) 78px; gap: 10px; align-items: baseline; padding: 6px 8px; border-radius: 5px; font-size: 12.5px; background: rgba(255,255,255,0.02)">
+            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; text-align: center; border: 1px solid #49d0a0; color: #49d0a0; border-radius: 999px; padding: 1px 0">WTS</span>
+            <span style="color: {{text2}}">Kusokaze</span>
+            <span style="color: {{accentHi}}">Legionnaire Scale Helm (Legendary)</span>
+            <span style="text-align: right; font-size: 11px; color: {{muted}}">8m ago</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 52px 108px minmax(0, 1fr) 78px; gap: 10px; align-items: baseline; padding: 6px 8px; border-radius: 5px; font-size: 12.5px">
+            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; text-align: center; border: 1px solid #86c2ff; color: #86c2ff; border-radius: 999px; padding: 1px 0">WTB</span>
+            <span style="color: {{text2}}">Charlie</span>
+            <span style="color: {{text}}">wtb planemasters gem pst</span>
+            <span style="text-align: right; font-size: 11px; color: {{muted}}">52m ago</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 52px 108px minmax(0, 1fr) 78px; gap: 10px; align-items: baseline; padding: 6px 8px; border-radius: 5px; font-size: 12.5px; background: rgba(255,255,255,0.02)">
+            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; text-align: center; border: 1px solid {{accent}}; background: {{activeWash}}; color: {{accentHi}}; border-radius: 999px; padding: 1px 0">FREE</span>
+            <span style="color: {{text2}}">Frozy</span>
+            <span style="color: {{accentHi}}">Mind Worm hide mantle (Legendary) · Attuned Spire Shard</span>
+            <span style="text-align: right; font-size: 11px; color: {{muted}}">58m ago</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 52px 108px minmax(0, 1fr) 78px; gap: 10px; align-items: baseline; padding: 6px 8px; border-radius: 5px; font-size: 12.5px">
+            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; text-align: center; border: 1px solid {{line2}}; color: {{muted}}; border-radius: 999px; padding: 1px 0">list</span>
+            <span style="color: {{text2}}">Auralynn</span>
+            <span style="color: {{text}}">wooo first one Froglok Egg Capsule (Legendary)</span>
+            <span style="text-align: right; font-size: 11px; color: {{muted}}">1h 6m ago</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"direction":{"editor":"enum","options":["Nexus Reader","Emu Buddy","Emu","Roost","Trilog"],"default":"Nexus Reader"}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const name = this.props.direction ?? 'Nexus Reader';
+
+    const themes = {
+      'Emu Buddy': {
+        ground: '#14100e', surface: '#1e1815', sidebar: 'linear-gradient(180deg, #1a1512, #14100e)',
+        titlebar: 'linear-gradient(180deg, rgba(26,21,18,0.97), rgba(26,21,18,0.88))',
+        line: '#2a221d', line2: '#3a2f28', accent: '#48c4b0', accentHi: '#7ad9c9',
+        text: '#f0e9e2', text2: '#a49a90', muted: '#6f665f',
+        font: '"Outfit", "Trebuchet MS", system-ui, sans-serif', markFont: '"Outfit", "Trebuchet MS", sans-serif',
+        wordmark: 'Emu Buddy', tagline: 'log companion'
+      },
+      Emu: {
+        ground: '#0c0d0f', surface: '#16181c', sidebar: 'linear-gradient(180deg, #111316, #0c0d0f)',
+        titlebar: 'linear-gradient(180deg, rgba(17,19,22,0.97), rgba(17,19,22,0.88))',
+        line: '#23262b', line2: '#2b3036', accent: '#5eead4', accentHi: '#99f6e4',
+        text: '#e6e8ea', text2: '#8d949c', muted: '#626870',
+        font: '"Space Grotesk", "DejaVu Sans", system-ui, sans-serif', markFont: '"Space Grotesk", sans-serif',
+        wordmark: 'Emu', tagline: 'log companion'
+      },
+      Roost: {
+        ground: '#12100c', surface: '#1c1913', sidebar: 'linear-gradient(180deg, #191610, #12100c)',
+        titlebar: 'linear-gradient(180deg, rgba(25,22,16,0.97), rgba(25,22,16,0.88))',
+        line: '#2b2419', line2: '#3a3024', accent: '#e3b873', accentHi: '#f0cf9b',
+        text: '#f2ece0', text2: '#a29684', muted: '#6d6455',
+        font: '"Karla", "Segoe UI", system-ui, sans-serif', markFont: '"Instrument Serif", Georgia, serif',
+        wordmark: 'Roost', tagline: 'log companion'
+      },
+      Trilog: {
+        ground: '#0b0e12', surface: '#151a21', sidebar: 'linear-gradient(180deg, #10141a, #0b0e12)',
+        titlebar: 'linear-gradient(180deg, rgba(16,20,26,0.97), rgba(16,20,26,0.88))',
+        line: '#232b35', line2: '#2b3441', accent: '#8b7cf6', accentHi: '#b3a7fa',
+        text: '#e8ecf1', text2: '#8b939e', muted: '#626b76',
+        font: '"Sora", "Segoe UI", system-ui, sans-serif', markFont: '"Sora", sans-serif',
+        wordmark: 'Trilog', tagline: 'three logs, one meter'
+      },
+      'Nexus Reader': {
+        ground: '#0a0810', surface: '#15111f', sidebar: 'linear-gradient(180deg, #120e1b, #0a0810)',
+        titlebar: 'linear-gradient(180deg, rgba(18,14,27,0.97), rgba(18,14,27,0.88))',
+        line: '#2a2338', line2: '#352c47', accent: '#a855f7', accentHi: '#c9a2ff',
+        text: '#ece9f2', text2: '#a29bb0', muted: '#6f6880',
+        font: '"Manrope", "Segoe UI", system-ui, sans-serif', markFont: '"Cinzel", Georgia, serif',
+        wordmark: 'Nexus Reader', tagline: 'emu multitool'
+      }
+    };
+
+    const t = themes[name] ?? themes['Nexus Reader'];
+    return Object.assign({}, t, {
+      accentFade: 'color-mix(in srgb, ' + t.accent + ' 15%, transparent)',
+      activeWash: 'color-mix(in srgb, ' + t.accent + ' 15%, transparent)',
+      isBuddy: name === 'Emu Buddy',
+      isEmu: name === 'Emu',
+      isRoost: name === 'Roost',
+      isTrilog: name === 'Trilog',
+      isNexus: name === 'Nexus Reader'
+    });
+  }
+}
+</script>
+</body>
+</html>

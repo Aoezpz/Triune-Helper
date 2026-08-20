@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; background: #0c0d0f; font-family: "Space Grotesk", "DejaVu Sans", system-ui, sans-serif; }
+    a { color: #5eead4; } a:hover { color: #99f6e4; }
+    .lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: #626870; }
+  </style>
+</helmet>
+
+<div style="width: 700px; box-sizing: border-box; padding: 40px; color: #e6e8ea">
+
+  <div class="lbl" style="margin-bottom: 26px">Direction B</div>
+
+  <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 14px">
+    <svg width="76" height="76" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <circle cx="24" cy="24" r="21" stroke="#2b3036" stroke-width="2"/>
+      <path d="M19 38C16.5 28 18.5 20.5 26 17C32 14.2 38 17.5 38 22.5C38 26.5 34 28.5 30 27.5" stroke="{{accent}}" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="31" cy="21" r="1.9" fill="{{accent}}"/>
+    </svg>
+    <div>
+      <div style="font-size: 46px; font-weight: 700; letter-spacing: -0.04em; line-height: 1">Emu</div>
+      <div style="margin-top: 6px; font-size: 15px; color: #8d949c">Log companion for emulated Norrath.</div>
+    </div>
+  </div>
+
+  <p style="margin: 0 0 34px; max-width: 56ch; font-size: 14px; line-height: 1.65; color: #8d949c">
+    The joke is made once, in the name, and then the app stops making it. One stroke keeps the bird
+    without a mascot to maintain — and a one-word name leaves room for the window title to say what
+    you are looking at instead.
+  </p>
+
+  <div class="lbl" style="margin-bottom: 14px">Mark at size</div>
+  <div style="display: flex; align-items: flex-end; gap: 28px; padding: 22px 24px; background: #16181c; border: 1px solid #23262b; border-radius: 12px; margin-bottom: 32px">
+    <svg width="44" height="44" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <circle cx="24" cy="24" r="21" stroke="#2b3036" stroke-width="2"/>
+      <path d="M19 38C16.5 28 18.5 20.5 26 17C32 14.2 38 17.5 38 22.5C38 26.5 34 28.5 30 27.5" stroke="{{accent}}" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="31" cy="21" r="1.9" fill="{{accent}}"/>
+    </svg>
+    <svg width="28" height="28" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <path d="M19 38C16.5 28 18.5 20.5 26 17C32 14.2 38 17.5 38 22.5C38 26.5 34 28.5 30 27.5" stroke="{{accent}}" stroke-width="5.5" stroke-linecap="round"/>
+    </svg>
+    <svg width="18" height="18" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <path d="M19 38C16.5 28 18.5 20.5 26 17C32 14.2 38 17.5 38 22.5C38 26.5 34 28.5 30 27.5" stroke="{{accent}}" stroke-width="7" stroke-linecap="round"/>
+    </svg>
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-left: auto">
+      <div style="width: 56px; height: 56px; border-radius: 13px; background: {{accent}}; display: grid; place-items: center">
+        <svg width="34" height="34" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <path d="M19 38C16.5 28 18.5 20.5 26 17C32 14.2 38 17.5 38 22.5C38 26.5 34 28.5 30 27.5" stroke="#0c0d0f" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div style="font-size: 10px; text-align: center; color: #626870">app icon</div>
+    </div>
+  </div>
+
+  <div class="lbl" style="margin-bottom: 14px">Ground and accent</div>
+  <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-bottom: 32px">
+    <div>
+      <div style="height: 52px; border-radius: 9px; background: #0c0d0f; border: 1px solid #2b3036"></div>
+      <div style="margin-top: 7px; font-size: 11px">#0C0D0F</div>
+      <div style="font-size: 10px; color: #626870">ground</div>
+    </div>
+    <div>
+      <div style="height: 52px; border-radius: 9px; background: #16181c; border: 1px solid #2b3036"></div>
+      <div style="margin-top: 7px; font-size: 11px">#16181C</div>
+      <div style="font-size: 10px; color: #626870">surface</div>
+    </div>
+    <div>
+      <div style="height: 52px; border-radius: 9px; background: {{accent}}"></div>
+      <div style="margin-top: 7px; font-size: 11px">{{accentHex}}</div>
+      <div style="font-size: 10px; color: #626870">accent</div>
+    </div>
+    <div>
+      <div style="height: 52px; border-radius: 9px; background: #262a30"></div>
+      <div style="margin-top: 7px; font-size: 11px">#262A30</div>
+      <div style="font-size: 10px; color: #626870">line</div>
+    </div>
+    <div>
+      <div style="height: 52px; border-radius: 9px; background: #e6e8ea"></div>
+      <div style="margin-top: 7px; font-size: 11px">#E6E8EA</div>
+      <div style="font-size: 10px; color: #626870">text</div>
+    </div>
+  </div>
+
+  <div class="lbl" style="margin-bottom: 14px">Type</div>
+  <div style="padding: 22px 24px; background: #16181c; border: 1px solid #23262b; border-radius: 12px">
+    <div style="font-size: 30px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 6px">Space Grotesk</div>
+    <div style="font-size: 15px; color: #8d949c; margin-bottom: 14px">Its tighter apertures and flat terminals read as instrument, not brochure.</div>
+    <div style="font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: 14px; color: {{accent}}">1,284,663p · 27:36:44 · 4,912 dps</div>
+    <div style="margin-top: 6px; font-size: 11px; color: #626870">One family throughout, with the mono reserved for figures.</div>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#5eead4","options":["#5eead4","#48c4b0","#7dd3fc","#a3e635"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#5eead4';
+    return { accent, accentHex: accent.toUpperCase() };
+  }
+}
+</script>
+</body>
+</html>
