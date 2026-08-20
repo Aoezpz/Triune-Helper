@@ -655,10 +655,9 @@ code {
   background-image:
     linear-gradient(
       90deg,
-      var(--void) 0%,
-      color-mix(in srgb, var(--void) 62%, transparent) 22%,
-      color-mix(in srgb, var(--void) 22%, transparent) 38%,
-      transparent 50%
+      color-mix(in srgb, var(--void) 70%, transparent) 0%,
+      color-mix(in srgb, var(--void) 40%, transparent) 26%,
+      transparent 46%
     ),
     url('../assets/hero-portal.jpg');
   /* `cover`, and the art is authored at this banner's own aspect ratio (about

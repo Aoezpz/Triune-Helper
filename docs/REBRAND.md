@@ -173,10 +173,23 @@ Fixed along the way, all pre-existing:
 - `.btn.primary`'s dark label over the deep end of the accent gradient fell under
   4.5:1 in two schemes.
 
-Also added: the Overview banner carries key art (`assets/hero-portal.jpg`). The
-source was a mock-up, so the invented character name and the seven lines of
-invented log text in its left third were painted out before bundling - this app
-does not put fabricated log lines on screen beside real ones.
+Also added: the Overview banner carries key art (`assets/hero-portal.jpg`), and
+two things about how it is prepared are worth keeping.
+
+**It is padded to 3.75:1, not cropped to it.** The banner is 18rem tall in a
+~68rem column; the image generator tops out around 21:9. Cropping a 21:9 frame
+to 15:4 throws away a third of its height, which is where the ring's top and the
+foreground both live. Padding the canvas on the LEFT with black instead costs
+nothing and solves the second problem at the same time: the artwork is lit
+across its full width, and the copy needs somewhere dark to sit. The seam is
+smoothstepped over ~680px so the ruins fade up out of the dark rather than
+starting at a line. `scratchpad`-style one-off, but the recipe is: new canvas at
+`height * 3.75`, art flush right, black ramp over the join.
+
+**An earlier draft of the art was a mock-up** carrying an invented character
+name and seven lines of invented log text. Those were painted out before
+bundling. If a future banner arrives with sample text baked in, do the same -
+this app does not put fabricated log lines on screen beside real ones.
 
 ## Still open
 
